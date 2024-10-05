@@ -1,0 +1,57 @@
+﻿
+using System;
+
+namespace EditLib
+{
+    /// <summary>
+    /// Содержит геометрию фиксированной формы
+    /// </summary>
+    [Serializable]
+    public class PrimitiveGeometry : Geometry, IDisposable
+    {
+        /// <summary>
+        /// Локальное поле для хранения пути
+        /// </summary>
+        readonly SerializableGraphicsPath _path = new SerializableGraphicsPath();
+
+        /// <summary>
+        /// Локальное поле для хранения ограничений для операций
+        /// </summary>
+        readonly AllowedOperations _allowedOperations;
+
+        /// <summary>
+        /// Свойство возвращает путь, указанный в конструкторе
+        /// </summary>
+        public override SerializableGraphicsPath Path { get { return _path; } }
+
+        /// <summary>
+        /// Свойство возвращает определённые в конструкторе ограничения для операций
+        /// </summary>
+        public override AllowedOperations AllowedOperations { get { return _allowedOperations; } }
+
+        /// <summary>
+        /// Конструктор, недоступный вне проекта EditLib
+        /// (только для внутреннего использования)
+        /// </summary>
+        /// <param name="path">Закрепляемый путь для примитивной геометрии</param>
+        /// <param name="allowed">набор прав для операций</param>
+        internal PrimitiveGeometry(SerializableGraphicsPath path, AllowedOperations allowed)
+        {
+            Name = "Primitive";
+            // запоминаем переданный в конструкторе путь в локальном поле
+            _path = path;
+            // запоминаем ограничения для операций в локальном поле
+            _allowedOperations = allowed;
+        }
+
+        public void Dispose()
+        {
+            _path?.Dispose();
+        }
+
+        public override string ToString()
+        {
+            return Name;
+        }
+    }
+}

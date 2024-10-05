@@ -1,0 +1,656 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A7D773F8-AEE5-4011-9292-6DE58BDC448D}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>SimpleEditor</RootNamespace>
+    <AssemblyName>SimpleEditor</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controls\ArrowStyleEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\ArrowStyleEditor.Designer.cs">
+      <DependentUpon>ArrowStyleEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\BezierStyleEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\BezierStyleEditor.Designer.cs">
+      <DependentUpon>BezierStyleEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\BorderStyleEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\BorderStyleEditor.Designer.cs">
+      <DependentUpon>BorderStyleEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\FillStyleEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\FillStyleEditor.Designer.cs">
+      <DependentUpon>FillStyleEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ControlsHelper.cs" />
+    <Compile Include="Controls\GlowStyleEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\GlowStyleEditor.Designer.cs">
+      <DependentUpon>GlowStyleEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\HatchStyleEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\HatchStyleEditor.Designer.cs">
+      <DependentUpon>HatchStyleEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ImageStyleEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\ImageStyleEditor.Designer.cs">
+      <DependentUpon>ImageStyleEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\PolygonStyleEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\PolygonStyleEditor.Designer.cs">
+      <DependentUpon>PolygonStyleEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\LayerSelectionInfo.cs" />
+    <Compile Include="Controls\LayerStyleEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\LayerStyleEditor.Designer.cs">
+      <DependentUpon>LayerStyleEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\GradientStyleEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\GradientStyleEditor.Designer.cs">
+      <DependentUpon>GradientStyleEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ShadowStyleEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\ShadowStyleEditor.Designer.cs">
+      <DependentUpon>ShadowStyleEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TextDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\TextDialog.Designer.cs">
+      <DependentUpon>TextDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TextBlockStyleEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\TextBlockStyleEditor.Designer.cs">
+      <DependentUpon>TextBlockStyleEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TextStyleEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\TextStyleEditor.Designer.cs">
+      <DependentUpon>TextStyleEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TextureStyleEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\TextureStyleEditor.Designer.cs">
+      <DependentUpon>TextureStyleEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\WedgeStyleEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\WedgeStyleEditor.Designer.cs">
+      <DependentUpon>WedgeStyleEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="EditorLayersInterface\FormLayerLashing.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditorLayersInterface\FormLayerLashing.Designer.cs">
+      <DependentUpon>FormLayerLashing.cs</DependentUpon>
+    </Compile>
+    <Compile Include="EditorLayersInterface\FormLayerName.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditorLayersInterface\FormLayerName.Designer.cs">
+      <DependentUpon>FormLayerName.cs</DependentUpon>
+    </Compile>
+    <Compile Include="EditorLayersInterface\FormLayersProperty.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditorLayersInterface\FormLayersProperty.Designer.cs">
+      <DependentUpon>FormLayersProperty.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Factory\CursorFactory.cs" />
+    <Compile Include="Factory\SelectionController.cs" />
+    <Compile Include="FormSimpleEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormSimpleEditor.Designer.cs">
+      <DependentUpon>FormSimpleEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Controls\ArrowStyleEditor.resx">
+      <DependentUpon>ArrowStyleEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\BezierStyleEditor.resx">
+      <DependentUpon>BezierStyleEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\BorderStyleEditor.resx">
+      <DependentUpon>BorderStyleEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\FillStyleEditor.resx">
+      <DependentUpon>FillStyleEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\GlowStyleEditor.resx">
+      <DependentUpon>GlowStyleEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\HatchStyleEditor.resx">
+      <DependentUpon>HatchStyleEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\ImageStyleEditor.resx">
+      <DependentUpon>ImageStyleEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\PolygonStyleEditor.resx">
+      <DependentUpon>PolygonStyleEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\LayerStyleEditor.resx">
+      <DependentUpon>LayerStyleEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\GradientStyleEditor.resx">
+      <DependentUpon>GradientStyleEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\ShadowStyleEditor.resx">
+      <DependentUpon>ShadowStyleEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\TextDialog.resx">
+      <DependentUpon>TextDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\TextBlockStyleEditor.resx">
+      <DependentUpon>TextBlockStyleEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\TextStyleEditor.resx">
+      <DependentUpon>TextStyleEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\TextureStyleEditor.resx">
+      <DependentUpon>TextureStyleEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\WedgeStyleEditor.resx">
+      <DependentUpon>WedgeStyleEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EditorLayersInterface\FormLayerLashing.resx">
+      <DependentUpon>FormLayerLashing.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EditorLayersInterface\FormLayerName.resx">
+      <DependentUpon>FormLayerName.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EditorLayersInterface\FormLayersProperty.resx">
+      <DependentUpon>FormLayersProperty.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormSimpleEditor.resx">
+      <DependentUpon>FormSimpleEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\arrow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\bringtofront.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\brush.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\build.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\circle.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\copy.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cut.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ellipse.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\flipleftright.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\flipupdown.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\grouping.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\help.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\insert.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\newpage.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\openfolder.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pen.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\poligon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\poliline.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\props.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\rect.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\redo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\rotateleft.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\rotateright.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\save.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sendtoback.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\square.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\startnodechanging.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\text.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\transparent.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\undo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ungrouping.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\rotate.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\133.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\134.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\137.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\138.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\306.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CROP.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\109.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\296.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ELLIPSE.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CreateText.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\105.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\106.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\139.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\231.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\232.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\266.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\converttopath.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\join.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\exclusiveor.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\intersection.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\difference.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\union.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\regular32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\regular24.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\regular16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\regular8.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\regular4.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\alignbottom.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\aligncenter.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\aligncenter1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\alignleft.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\alignleft1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\alignmiddle.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\alignright.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\alignright1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\aligntop.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\bold.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\double1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\evhor.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\evver.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\fontsizedown.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\fontsizeup.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\italic.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sameboth.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sameheight.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\samewidth.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\lock.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\romb.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\regular81.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\transparent1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\picture.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\rotate180.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\textline.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\skewmode.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\triangle.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\regular6.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\subpicture.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\295poly.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\294.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\330.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\RECT.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ELLIP.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\346.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\380.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\14617.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\underline.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\arc.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\bezier.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\chord.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\polygon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\polyline.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\roundrect.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\wedge.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\beziertext.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\wrapmode.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\moveup.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\movedown.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\shadow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\glow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\layers.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\gradient.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\warpedit.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\solidbrush.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\gradient1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\regular7.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\regular10.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\hatchbrush.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\gradient2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\solidbrush1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\gradient3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\texturebrush.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\glow1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\radial.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\radial1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\radial2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\radial3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\arrows.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EditLib\EditLib.csproj">
+      <Project>{76ad3644-ca80-464a-85ce-d91372d05932}</Project>
+      <Name>EditLib</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

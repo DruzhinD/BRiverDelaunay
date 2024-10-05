@@ -1,0 +1,657 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" GroupingSetting="Access" MembersFormat="FullSignature">
+  <Class Name="TriangleNet.Behavior" Collapsed="true">
+    <Position X="17.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AARgBAIAAdAAAARAAAEAwAIBAUgAAklIAAIgEAQAYAA=</HashCode>
+      <FileName>Behavior.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Configuration" Collapsed="true">
+    <Position X="20.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAACAAAAAAAAAAAAAAQAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Configuration.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Log" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="13.75" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAAIAAAQAAAAAACBAAAAFAABABQAAAAEBAAAA=</HashCode>
+      <FileName>Log.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="TriangleNet.Mesh" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="17.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>wRAFoAAg3ggEBQEPh4w4AUkEAHESAUACEBEiAAACIgE=</HashCode>
+      <FileName>Mesh.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="TriangleNet.MeshValidator" Collapsed="true">
+    <Position X="19" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAAAAAAAAAAgAAAAAAAAAQAAAAAAAAAAAAE=</HashCode>
+      <FileName>MeshValidator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.NewLocation" Collapsed="true">
+    <Position X="20.75" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACQBABEQgIAAAAgAAgCoBAhKABAFQAIAAAUUAIQFwBA=</HashCode>
+      <FileName>NewLocation.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.RobustPredicates" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="22.5" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EDCgAAAIAUQAACljA0ACIJBgQACAEAAQICDgQQEIgJE=</HashCode>
+      <FileName>RobustPredicates.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="TriangleNet.TriangleLocator" Collapsed="true">
+    <Position X="10.25" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAABAAAAAAkAAAAEBABAAAAAAAAAAQAAAA=</HashCode>
+      <FileName>TriangleLocator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.TrianglePool" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="12" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ECIAAAAAAAAAABBQBIAABCRAAAAAAIAAAAgAAFBQIAA=</HashCode>
+      <FileName>TrianglePool.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="TriangleNet.TriangleSampler" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="17.25" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACQAAAAAAAAABBAAAAAAAAAQACABAAAAAAQAAABAIAA=</HashCode>
+      <FileName>TriangleSampler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="TriangleNet.Geometry.Contour" Collapsed="true">
+    <Position X="12" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAAAAQgAABAAAAAAAAAAAAAEAMgAAAAAAAAAA=</HashCode>
+      <FileName>Geometry\Contour.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Geometry.Edge" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="22.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEAAAAAAAAAAAAAAAAACAAABAAAAAAAAAAAA=</HashCode>
+      <FileName>Geometry\Edge.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="TriangleNet.Geometry.ExtensionMethods" Collapsed="true">
+    <Position X="12" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAQAgA=</HashCode>
+      <FileName>Geometry\ExtensionMethods.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Geometry.Point" Collapsed="true">
+    <Position X="6.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEAAAgBQAgAAAAAAAAAAAAIAAAABgAAAAYiA=</HashCode>
+      <FileName>Geometry\Point.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="TriangleNet.Geometry.Polygon" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="22.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAQCAAAgAgAAIAAAAIAQAACBAAAAAAAAAEABAAgE=</HashCode>
+      <FileName>Geometry\Polygon.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="TriangleNet.Geometry.Rectangle" Collapsed="true">
+    <Position X="17.25" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IQAIAAAABAAAAAAAAAAQAEAAAAAIAAAACACAAEEQEIA=</HashCode>
+      <FileName>Geometry\Rectangle.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Geometry.RegionPointer" Collapsed="true">
+    <Position X="20.75" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAgE=</HashCode>
+      <FileName>Geometry\RegionPointer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Geometry.Segment" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="10.25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQEAEAAAABAAAAAAAAAAABCAAABAAAIAAAAAAAA=</HashCode>
+      <FileName>Geometry\Segment.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="TriangleNet.Geometry.Vertex" Collapsed="true">
+    <Position X="7.75" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAACCAAAAAAQAAAREIAAAQAAAAAAAAA=</HashCode>
+      <FileName>Geometry\Vertex.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.IO.DebugWriter" Collapsed="true">
+    <Position X="17.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAABCBAAQAAAAGAAQAQACBQAQAACAAAAAEAAAg=</HashCode>
+      <FileName>IO\DebugWriter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.IO.FileProcessor" Collapsed="true">
+    <Position X="15.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAAAAAEAAAIAAAAAAgACAAAAAAAAAAAAEAAAA=</HashCode>
+      <FileName>IO\FileProcessor.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.IO.InputTriangle" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="22.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAMAECAAgBABIAAAAAAAAAAQAAAAAAAAAQAAAAE=</HashCode>
+      <FileName>IO\InputTriangle.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="TriangleNet.IO.TriangleFormat" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="22.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAIAAAAAAgACAAAAAAAAAAAAEAAAA=</HashCode>
+      <FileName>IO\TriangleFormat.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="TriangleNet.IO.TriangleReader" Collapsed="true">
+    <Position X="15.5" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAABAABAAAEAAgAAAAAgACAAAAAAIACAAAAAAgA=</HashCode>
+      <FileName>IO\TriangleReader.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.IO.TriangleWriter" Collapsed="true">
+    <Position X="19" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAABAAAAAAAAAAAAJAACAAAAAAAAAAAMAAAQ=</HashCode>
+      <FileName>IO\TriangleWriter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Logging.LogItem" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="15.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABAAAAAAAAAAAAAAAAAAAAAAEAAAABQAAAIEAAASA=</HashCode>
+      <FileName>Logging\LogItem.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="TriangleNet.Meshing.Algorithm.Dwyer" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="20.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAAAAAAEEAAAEgAAAAAMABAABAAAAAAAAAAAA=</HashCode>
+      <FileName>Meshing\Algorithm\Dwyer.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="TriangleNet.Meshing.Algorithm.Incremental" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="20.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAgAIABAAAAAACAAAAAAAA=</HashCode>
+      <FileName>Meshing\Algorithm\Incremental.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="TriangleNet.Meshing.Algorithm.SweepLine" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="19" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAAAACAAAAAAFgwBKAgAAAAAIABAQBCACAQAAAAQEA=</HashCode>
+      <FileName>Meshing\Algorithm\SweepLine.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="TriangleNet.Meshing.ConstraintMesher" Collapsed="true">
+    <Position X="22.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQACAhAAABAAAAGCCAAgQAgEAAABIAAAAAhAAAAAAEA=</HashCode>
+      <FileName>Meshing\ConstraintMesher.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Meshing.ConstraintOptions" Collapsed="true">
+    <Position X="10.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAgAAAEQAAAAQAAAAAA=</HashCode>
+      <FileName>Meshing\ConstraintOptions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Meshing.Converter" Collapsed="true">
+    <Position X="13.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAIAAAAAAgAIAAAAAAAAIAAAAAAAAA=</HashCode>
+      <FileName>Meshing\Converter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Meshing.GenericMesher" Collapsed="true">
+    <Position X="17.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACBAAAAAAAAAAAAAAIAAAAAIAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Meshing\GenericMesher.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Meshing.QualityMesher" Collapsed="true">
+    <Position X="13.75" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAEABAQAQACAIBkCAgAgQABAAAAAAAAAAAgAAE=</HashCode>
+      <FileName>Meshing\QualityMesher.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Meshing.QualityOptions" Collapsed="true">
+    <Position X="15.5" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAJAAAAAAAAAAAAAAQIAIAAAAgAAAAAAAAAA=</HashCode>
+      <FileName>Meshing\QualityOptions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Meshing.Data.BadSubseg" Collapsed="true">
+    <Position X="12" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAAAAAACAACIQAAAAAAAAAAAA=</HashCode>
+      <FileName>Meshing\Data\BadSubseg.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Meshing.Data.BadTriangle" Collapsed="true">
+    <Position X="13.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAgAAAEAAAEAAAAACAACAAQAAAAAAIAAAA=</HashCode>
+      <FileName>Meshing\Data\BadTriangle.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Meshing.Data.BadTriQueue" Collapsed="true">
+    <Position X="15.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAAAAAgAAAAAAABAAAAAUIAAAABAAAABAAAAQAAAA=</HashCode>
+      <FileName>Meshing\Data\BadTriQueue.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Meshing.Iterators.EdgeIterator" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="10.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABAAAACAABAAAAACAAQAAgAEwAAAAoAAAAAAAAAA=</HashCode>
+      <FileName>Meshing\Iterators\EdgeIterator.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="TriangleNet.Meshing.Iterators.RegionIterator" Collapsed="true">
+    <Position X="19" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACAAAAAAAAAAAACAgAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Meshing\Iterators\RegionIterator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Meshing.Iterators.VertexCirculator" Collapsed="true">
+    <Position X="20.75" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAQAAAAAAAAQEAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Meshing\Iterators\VertexCirculator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Smoothing.SimpleSmoother" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="12" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IEACAAAAAAAgAIAAAAAAAAAAAAAAAAAAICgAAAAAAAA=</HashCode>
+      <FileName>Smoothing\SimpleSmoother.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="TriangleNet.Smoothing.VoronoiFactory" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="10.25" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAAIEABQAAAAAQAAAABAAQAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Smoothing\VoronoiFactory.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="TriangleNet.Tools.AdjacencyMatrix" Collapsed="true">
+    <Position X="10.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AUAAQAAQAAAAAAAAAAAAAAAEAACAAEABAAIAABAAAAA=</HashCode>
+      <FileName>Tools\AdjacencyMatrix.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Tools.CuthillMcKee" Collapsed="true">
+    <Position X="15.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAAIAAAACAAgAAAAABCAUQEAAAAAAAAAAAAAIAAA=</HashCode>
+      <FileName>Tools\CuthillMcKee.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Tools.Interpolation" Collapsed="true">
+    <Position X="10.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Tools\Interpolation.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Tools.IntersectionHelper" Collapsed="true">
+    <Position X="12" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAACAAAAAgAAAQAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Tools\IntersectionHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Tools.PolygonValidator" Collapsed="true">
+    <Position X="10.25" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAAgAAAAAAEAAAAAAAAAAABQBAAAAAAQABAAA=</HashCode>
+      <FileName>Tools\PolygonValidator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Tools.QualityMeasure" Collapsed="true">
+    <Position X="12" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CFQIACAAAAAAAAACBAAAgAAEAAABKCAAAAAAIgBAAAA=</HashCode>
+      <FileName>Tools\QualityMeasure.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Tools.Statistic" Collapsed="true">
+    <Position X="15.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgRBiAAIAAGBACgAgAATEAEBAAwEAQEVBACAABABAQA=</HashCode>
+      <FileName>Tools\Statistic.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Tools.TriangleQuadTree" Collapsed="true">
+    <Position X="13.75" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAAAAAAAAAgAAgAQAAAAAgAAgEAAAAAAAAAAA=</HashCode>
+      <FileName>Tools\TriangleQuadTree.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Tools.VertexSorter" Collapsed="true">
+    <Position X="22.5" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAICAAAAAACAAAAAQAAAAAAgAAACAAQAAAAAAIAg=</HashCode>
+      <FileName>Tools\VertexSorter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Topology.DCEL.DcelMesh" Collapsed="true">
+    <Position X="1.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gQAAgIAAAIAEIAAAAAAAAAAAAAAQAQAAEAAAAAAAAAA=</HashCode>
+      <FileName>Topology\DCEL\DcelMesh.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Topology.DCEL.Face" Collapsed="true">
+    <Position X="13.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAIABAAAAAAoAAEAAIAAAAAAAAABAAAAAQAAAAAigA=</HashCode>
+      <FileName>Topology\DCEL\Face.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Topology.DCEL.HalfEdge" Collapsed="true">
+    <Position X="19" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CgAAAAAAAAAAgAAGAAAABgAAAAQAAAAAAAAAAAoAhgA=</HashCode>
+      <FileName>Topology\DCEL\HalfEdge.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Topology.DCEL.Vertex" Collapsed="true">
+    <Position X="5.5" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAACAAAAAgAIAAEAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Topology\DCEL\Vertex.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Topology.SubSegment" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="17.25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAQEAEAAAAAAGAAAAAQAAAACSAIBAAAAAAAAAAAA=</HashCode>
+      <FileName>Topology\SubSegment.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="TriangleNet.Topology.Triangle" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="20.75" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAMAECAAgBAHIAAAAAABAAAyAIAAAAAAAQAAAgE=</HashCode>
+      <FileName>Topology\Triangle.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="TriangleNet.Voronoi.BoundedVoronoi" Collapsed="true">
+    <Position X="0.5" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACAAACEAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Voronoi\BoundedVoronoi.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Voronoi.DefaultVoronoiFactory" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="19" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAEABQAAAAAQAAAABAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Voronoi\DefaultVoronoiFactory.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="TriangleNet.Voronoi.StandardVoronoi" Collapsed="true">
+    <Position X="2.75" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Voronoi\StandardVoronoi.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Voronoi.VoronoiBase" Collapsed="true">
+    <Position X="1.75" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAAAAgIAAAAAAgAAAAAAAAAAAAAAAAAEAAAgA=</HashCode>
+      <FileName>Voronoi\VoronoiBase.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TriangleNet.Voronoi.Legacy.BoundedVoronoiLegacy" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="19" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACgwCAAAIAsAAAAAAiAIABQAABAAAAAACAAEACAAE=</HashCode>
+      <FileName>Voronoi\Legacy\BoundedVoronoiLegacy.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="TriangleNet.Voronoi.Legacy.SimpleVoronoi" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="13.75" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgQCAAAIAoAAAAAAgAAAAAAABAAAQAAACAEACIAE=</HashCode>
+      <FileName>Voronoi\Legacy\SimpleVoronoi.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="TriangleNet.Voronoi.Legacy.VoronoiRegion" Collapsed="true">
+    <Position X="12" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIIARIAAAAQgAAEAAAAAAAAAAAwAAAAEAAAAAAACgA=</HashCode>
+      <FileName>Voronoi\Legacy\VoronoiRegion.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="TriangleNet.Topology.Osub" Collapsed="true">
+    <Position X="10.25" Y="9.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AhAEAAAACEAAACCEgAUAEAwAAAAAAAAgAAgAAAAAEAA=</HashCode>
+      <FileName>Topology\Osub.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="TriangleNet.Topology.Otri" Collapsed="true">
+    <Position X="12" Y="9.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAEiCAMCEAAACiFgAACUAQACgwQAAAkgCgAAAIQEAA=</HashCode>
+      <FileName>Topology\Otri.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Interface Name="TriangleNet.IPredicates" Collapsed="true">
+    <Position X="19" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAgAAAIAAA=</HashCode>
+      <FileName>IPredicates.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="TriangleNet.Geometry.IEdge" Collapsed="true">
+    <Position X="5.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEAAAAAAAAAAAAAAAAACAAABAAAAAAAAAAAA=</HashCode>
+      <FileName>Geometry\IEdge.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="TriangleNet.Geometry.IPolygon" Collapsed="true">
+    <Position X="17.25" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAQAAAAAAgAAIAAAAAAAAACBAAAAAAAAAEABAAgA=</HashCode>
+      <FileName>Geometry\IPolygon.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="TriangleNet.Geometry.ISegment" Collapsed="true">
+    <Position X="5.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Geometry\ISegment.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="TriangleNet.Geometry.ITriangle" Collapsed="true">
+    <Position X="10.25" Y="11.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAMAECAAgAABIAAAAAAAAAAAAAAAAAAAAQAAAAA=</HashCode>
+      <FileName>Geometry\ITriangle.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="TriangleNet.IO.IFileFormat" Collapsed="true">
+    <Position X="1.75" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IO\IFileFormat.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="TriangleNet.IO.IMeshFormat" Collapsed="true">
+    <Position X="0.5" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAEAAAA=</HashCode>
+      <FileName>IO\IMeshFormat.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="TriangleNet.IO.IPolygonFormat" Collapsed="true">
+    <Position X="2.75" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAEAAAA=</HashCode>
+      <FileName>IO\IPolygonFormat.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="TriangleNet.Logging.ILog&lt;T&gt;" Collapsed="true">
+    <Position X="12" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAAAAAAQAAAAAAABAAAAAAABABAAAAAEBAAAA=</HashCode>
+      <FileName>Logging\ILog.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="TriangleNet.Logging.ILogItem" Collapsed="true">
+    <Position X="13.75" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAIEAAAQA=</HashCode>
+      <FileName>Logging\ILogItem.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="TriangleNet.Meshing.IConstraintMesher" Collapsed="true">
+    <Position X="10.25" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Meshing\IConstraintMesher.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="TriangleNet.Meshing.IMeshNet" Collapsed="true">
+    <Position X="15.5" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAAAAAAAAJAAAAAAAAAHAAAAAAEAAAAAAAAgA=</HashCode>
+      <FileName>Meshing\IMeshNet.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="TriangleNet.Meshing.IQualityMesher" Collapsed="true">
+    <Position X="20.75" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Meshing\IQualityMesher.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="TriangleNet.Meshing.ITriangulator" Collapsed="true">
+    <Position X="12" Y="11.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Meshing\ITriangulator.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="TriangleNet.Smoothing.ISmoother" Collapsed="true">
+    <Position X="22.5" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Smoothing\ISmoother.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="TriangleNet.Voronoi.IVoronoiFactory" Collapsed="true">
+    <Position X="15.5" Y="11.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAEABQAAAAAQAAAABAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Voronoi\IVoronoiFactory.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="TriangleNet.Voronoi.Legacy.IVoronoi" Collapsed="true">
+    <Position X="13.75" Y="11.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgQAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Voronoi\Legacy\IVoronoi.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="TriangleNet.VertexType" Collapsed="true">
+    <Position X="19" Y="12.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAgAgAQAAAAAAAAAAAAAIAAAAAAAA=</HashCode>
+      <FileName>Enums.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="TriangleNet.NodeNumbering" Collapsed="true">
+    <Position X="17.25" Y="12.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAEA=</HashCode>
+      <FileName>Enums.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="TriangleNet.LocateResult" Collapsed="true">
+    <Position X="13.75" Y="12.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgAAAAAAAAAAAAAAAAAAAAAAgEAAAAAEAAAAAAA=</HashCode>
+      <FileName>Enums.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="TriangleNet.InsertVertexResult" Collapsed="true">
+    <Position X="12" Y="12.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAEAAAAAAAAAAAAAAIAAAIAIAAAAAAAA=</HashCode>
+      <FileName>Enums.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="TriangleNet.FindDirectionResult" Collapsed="true">
+    <Position X="10.25" Y="12.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAIAAAAAAAAAAAAEAAAAAAAAAAAAAAAAACAA=</HashCode>
+      <FileName>Enums.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="TriangleNet.Logging.LogLevel" Collapsed="true">
+    <Position X="15.5" Y="12.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAABAAAAAAAAAAAAAAAEAAAAA=</HashCode>
+      <FileName>Logging\ILog.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
