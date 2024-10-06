@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="Converter.cs" company="">
-// Original Triangle code by Jonathan Richard Shewchuk, http://www.cs.cmu.edu/~quake/triangle.html
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle Copyright (c) 1993, 1995, 1997, 1998, 2002, 2005 Jonathan Richard Shewchuk
+// Triangle.NET code by Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -19,38 +19,42 @@ namespace TriangleNet.Meshing
 
     /// <summary>
     /// The Converter class provides methods for mesh reconstruction and conversion.
-    /// Класс Converter предоставляет методы для реконструкции и преобразования сетки.
     /// </summary>
-    public static class Converter
+    public class Converter
     {
+        private static readonly Lazy<Converter> lazy = new Lazy<Converter>(() => new Converter());
+
+        /// <summary>
+        /// Gets the <see cref="Converter"/> instance.
+        /// </summary>
+        public static Converter Instance => lazy.Value;
+
+        private Converter()
+        {
+        }
+
         #region Triangle mesh conversion
 
         /// <summary>
         /// Reconstruct a triangulation from its raw data representation.
-        /// Реконструировать триангуляцию на основе ее необработанного представления данных.
         /// </summary>
-        public static MeshNet ToMesh(Polygon polygon, IList<ITriangle> triangles)
+        public Mesh ToMesh(Polygon polygon, ICollection<ITriangle> triangles)
         {
             return ToMesh(polygon, triangles.ToArray());
         }
 
         /// <summary>
         /// Reconstruct a triangulation from its raw data representation.
-        /// Реконструировать триангуляцию на основе ее необработанного представления данных.
         /// </summary>
-        public static MeshNet ToMesh(Polygon polygon, ITriangle[] triangles)
+        public Mesh ToMesh(Polygon polygon, ITriangle[] triangles, Configuration config = null)
         {
             Otri tri = default(Otri);
             Osub subseg = default(Osub);
-            int i = 0;
 
             int elements = triangles == null ? 0 : triangles.Length;
             int segments = polygon.Segments.Count;
 
-            // TODO: Configuration should be a function argument.
-            var mesh = new MeshNet(new Configuration());
-
-            mesh.TransferNodes(polygon.Points);
+            var mesh = new Mesh(config ?? new Configuration(), polygon.Points);
 
             mesh.regions.AddRange(polygon.Regions);
             mesh.behavior.useRegions = polygon.Regions.Count > 0;
@@ -62,7 +66,7 @@ namespace TriangleNet.Meshing
             }
 
             // Create the triangles.
-            for (i = 0; i < elements; i++)
+            for (int i = 0; i < elements; i++)
             {
                 mesh.MakeTriangle(ref tri);
             }
@@ -72,7 +76,7 @@ namespace TriangleNet.Meshing
                 mesh.insegments = segments;
 
                 // Create the subsegments.
-                for (i = 0; i < segments; i++)
+                for (int i = 0; i < segments; i++)
                 {
                     mesh.MakeSegment(ref subseg);
                 }
@@ -89,7 +93,7 @@ namespace TriangleNet.Meshing
         /// Finds the adjacencies between triangles by forming a stack of triangles for
         /// each vertex. Each triangle is on three different stacks simultaneously.
         /// </summary>
-        private static List<Otri>[] SetNeighbors(MeshNet mesh, ITriangle[] triangles)
+        private List<Otri>[] SetNeighbors(Mesh mesh, ITriangle[] triangles)
         {
             Otri tri = default(Otri);
             Otri triangleleft = default(Otri);
@@ -165,7 +169,7 @@ namespace TriangleNet.Meshing
 
                     checktri = nexttri;
 
-                    if (checktri.tri.id != MeshNet.DUMMY)
+                    if (checktri.tri.id != Mesh.DUMMY)
                     {
                         tdest = tri.Dest();
                         tapex = tri.Apex();
@@ -193,7 +197,7 @@ namespace TriangleNet.Meshing
                             nexttri = vertexarray[aroundvertex][index];
 
                             checktri = nexttri;
-                        } while (checktri.tri.id != MeshNet.DUMMY);
+                        } while (checktri.tri.id != Mesh.DUMMY);
                     }
                 }
 
@@ -206,7 +210,7 @@ namespace TriangleNet.Meshing
         /// <summary>
         /// Finds the adjacencies between triangles and subsegments.
         /// </summary>
-        private static void SetSegments(MeshNet mesh, Polygon polygon, List<Otri>[] vertexarray)
+        private void SetSegments(Mesh mesh, Polygon polygon, List<Otri>[] vertexarray)
         {
             Otri checktri = default(Otri);
             Otri nexttri; // Triangle
@@ -231,7 +235,6 @@ namespace TriangleNet.Meshing
             if (mesh.behavior.Poly)
             {
                 // Link the segments to their neighboring triangles.
-                boundmarker = 0;
                 i = 0;
                 foreach (var item in mesh.subsegs.Values)
                 {
@@ -277,7 +280,7 @@ namespace TriangleNet.Meshing
                         // occurrence of a triangle on a list can (and does) represent
                         // an edge.  In this way, most edges are represented twice, and
                         // every triangle-subsegment bond is represented once.
-                        while (notfound && (checktri.tri.id != MeshNet.DUMMY))
+                        while (notfound && (checktri.tri.id != Mesh.DUMMY))
                         {
                             checkdest = checktri.Dest();
 
@@ -290,7 +293,7 @@ namespace TriangleNet.Meshing
                                 checktri.SegBond(ref subseg);
                                 // Check if this is a boundary edge.
                                 checktri.Sym(ref checkneighbor);
-                                if (checkneighbor.tri.id == MeshNet.DUMMY)
+                                if (checkneighbor.tri.id == Mesh.DUMMY)
                                 {
                                     // The next line doesn't insert a subsegment (because there's
                                     // already one there), but it sets the boundary markers of
@@ -322,7 +325,7 @@ namespace TriangleNet.Meshing
                 nexttri = vertexarray[i][index];
                 checktri = nexttri;
 
-                while (checktri.tri.id != MeshNet.DUMMY)
+                while (checktri.tri.id != Mesh.DUMMY)
                 {
                     // Find the next triangle in the stack before this
                     // information gets overwritten.
@@ -331,7 +334,7 @@ namespace TriangleNet.Meshing
                     // No adjacent subsegment.  (This overwrites the stack info.)
                     checktri.SegDissolve(mesh.dummysub);
                     checktri.Sym(ref checkneighbor);
-                    if (checkneighbor.tri.id == MeshNet.DUMMY)
+                    if (checkneighbor.tri.id == Mesh.DUMMY)
                     {
                         mesh.InsertSubseg(ref checktri, 1);
                         hullsize++;
@@ -348,7 +351,12 @@ namespace TriangleNet.Meshing
 
         #region DCEL conversion
 
-        public static DcelMesh ToDCEL(MeshNet mesh)
+        /// <summary>
+        /// Convert the triangle mesh topology to DCEL.
+        /// </summary>
+        /// <param name="mesh"></param>
+        /// <returns></returns>
+        public DcelMesh ToDCEL(Mesh mesh)
         {
             var dcel = new DcelMesh();
 
@@ -386,7 +394,7 @@ namespace TriangleNet.Meshing
             }
 
             Otri tri = default(Otri), neighbor = default(Otri);
-            TriangleNet.Geometry.Vertex org, dest;
+            TVertex org, dest;
 
             int id, nid, count = mesh.triangles.Count;
 

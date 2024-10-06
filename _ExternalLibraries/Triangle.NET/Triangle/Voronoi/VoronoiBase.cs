@@ -1,12 +1,12 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="VoronoiBase.cs">
-// Original Triangle code by Jonathan Richard Shewchuk, http://www.cs.cmu.edu/~quake/triangle.html
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle.NET Copyright (c) 2012-2022 Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
 namespace TriangleNet.Voronoi
 {
+    using System;
     using System.Collections.Generic;
 
     using TriangleNet.Topology;
@@ -16,16 +16,20 @@ namespace TriangleNet.Voronoi
     using Vertex = TriangleNet.Topology.DCEL.Vertex;
 
     /// <summary>
-    /// The Voronoi diagram is the dual of a pointset triangulation.
+    /// The Voronoi diagram is the dual of a point set triangulation.
     /// </summary>
     public abstract class VoronoiBase : DcelMesh
     {
+        /// <summary>Predicates</summary>
         protected IPredicates predicates;
 
+        /// <summary>Voronoi factory</summary>
         protected IVoronoiFactory factory;
 
-        // List of infinite half-edges, i.e. half-edges that start at circumcenters of triangles
-        // which lie on the domain boundary.
+        /// <summary>
+        /// List of infinite half-edges, i.e. half-edges that start at circumcenters
+        /// of triangles on the domain boundary.
+        /// </summary>
         protected List<HalfEdge> rays;
 
         /// <summary>
@@ -34,14 +38,16 @@ namespace TriangleNet.Voronoi
         /// <param name="mesh">Triangle mesh.</param>
         /// <param name="factory">Voronoi object factory.</param>
         /// <param name="predicates">Geometric predicates implementation.</param>
-        /// <param name="generate">If set to true, the constuctor will call the Generate
+        /// <param name="generate">If set to true, the constructor will call the Generate
         /// method, which builds the Voronoi diagram.</param>
-        protected VoronoiBase(MeshNet mesh, IVoronoiFactory factory, IPredicates predicates,
-            bool generate)
-            : base(false)
+        protected VoronoiBase(Mesh mesh, IVoronoiFactory factory, IPredicates predicates,
+            bool generate) : base(false)
         {
-            this.factory = factory;
+            this.factory = factory ?? new DefaultVoronoiFactory();
             this.predicates = predicates;
+
+            edges = new List<HalfEdge>();
+            rays = new List<HalfEdge>();
 
             if (generate)
             {
@@ -50,41 +56,46 @@ namespace TriangleNet.Voronoi
         }
 
         /// <summary>
-        /// Generate the Voronoi diagram from given triangle mesh..
+        /// Generate the Voronoi diagram from given triangle mesh.
         /// </summary>
         /// <param name="mesh"></param>
-        /// <param name="bounded"></param>
-        protected void Generate(MeshNet mesh)
+        protected void Generate(Mesh mesh)
         {
-            mesh.Renumber();
+            edges.Clear();
+            rays.Clear();
 
-            base.edges = new List<HalfEdge>();
-            this.rays = new List<HalfEdge>();
+            // Undead vertices cannot be Voronoi cell generators.
+            int count = mesh.vertices.Count - mesh.undeads;
 
             // Allocate space for Voronoi diagram.
             var vertices = new Vertex[mesh.triangles.Count + mesh.hullsize];
-            var faces = new Face[mesh.vertices.Count];
-
-            if (factory == null)
-            {
-                factory = new DefaultVoronoiFactory();
-            }
+            var faces = new Face[count];
 
             factory.Initialize(vertices.Length, 2 * mesh.NumberOfEdges, faces.Length);
 
             // Compute triangles circumcenters.
             var map = ComputeVertices(mesh, vertices);
 
-            // Create all Voronoi faces.
+            // Ensure linear numbering of vertices (excluding undeads).
+            int vid = 0;
+
+            // Create all Voronoi faces, skipping undead vertices.
             foreach (var vertex in mesh.vertices.Values)
             {
-                faces[vertex.id] = factory.CreateFace(vertex);
+                if (vertex.type == VertexType.UndeadVertex)
+                {
+                    vertex.id = count++;
+                }
+                else
+                {
+                    vertex.id = vid++;
+                    faces[vertex.id] = factory.CreateFace(vertex);
+                }
             }
 
             ComputeEdges(mesh, vertices, faces, map);
 
             // At this point all edges are computed, but the (edge.next) pointers aren't set.
-            // На этом этапе все ребра вычисляются, но указатели(edge.next) не установлены.
             ConnectEdges(map);
 
             base.vertices = new List<Vertex>(vertices);
@@ -95,27 +106,31 @@ namespace TriangleNet.Voronoi
         /// Compute the Voronoi vertices (the circumcenters of the triangles).
         /// </summary>
         /// <returns>An empty map, which will map all vertices to a list of leaving edges.</returns>
-        protected List<HalfEdge>[] ComputeVertices(MeshNet mesh, Vertex[] vertices)
+        /// <remarks>
+        /// This method will also change triangle ids (to ensure linear numbering of triangles).
+        /// </remarks>
+        protected List<HalfEdge>[] ComputeVertices(Mesh mesh, Vertex[] vertices)
         {
-            Otri tri = default(Otri);
+            Otri tri = default;
             double xi = 0, eta = 0;
             Vertex vertex;
             Point pt;
-            int id;
+            int id, i = 0;
 
             // Maps all vertices to a list of leaving edges.
             var map = new List<HalfEdge>[mesh.triangles.Count];
 
-            // Compue triangle circumcenters
+            // Compute triangle circumcenters
             foreach (var t in mesh.triangles)
             {
-                id = t.id;
+                t.id = id = i++;
                 tri.tri = t;
 
                 pt = predicates.FindCircumcenter(tri.Org(), tri.Dest(), tri.Apex(), ref xi, ref eta);
 
                 vertex = factory.CreateVertex(pt.x, pt.y);
                 vertex.id = id;
+                vertex.label = t.label;
 
                 vertices[id] = vertex;
                 map[id] = new List<HalfEdge>();
@@ -131,9 +146,9 @@ namespace TriangleNet.Voronoi
         /// <param name="vertices"></param>
         /// <param name="faces"></param>
         /// <param name="map">Empty vertex map.</param>
-        protected void ComputeEdges(MeshNet mesh, Vertex[] vertices, Face[] faces, List<HalfEdge>[] map)
+        protected void ComputeEdges(Mesh mesh, Vertex[] vertices, Face[] faces, List<HalfEdge>[] map)
         {
-            Otri tri, neighbor = default(Otri);
+            Otri tri, neighbor = default;
             TriangleNet.Geometry.Vertex org, dest;
 
             double px, py;
@@ -143,7 +158,7 @@ namespace TriangleNet.Voronoi
             HalfEdge edge, twin;
             Vertex vertex, end;
 
-            // Count infinte edges (vertex id for their endpoints).
+            // Count infinite edges (vertex id for their endpoints).
             int j = 0;
 
             // Count half-edges (edge ids).
@@ -154,11 +169,6 @@ namespace TriangleNet.Voronoi
             // to the edge, operate on the edge. If there is another adjacent triangle,
             // operate on the edge only if the current triangle has a smaller id than
             // its neighbor. This way, each edge is considered only once.
-            // Чтобы перебрать набор ребер, пройдите по всем треугольникам и просмотрите
-            // три ребра каждого треугольника. Если рядом с краем нет другого треугольника,
-            // действуйте на ребре. Если есть еще один соседний треугольник, работайте с
-            // ребром только в том случае, если текущий треугольник имеет меньший идентификатор,
-            // чем его сосед. Таким образом, каждое ребро рассматривается только один раз.
             foreach (var t in mesh.triangles)
             {
                 id = t.id;
@@ -231,8 +241,8 @@ namespace TriangleNet.Voronoi
                         edge.id = k++;
                         twin.id = k++;
 
-                        this.edges.Add(edge);
-                        this.edges.Add(twin);
+                        edges.Add(edge);
+                        edges.Add(twin);
                     }
                 }
             }
@@ -240,7 +250,6 @@ namespace TriangleNet.Voronoi
 
         /// <summary>
         /// Connect all edges of the Voronoi diagram.
-        /// Соедините все ребра диаграммы Вороного.
         /// </summary>
         /// <param name="map">Maps all vertices to a list of leaving edges.</param>
         protected virtual void ConnectEdges(List<HalfEdge>[] map)
@@ -248,25 +257,19 @@ namespace TriangleNet.Voronoi
             int length = map.Length;
 
             // For each half-edge, find its successor in the connected face.
-            // Для каждого полуребра найдите его преемника в связной грани.
-            foreach (var edge in this.edges)
+            foreach (var edge in edges)
             {
                 var face = edge.face.generator.id;
 
                 // The id of the dest vertex of current edge.
-                // Идентификатор конечной вершины текущего ребра.
                 int id = edge.twin.origin.id;
 
                 // The edge origin can also be an infinite vertex. Sort them out
                 // by checking the id.
-                // Начало ребра также может быть бесконечной вершиной.
-                // Отсортируйте их, проверив идентификатор.
                 if (id < length)
                 {
                     // Look for the edge that is connected to the current face. Each
                     // Voronoi vertex has degree 3, so this loop is actually O(1).
-                    // Ищем ребро, соединенное с текущей гранью. Каждая вершина
-                    // Вороного имеет степень 3, поэтому на самом деле этот цикл равен O(1).
                     foreach (var next in map[id])
                     {
                         if (next.face.generator.id == face)
@@ -279,6 +282,7 @@ namespace TriangleNet.Voronoi
             }
         }
 
+        /// <inheritdoc />
         protected override IEnumerable<IEdge> EnumerateEdges()
         {
             var edges = new List<IEdge>(this.edges.Count / 2);

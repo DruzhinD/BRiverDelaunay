@@ -13,8 +13,8 @@ namespace TriangleNet.Meshing
         /// </summary>
         /// <param name="polygon">The polygon.</param>
         /// <param name="quality">Quality options.</param>
-        /// <returns>MeshNet</returns>
-        IMeshNet Triangulate(IPolygon polygon, QualityOptions quality);
+        /// <returns>Mesh</returns>
+        IMesh Triangulate(IPolygon polygon, QualityOptions quality);
 
         /// <summary>
         /// Triangulates a polygon, applying quality and constraint options.
@@ -22,7 +22,7 @@ namespace TriangleNet.Meshing
         /// <param name="polygon">The polygon.</param>
         /// <param name="options">Constraint options.</param>
         /// <param name="quality">Quality options.</param>
-        /// <returns>MeshNet</returns>
-        IMeshNet Triangulate(IPolygon polygon, ConstraintOptions options, QualityOptions quality);
+        /// <returns>Mesh</returns>
+        IMesh Triangulate(IPolygon polygon, ConstraintOptions options, QualityOptions quality);
     }
 }

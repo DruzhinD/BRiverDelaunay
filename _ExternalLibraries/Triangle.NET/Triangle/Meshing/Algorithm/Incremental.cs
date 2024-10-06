@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="Incremental.cs">
-// Original Triangle code by Jonathan Richard Shewchuk, http://www.cs.cmu.edu/~quake/triangle.html
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle Copyright (c) 1993, 1995, 1997, 1998, 2002, 2005 Jonathan Richard Shewchuk
+// Triangle.NET code by Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -13,21 +13,18 @@ namespace TriangleNet.Meshing.Algorithm
 
     /// <summary>
     /// Builds a delaunay triangulation using the incremental algorithm.
-    /// Строит триангуляцию Делоне, используя инкрементальный алгоритм.
     /// </summary>
     public class Incremental : ITriangulator
     {
-        MeshNet mesh;
+        Mesh mesh;
 
         /// <summary>
-        /// Form a Delaunay triangulation by incrementally inserting vertices.
+        /// Compute a Delaunay triangulation by incrementally inserting vertices.
         /// </summary>
-        /// <returns>Returns the number of edges on the convex hull of the 
-        /// triangulation.</returns>
-        public IMeshNet Triangulate(IList<Vertex> points, Configuration config)
+        /// <returns></returns>
+        public IMesh Triangulate(IList<Vertex> points, Configuration config)
         {
-            this.mesh = new MeshNet(config);
-            this.mesh.TransferNodes(points);
+            mesh = new Mesh(config, points);
 
             Otri starttri = new Otri();
 
@@ -51,9 +48,9 @@ namespace TriangleNet.Meshing.Algorithm
             }
 
             // Remove the bounding box.
-            this.mesh.hullsize = RemoveBox();
+            mesh.hullsize = RemoveBox();
 
-            return this.mesh;
+            return mesh;
         }
 
         /// <summary>
@@ -134,7 +131,7 @@ namespace TriangleNet.Meshing.Algorithm
             // adjacent to the first one.
             nextedge.Lnext(ref checkedge);
             checkedge.Sym();
-            if (checkedge.tri.id == MeshNet.DUMMY)
+            if (checkedge.tri.id == Mesh.DUMMY)
             {
                 // Go on to the next triangle.  There are only three boundary
                 // triangles, and this next triangle cannot be the third one,
@@ -161,7 +158,7 @@ namespace TriangleNet.Meshing.Algorithm
                     // vertices are collinear, and thus all the triangles are part of
                     // the bounding box.  Otherwise, the setvertexmark() call below
                     // will cause a bad pointer reference.
-                    if (dissolveedge.tri.id != MeshNet.DUMMY)
+                    if (dissolveedge.tri.id != Mesh.DUMMY)
                     {
                         markorg = dissolveedge.Org();
                         if (markorg.label == 0)
@@ -177,7 +174,7 @@ namespace TriangleNet.Meshing.Algorithm
                 // Get rid of the bounding box triangle.
                 mesh.TriangleDealloc(deadtriangle.tri);
                 // Do we need to turn the corner?
-                if (nextedge.tri.id == MeshNet.DUMMY)
+                if (nextedge.tri.id == Mesh.DUMMY)
                 {
                     // Turn the corner.
                     dissolveedge.Copy(ref nextedge);

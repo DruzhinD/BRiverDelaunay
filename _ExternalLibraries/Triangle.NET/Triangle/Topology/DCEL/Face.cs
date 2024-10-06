@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="Face.cs">
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle.NET Copyright (c) 2012-2022 Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -10,13 +10,15 @@ namespace TriangleNet.Topology.DCEL
     using TriangleNet.Geometry;
 
     /// <summary>
-    /// A face of DCEL mesh.
-    /// Грань сетки DCEL.
+    /// A face of the DCEL data structure.
     /// </summary>
     public class Face
     {
-        #region Статическая инициализация грани сетки из внешнего пространства Static initialization of "Outer Space" face  
+        #region Static initialization of "Outer Space" face
 
+        /// <summary>
+        /// A face representing "outer space".
+        /// </summary>
         public static readonly Face Empty;
 
         static Face()
@@ -26,30 +28,24 @@ namespace TriangleNet.Topology.DCEL
         }
 
         #endregion
-        /// <summary>
-        /// идентификатор грани
-        /// </summary>
+
         internal int id;
-        /// <summary>
-        /// метка грани
-        /// </summary>
-        internal int mark;
-        /// <summary>
-        /// Генератор этой грани (для диаграммы Вороного)
-        /// </summary>
+        internal int label;
+
+        // If the face is a Voronoi cell, this is the point that generates the cell.
         internal Point generator;
-        /// <summary>
-        /// Полуребро, соединенное с гранью.
-        /// </summary>
+
         internal HalfEdge edge;
-        /// <summary>
-        /// Флаг указывающий, ограничена ли грань (для диаграммы Вороного).
-        /// </summary>
         internal bool bounded;
 
         /// <summary>
+        /// If part of a Voronoi diagram, returns the generator vertex
+        /// of the face. Otherwise <c>null</c>.
+        /// </summary>
+        public Point Generator => generator;
+
+        /// <summary>
         /// Gets or sets the face id.
-        /// Получает или задает идентификатор грани.
         /// </summary>
         public int ID
         {
@@ -58,8 +54,19 @@ namespace TriangleNet.Topology.DCEL
         }
 
         /// <summary>
+        /// Gets or sets a general-purpose label.
+        /// </summary>
+        /// <remarks>
+        /// For Voronoi diagrams, this will be the same as the <see cref="Generator"/> label.
+        /// </remarks>
+        public int Label
+        {
+            get { return label; }
+            set { label = value; }
+        }
+
+        /// <summary>
         /// Gets or sets a half-edge connected to the face.
-        /// Получает или задает полуребро, соединенное с гранью.
         /// </summary>
         public HalfEdge Edge
         {
@@ -69,7 +76,6 @@ namespace TriangleNet.Topology.DCEL
 
         /// <summary>
         /// Gets or sets a value, indicating if the face is bounded (for Voronoi diagram).
-        /// Получает или задает значение, указывающее, ограничена ли грань (для диаграммы Вороного).
         /// </summary>
         public bool Bounded
         {
@@ -78,9 +84,9 @@ namespace TriangleNet.Topology.DCEL
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр <see cref="Face" /> class.
+        /// Initializes a new instance of the <see cref="Face" /> class.
         /// </summary>
-        /// <param name="generator">Генератор этой грани (для диаграммы Вороного)</param>
+        /// <param name="generator">The generator of this face (for Voronoi diagram)</param>
         public Face(Point generator)
             : this(generator, null)
         {
@@ -89,28 +95,29 @@ namespace TriangleNet.Topology.DCEL
         /// <summary>
         /// Initializes a new instance of the <see cref="Face" /> class.
         /// </summary>
-        /// <param name="generator">Генератор этой грани (для диаграммы Вороного)</param>
-        /// <param name="edge">Полуребро, соединенное с этой гранью.</param>
+        /// <param name="generator">The generator of this face (for Voronoi diagram)</param>
+        /// <param name="edge">The half-edge connected to this face.</param>
         public Face(Point generator, HalfEdge edge)
         {
             this.generator = generator;
             this.edge = edge;
-            this.bounded = true;
+
+            bounded = true;
 
             if (generator != null)
             {
-                this.id = generator.ID;
+                id = generator.ID;
+                label = generator.Label;
             }
         }
 
         /// <summary>
         /// Enumerates all half-edges of the face boundary.
-        /// Перечисляет все полуребра границы грани.
         /// </summary>
         /// <returns></returns>
         public IEnumerable<HalfEdge> EnumerateEdges()
         {
-            var edge = this.Edge;
+            var edge = Edge;
             int first = edge.ID;
 
             do
@@ -121,6 +128,7 @@ namespace TriangleNet.Topology.DCEL
             } while (edge.ID != first);
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return string.Format("F-ID {0}", id);

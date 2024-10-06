@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="Point.cs" company="">
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle.NET Copyright (c) 2012-2022 Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -28,16 +28,30 @@ namespace TriangleNet.Geometry
         internal double z;
 #endif
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Point" /> class.
+        /// </summary>
         public Point()
             : this(0.0, 0.0, 0)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Point" /> class.
+        /// </summary>
+        /// <param name="x">The x coordinate.</param>
+        /// <param name="y">The y coordinate.</param>
         public Point(double x, double y)
             : this(x, y, 0)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Point" /> class.
+        /// </summary>
+        /// <param name="x">The x coordinate.</param>
+        /// <param name="y">The y coordinate.</param>
+        /// <param name="label">The point label.</param>
         public Point(double x, double y, int label)
         {
             this.x = x;
@@ -52,8 +66,8 @@ namespace TriangleNet.Geometry
         /// </summary>
         public int ID
         {
-            get { return this.id; }
-            set { this.id = value; }
+            get { return id; }
+            set { id = value; }
         }
 
         /// <summary>
@@ -61,8 +75,8 @@ namespace TriangleNet.Geometry
         /// </summary>
         public double X
         {
-            get { return this.x; }
-            set { this.x = value; }
+            get { return x; }
+            set { x = value; }
         }
 
         /// <summary>
@@ -70,8 +84,8 @@ namespace TriangleNet.Geometry
         /// </summary>
         public double Y
         {
-            get { return this.y; }
-            set { this.y = value; }
+            get { return y; }
+            set { y = value; }
         }
 
 #if USE_Z
@@ -80,8 +94,8 @@ namespace TriangleNet.Geometry
         /// </summary>
         public double Z
         {
-            get { return this.z; }
-            set { this.z = value; }
+            get { return z; }
+            set { z = value; }
         }
 #endif
 
@@ -93,71 +107,57 @@ namespace TriangleNet.Geometry
         /// </remarks>
         public int Label
         {
-            get { return this.label; }
-            set { this.label = value; }
+            get { return label; }
+            set { label = value; }
         }
 
         #endregion
 
-        #region Operator overloading / overriding Equals
+        #region Overriding Equals() and == Operator
 
-        // Compare "Guidelines for Overriding Equals() and Operator =="
-        // http://msdn.microsoft.com/en-us/library/ms173147.aspx
-
+        /// <inheritdoc />
         public static bool operator ==(Point a, Point b)
         {
-            // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(a, b))
+            if (a is null)
             {
-                return true;
+                // If one is null, but not both, return false.
+                return b is null;
             }
 
-            // If one is null, but not both, return false.
-            if (((object)a == null) || ((object)b == null))
+            // If both are same instance, return true.
+            if (ReferenceEquals(a, b))
             {
-                return false;
+                return true;
             }
 
             return a.Equals(b);
         }
 
+        /// <inheritdoc />
         public static bool operator !=(Point a, Point b)
         {
             return !(a == b);
         }
 
-        public override bool Equals(object obj)
-        {
-            // If parameter is null return false.
-            if (obj == null)
-            {
-                return false;
-            }
+        /// <inheritdoc />
+        public override bool Equals(object obj) => Equals(obj as Point);
 
-            Point p = obj as Point;
-
-            if ((object)p == null)
-            {
-                return false;
-            }
-
-            return (x == p.x) && (y == p.y);
-        }
-
+        /// <inheritdoc />
         public bool Equals(Point p)
         {
-            // If vertex is null return false.
-            if ((object)p == null)
+            // If object is null return false.
+            if (p is null)
             {
                 return false;
             }
 
-            // Return true if the fields match:
+            // Return true if the fields match.
             return (x == p.x) && (y == p.y);
         }
 
         #endregion
 
+        /// <inheritdoc />
         public int CompareTo(Point other)
         {
             if (x == other.x && y == other.y)
@@ -168,11 +168,13 @@ namespace TriangleNet.Geometry
             return (x < other.x || (x == other.x && y < other.y)) ? -1 : 1;
         }
 
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             int hash = 19;
             hash = hash * 31 + x.GetHashCode();
             hash = hash * 31 + y.GetHashCode();
+
             return hash;
         }
     }

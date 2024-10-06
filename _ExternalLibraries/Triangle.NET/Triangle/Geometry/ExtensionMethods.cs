@@ -4,6 +4,9 @@ namespace TriangleNet.Geometry
     using System;
     using TriangleNet.Meshing;
 
+    /// <summary>
+    /// Extension methods.
+    /// </summary>
     public static class ExtensionMethods
     {
         #region IPolygon extensions
@@ -11,7 +14,7 @@ namespace TriangleNet.Geometry
         /// <summary>
         /// Triangulates a polygon.
         /// </summary>
-        public static IMeshNet Triangulate(this IPolygon polygon)
+        public static IMesh Triangulate(this IPolygon polygon)
         {
             return (new GenericMesher()).Triangulate(polygon, null, null);
         }
@@ -19,8 +22,9 @@ namespace TriangleNet.Geometry
         /// <summary>
         /// Triangulates a polygon, applying constraint options.
         /// </summary>
+        /// <param name="polygon">Polygon instance.</param>
         /// <param name="options">Constraint options.</param>
-        public static IMeshNet Triangulate(this IPolygon polygon, ConstraintOptions options)
+        public static IMesh Triangulate(this IPolygon polygon, ConstraintOptions options)
         {
             return (new GenericMesher()).Triangulate(polygon, options, null);
         }
@@ -28,8 +32,9 @@ namespace TriangleNet.Geometry
         /// <summary>
         /// Triangulates a polygon, applying quality options.
         /// </summary>
+        /// <param name="polygon">Polygon instance.</param>
         /// <param name="quality">Quality options.</param>
-        public static IMeshNet Triangulate(this IPolygon polygon, QualityOptions quality)
+        public static IMesh Triangulate(this IPolygon polygon, QualityOptions quality)
         {
             return (new GenericMesher()).Triangulate(polygon, null, quality);
         }
@@ -37,9 +42,10 @@ namespace TriangleNet.Geometry
         /// <summary>
         /// Triangulates a polygon, applying quality and constraint options.
         /// </summary>
+        /// <param name="polygon">Polygon instance.</param>
         /// <param name="options">Constraint options.</param>
         /// <param name="quality">Quality options.</param>
-        public static IMeshNet Triangulate(this IPolygon polygon, ConstraintOptions options, QualityOptions quality)
+        public static IMesh Triangulate(this IPolygon polygon, ConstraintOptions options, QualityOptions quality)
         {
             return (new GenericMesher()).Triangulate(polygon, options, quality);
         }
@@ -47,10 +53,11 @@ namespace TriangleNet.Geometry
         /// <summary>
         /// Triangulates a polygon, applying quality and constraint options.
         /// </summary>
+        /// <param name="polygon">Polygon instance.</param>
         /// <param name="options">Constraint options.</param>
         /// <param name="quality">Quality options.</param>
         /// <param name="triangulator">The triangulation algorithm.</param>
-        public static IMeshNet Triangulate(this IPolygon polygon, ConstraintOptions options, QualityOptions quality,
+        public static IMesh Triangulate(this IPolygon polygon, ConstraintOptions options, QualityOptions quality,
             ITriangulator triangulator)
         {
             return (new GenericMesher(triangulator)).Triangulate(polygon, options, quality);
@@ -67,6 +74,7 @@ namespace TriangleNet.Geometry
         /// <summary>
         /// Test whether a given point lies inside a triangle or not.
         /// </summary>
+        /// <param name="triangle">Triangle instance.</param>
         /// <param name="p">Point to locate.</param>
         /// <returns>True, if point is inside or on the edge of this triangle.</returns>
         public static bool Contains(this ITriangle triangle, Point p)
@@ -77,6 +85,7 @@ namespace TriangleNet.Geometry
         /// <summary>
         /// Test whether a given point lies inside a triangle or not.
         /// </summary>
+        /// <param name="triangle">Triangle instance.</param>
         /// <param name="x">Point to locate.</param>
         /// <param name="y">Point to locate.</param>
         /// <returns>True, if point is inside or on the edge of this triangle.</returns>
@@ -117,6 +126,11 @@ namespace TriangleNet.Geometry
             return false;
         }
 
+        /// <summary>
+        /// Returns the bounding box of the triangle.
+        /// </summary>
+        /// <param name="triangle">Triangle instance.</param>
+        /// <returns></returns>
         public static Rectangle Bounds(this ITriangle triangle)
         {
             var bounds = new Rectangle();

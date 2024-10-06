@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="TriangleReader.cs" company="">
-// Original Triangle code by Jonathan Richard Shewchuk, http://www.cs.cmu.edu/~quake/triangle.html
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle Copyright (c) 1993, 1995, 1997, 1998, 2002, 2005 Jonathan Richard Shewchuk
+// Triangle.NET code by Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -15,11 +15,10 @@ namespace TriangleNet.IO
 
     /// <summary>
     /// Helper methods for reading Triangle file formats.
-    /// Вспомогательные методы для чтения форматов файлов Triangle.
     /// </summary>
     public class TriangleReader
     {
-        static NumberFormatInfo nfi = NumberFormatInfo.InvariantInfo;
+        private static readonly NumberFormatInfo nfi = NumberFormatInfo.InvariantInfo;
 
         int startIndex = 0;
 
@@ -36,7 +35,7 @@ namespace TriangleNet.IO
 
             string line = reader.ReadLine().Trim();
 
-            while (String.IsNullOrWhiteSpace(line) || line.StartsWith("#"))
+            while (string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))
             {
                 if (reader.EndOfStream)
                 {
@@ -102,8 +101,6 @@ namespace TriangleNet.IO
         /// </summary>
         public void Read(string filename, out Polygon polygon)
         {
-            polygon = null;
-
             string path = Path.ChangeExtension(filename, ".poly");
 
             if (File.Exists(path))
@@ -139,9 +136,7 @@ namespace TriangleNet.IO
         /// </summary>
         public IPolygon Read(string filename)
         {
-            Polygon geometry = null;
-
-            Read(filename, out geometry);
+            Read(filename, out Polygon geometry);
 
             return geometry;
         }
@@ -150,7 +145,6 @@ namespace TriangleNet.IO
 
         /// <summary>
         /// Read the vertices from a file, which may be a .node or .poly file.
-        /// Считайте вершины из файла, который может быть файлом .node или .poly.
         /// </summary>
         /// <param name="nodefilename"></param>
         /// <remarks>Will NOT read associated .ele by default.</remarks>
@@ -161,7 +155,6 @@ namespace TriangleNet.IO
 
         /// <summary>
         /// Read the vertices from a file, which may be a .node or .poly file.
-        /// Считайте вершины из файла, который может быть файлом .node или .poly.
         /// </summary>
         /// <param name="nodefilename"></param>
         /// <param name="readElements"></param>
@@ -217,8 +210,7 @@ namespace TriangleNet.IO
                     {
                         if (!TryReadLine(reader, out line))
                         {
-                            throw new Exception("Невозможно прочитать входной файл(вершины).");
-                            //throw new Exception("Can't read input file (vertices).");
+                            throw new Exception("Can't read input file (vertices).");
                         }
 
                         if (line.Length < 3)
@@ -272,14 +264,13 @@ namespace TriangleNet.IO
 
         /// <summary>
         /// Read the vertices and segments from a .poly file.
-        /// Считайте вершины и сегменты из файла .poly.
         /// </summary>
         /// <param name="polyfilename"></param>
-        /// <param name="readElements">If true, найдите связанный файл .ele.</param>
-        /// <param name="readArea">If true, найдите связанный файл .area file.</param>
+        /// <param name="readElements">If true, look for an associated .ele file.</param>
+        /// <param name="readArea">If true, look for an associated .area file.</param>
         public Polygon ReadPolyFile(string polyfilename, bool readElements, bool readArea)
         {
-            // Read poly file Чтение полифайла
+            // Read poly file
             Polygon data;
 
             startIndex = 0;
@@ -296,8 +287,6 @@ namespace TriangleNet.IO
 
                 // Read number of vertices, number of dimensions, number of vertex
                 // attributes, and number of boundary markers.
-                // Считайте количество вершин, количество измерений,
-                // количество атрибутов вершин и количество граничных маркеров.
                 invertices = int.Parse(line[0]);
 
                 if (line.Length > 1)
@@ -348,8 +337,6 @@ namespace TriangleNet.IO
                 {
                     // If the .poly file claims there are zero vertices, that means that
                     // the vertices should be read from a separate .node file.
-                    // Если файл .poly утверждает, что вершин нет, это означает,
-                    // что вершины следует считывать из отдельного файла .node.
                     data = ReadNodeFile(Path.ChangeExtension(polyfilename, ".node"));
 
                     invertices = data.Points.Count;
@@ -363,9 +350,8 @@ namespace TriangleNet.IO
                 }
 
                 // Read the segments from a .poly file.
+
                 // Read number of segments and number of boundary markers.
-                                
-                // Считайте количество сегментов и количество граничных маркеров из файла .poly.
                 if (!TryReadLine(reader, out line))
                 {
                     throw new Exception("Can't read input file (segments).");
@@ -408,7 +394,7 @@ namespace TriangleNet.IO
                         if (Log.Verbose)
                         {
                             Log.Instance.Warning("Invalid first endpoint of segment.",
-                                "MeshReader.ReadPolyfile()");
+                                "TriangleReader.ReadPolyfile()");
                         }
                     }
                     else if ((end2 < 0) || (end2 >= invertices))
@@ -416,7 +402,7 @@ namespace TriangleNet.IO
                         if (Log.Verbose)
                         {
                             Log.Instance.Warning("Invalid second endpoint of segment.",
-                                "MeshReader.ReadPolyfile()");
+                                "TriangleReader.ReadPolyfile()");
                         }
                     }
                     else
@@ -530,7 +516,6 @@ namespace TriangleNet.IO
         /// Read the elements from an .ele file.
         /// </summary>
         /// <param name="elefilename"></param>
-        /// <param name="data"></param>
         /// <param name="readArea"></param>
         private List<ITriangle> ReadEleFile(string elefilename, bool readArea)
         {
@@ -551,7 +536,7 @@ namespace TriangleNet.IO
 
                 intriangles = int.Parse(line[0]);
 
-                // We irgnore index 1 (number of nodes per triangle)
+                // We ignore index 1 (number of nodes per triangle)
                 attributes = 0;
                 if (line.Length > 2)
                 {
@@ -561,7 +546,8 @@ namespace TriangleNet.IO
 
                 if (attributes > 1)
                 {
-                    Log.Instance.Warning("Triangle attributes not supported.", "FileReader.Read");
+                    Log.Instance.Warning("Triangle attributes not supported.",
+                        "TriangleReader.ReadEleFile()");
                 }
 
                 triangles = new List<ITriangle>(intriangles);
@@ -617,7 +603,6 @@ namespace TriangleNet.IO
         /// </summary>
         /// <param name="areafilename"></param>
         /// <param name="intriangles"></param>
-        /// <param name="data"></param>
         private double[] ReadAreaFile(string areafilename, int intriangles)
         {
             double[] data = null;
@@ -634,7 +619,7 @@ namespace TriangleNet.IO
                 if (int.Parse(line[0]) != intriangles)
                 {
                     Log.Instance.Warning("Number of area constraints doesn't match number of triangles.",
-                        "ReadAreaFile()");
+                        "TriangleReader.ReadAreaFile()");
                     return null;
                 }
 
@@ -727,7 +712,7 @@ namespace TriangleNet.IO
                         if (Log.Verbose)
                         {
                             Log.Instance.Warning("Invalid first endpoint of segment.",
-                                "MeshReader.ReadPolyfile()");
+                                "TriangleReader.ReadEdgeFile()");
                         }
                     }
                     else if ((end2 < 0) || (end2 >= invertices))
@@ -735,7 +720,7 @@ namespace TriangleNet.IO
                         if (Log.Verbose)
                         {
                             Log.Instance.Warning("Invalid second endpoint of segment.",
-                                "MeshReader.ReadPolyfile()");
+                                "TriangleReader.ReadEdgeFile()");
                         }
                     }
                     else

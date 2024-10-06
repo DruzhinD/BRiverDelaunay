@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="TriangleSampler.cs">
-// Original Triangle code by Jonathan Richard Shewchuk, http://www.cs.cmu.edu/~quake/triangle.html
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle Copyright (c) 1993, 1995, 1997, 1998, 2002, 2005 Jonathan Richard Shewchuk
+// Triangle.NET code by Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -12,17 +12,15 @@ namespace TriangleNet
     using TriangleNet.Topology;
 
     /// <summary>
-    /// Используется для выборки треугольников в TriangleLocator
+    /// Used for triangle sampling in the <see cref="TriangleLocator"/> class.
     /// </summary>
     class TriangleSampler : IEnumerable<Triangle>
     {
-        private const int RANDOM_SEED = 110503;
-
         // Empirically chosen factor.
         private const int samplefactor = 11;
 
-        private Random random;
-        private MeshNet mesh;
+        private readonly Random random;
+        private readonly Mesh mesh;
 
         // Number of random samples for point location (at least 1).
         private int samples = 1;
@@ -30,12 +28,7 @@ namespace TriangleNet
         // Number of triangles in mesh.
         private int triangleCount = 0;
 
-        public TriangleSampler(MeshNet mesh)
-            : this(mesh, new Random(RANDOM_SEED))
-        {
-        }
-
-        public TriangleSampler(MeshNet mesh, Random random)
+        public TriangleSampler(Mesh mesh, Random random)
         {
             this.mesh = mesh;
             this.random = random;
@@ -46,8 +39,8 @@ namespace TriangleNet
         /// </summary>
         public void Reset()
         {
-            this.samples = 1;
-            this.triangleCount = 0;
+            samples = 1;
+            triangleCount = 0;
         }
 
         /// <summary>

@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="Statistic.cs">
-// Original Triangle code by Jonathan Richard Shewchuk, http://www.cs.cmu.edu/~quake/triangle.html
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle Copyright (c) 1993, 1995, 1997, 1998, 2002, 2005 Jonathan Richard Shewchuk
+// Triangle.NET code by Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -13,7 +13,6 @@ namespace TriangleNet.Tools
 
     /// <summary>
     /// Gather mesh statistics.
-    /// Собор статистики сетки.
     /// </summary>
     public class Statistic
     {
@@ -23,12 +22,20 @@ namespace TriangleNet.Tools
         /// Number of incircle tests performed.
         /// </summary>
         public static long InCircleCount = 0;
+
+        /// <summary>
+        /// Number of adaptive incircle tests performed.
+        /// </summary>
         public static long InCircleAdaptCount = 0;
 
         /// <summary>
         /// Number of counterclockwise tests performed.
         /// </summary>
         public static long CounterClockwiseCount = 0;
+
+        /// <summary>
+        /// Number of adaptive counterclockwise tests performed.
+        /// </summary>
         public static long CounterClockwiseAdaptCount = 0;
 
         /// <summary>
@@ -64,74 +71,74 @@ namespace TriangleNet.Tools
         /// <summary>
         /// Gets the shortest edge.
         /// </summary>
-        public double ShortestEdge { get { return minEdge; } }
+        public double ShortestEdge => minEdge;
 
         double maxEdge = 0;
         /// <summary>
         /// Gets the longest edge.
         /// </summary>
-        public double LongestEdge { get { return maxEdge; } }
+        public double LongestEdge => maxEdge;
 
         //
         double minAspect = 0;
         /// <summary>
         /// Gets the shortest altitude.
         /// </summary>
-        public double ShortestAltitude { get { return minAspect; } }
+        public double ShortestAltitude => minAspect;
 
         double maxAspect = 0;
         /// <summary>
         /// Gets the largest aspect ratio.
         /// </summary>
-        public double LargestAspectRatio { get { return maxAspect; } }
+        public double LargestAspectRatio => maxAspect;
 
         double minArea = 0;
         /// <summary>
         /// Gets the smallest area.
         /// </summary>
-        public double SmallestArea { get { return minArea; } }
+        public double SmallestArea => minArea;
 
         double maxArea = 0;
         /// <summary>
         /// Gets the largest area.
         /// </summary>
-        public double LargestArea { get { return maxArea; } }
+        public double LargestArea => maxArea;
 
         double minAngle = 0;
         /// <summary>
         /// Gets the smallest angle.
         /// </summary>
-        public double SmallestAngle { get { return minAngle; } }
+        public double SmallestAngle => minAngle;
 
         double maxAngle = 0;
         /// <summary>
         /// Gets the largest angle.
         /// </summary>
-        public double LargestAngle { get { return maxAngle; } }
+        public double LargestAngle => maxAngle;
 
         int[] angleTable;
         /// <summary>
         /// Gets the angle histogram.
         /// </summary>
-        public int[] AngleHistogram { get { return angleTable; } }
+        public int[] AngleHistogram => angleTable;
 
         int[] minAngles;
         /// <summary>
         /// Gets the min angles histogram.
         /// </summary>
-        public int[] MinAngleHistogram { get { return minAngles; } }
+        public int[] MinAngleHistogram => minAngles;
 
         int[] maxAngles;
         /// <summary>
         /// Gets the max angles histogram.
         /// </summary>
-        public int[] MaxAngleHistogram { get { return maxAngles; } }
+        public int[] MaxAngleHistogram => maxAngles;
 
         #endregion
 
         #region Private methods
 
-        private void GetAspectHistogram(MeshNet mesh)
+        private void GetAspectHistogram(Mesh mesh)
         {
             int[] aspecttable;
             double[] ratiotable;
@@ -202,7 +209,9 @@ namespace TriangleNet.Tools
         /// Update statistics about the quality of the mesh.
         /// </summary>
         /// <param name="mesh"></param>
-        public void Update(MeshNet mesh, int sampleDegrees)
+        /// <param name="sampleDegrees">Number of degrees to sample
+        /// (currently fixed to 60 = sample every 3 degrees).</param>
+        public void Update(Mesh mesh, int sampleDegrees)
         {
             Point[] p = new Point[3];
 
@@ -259,8 +268,8 @@ namespace TriangleNet.Tools
 
             foreach (var tri in mesh.triangles)
             {
-                triMinAngle = 0; // Min angle:  0 < a <  60 degress
-                triMaxAngle = 1; // Max angle: 60 < a < 180 degress
+                triMinAngle = 0; // Min angle:  0 < a <  60 degrees
+                triMaxAngle = 1; // Max angle: 60 < a < 180 degrees
 
                 p[0] = tri.vertices[0];
                 p[1] = tri.vertices[1];

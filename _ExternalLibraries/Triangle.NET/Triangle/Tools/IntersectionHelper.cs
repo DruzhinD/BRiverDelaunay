@@ -1,18 +1,55 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="IntersectionHelper.cs" company="">
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle.NET Copyright (c) 2012-2022 Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
 namespace TriangleNet.Tools
 {
+    using System;
     using TriangleNet.Geometry;
 
+    /// <summary>
+    /// Segment intersection helper.
+    /// </summary>
     public static class IntersectionHelper
     {
         /// <summary>
+        /// Check if a given test point lies on a segment.
+        /// </summary>
+        /// <param name="a">The segment start point.</param>
+        /// <param name="b">The segment end point.</param>
+        /// <param name="test">The point to test.</param>
+        /// <param name="eps">Threshold to test collinearity (default = 1e-12).</param>
+        /// <returns></returns>
+        public static bool IsPointOnSegment(Point a, Point b, Point test, double eps = 1e-12)
+        {
+            // The cross product.
+            double cross = (test.Y - a.Y) * (b.X - a.X) - (test.X - a.X) * (b.Y - a.Y);
+
+            // Check if points are collinear.
+            if (Math.Abs(cross) > eps) return false;
+
+            // The dot product (projection of test point onto segment).
+            double dot = (test.X - a.X) * (b.X - a.X) + (test.Y - a.Y) * (b.Y - a.Y);
+
+            // Check if test point is actually between a and b (left of a).
+            if (dot < 0) return false;
+
+            // Length of the segment.
+            double ab = (b.X - a.X) * (b.X - a.X) + (b.Y - a.Y) * (b.Y - a.Y);
+
+            // Ignore duplicate input points.
+            if (ab == 0) return false;
+
+            // Check if test point is actually between a and b (right of b).
+            if (dot > ab) return false;
+
+            return true;
+        }
+
+        /// <summary>
         /// Compute intersection of two segments.
-        /// Вычислить пересечение двух сегментов.
         /// </summary>
         /// <param name="p0">Segment 1 start point.</param>
         /// <param name="p1">Segment 1 end point.</param>
@@ -42,7 +79,6 @@ namespace TriangleNet.Tools
 
         /// <summary>
         /// Intersect segment with a bounding box.
-        /// Пересечение сегмента с ограничивающей рамкой.
         /// </summary>
         /// <param name="rect">The clip rectangle.</param>
         /// <param name="p0">Segment endpoint.</param>
@@ -107,13 +143,12 @@ namespace TriangleNet.Tools
 
         /// <summary>
         /// Intersect a ray with a bounding box.
-        /// Пересечение луча с ограничивающей рамкой.
         /// </summary>
         /// <param name="rect">The clip rectangle.</param>
-        /// <param name="p0">The ray startpoint (inside the box).</param>
+        /// <param name="p0">The ray start point (inside the box).</param>
         /// <param name="p1">Any point in ray direction (NOT the direction vector).</param>
         /// <param name="c1">The intersection point.</param>
-        /// <returns>Returns false, if startpoint is outside the box.</returns>
+        /// <returns>Returns false, if start point is outside the box.</returns>
         public static bool BoxRayIntersection(Rectangle rect, Point p0, Point p1, ref Point c1)
         {
             return BoxRayIntersection(rect, p0, p1.x - p0.x, p1.y - p0.y, ref c1);
@@ -123,10 +158,10 @@ namespace TriangleNet.Tools
         /// Intersect a ray with a bounding box.
         /// </summary>
         /// <param name="rect">The clip rectangle.</param>
-        /// <param name="p">The ray startpoint (inside the box).</param>
+        /// <param name="p">The ray start point (inside the box).</param>
         /// <param name="dx">X direction.</param>
         /// <param name="dy">Y direction.</param>
-        /// <returns>Returns false, if startpoint is outside the box.</returns>
+        /// <returns>Returns false, if start point is outside the box.</returns>
         public static Point BoxRayIntersection(Rectangle rect, Point p, double dx, double dy)
         {
             var intersection = new Point();
@@ -141,7 +176,6 @@ namespace TriangleNet.Tools
 
         /// <summary>
         /// Intersect a ray with a bounding box.
-        /// Пересечение луча с ограничивающей рамкой.
         /// </summary>
         /// <param name="rect">The clip rectangle.</param>
         /// <param name="p">The ray startpoint (inside the box).</param>

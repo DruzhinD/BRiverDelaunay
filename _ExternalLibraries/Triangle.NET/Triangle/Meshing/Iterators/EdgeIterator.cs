@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="EdgeEnumerator.cs" company="">
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// <copyright file="EdgeIterator.cs" company="">
+// Triangle.NET Copyright (c) 2012-2022 Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -12,91 +12,102 @@ namespace TriangleNet.Meshing.Iterators
 
     /// <summary>
     /// Enumerates the edges of a triangulation.
-    /// Перечисляет ребра триангуляции.
     /// </summary>
-    public class EdgeIterator : IEnumerator<Edge>
+    public class EdgeIterator
     {
-        IEnumerator<Triangle> triangles;
-        Otri tri = default(Otri);
-        Otri neighbor = default(Otri);
-        Osub sub = default(Osub);
-        Edge current;
-        Vertex p1, p2;
+        /// <summary>
+        /// Enumerate all edges of the given mesh.
+        /// </summary>
+        /// <param name="mesh"></param>
+        /// <returns></returns>
+        public IEnumerable<Edge> EnumerateEdges(IMesh mesh)
+        {
+            Otri tri = default;
+            Otri neighbor = default;
+            Osub sub = default;
+
+            Vertex p1, p2;
+
+            foreach (var t in mesh.Triangles)
+            {
+                tri.tri = t;
+                tri.orient = 0;
+
+                for (int i = 0; i < 3; i++)
+                {
+                    tri.Sym(ref neighbor);
+
+                    int nid = neighbor.tri.id;
+
+                    if ((tri.tri.id < nid) || (nid == Mesh.DUMMY))
+                    {
+                        p1 = tri.Org();
+                        p2 = tri.Dest();
+
+                        tri.Pivot(ref sub);
+
+                        // Boundary mark of dummysub is 0, so we don't need to worry about that.
+                        yield return new Edge(p1.id, p2.id, sub.seg.boundary);
+                    }
+
+                    tri.orient++;
+                }
+            }
+        }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EdgeIterator" /> class.
+        /// Enumerate all edges of the given mesh.
         /// </summary>
-        public EdgeIterator(MeshNet mesh)
+        /// <param name="mesh"></param>
+        /// <param name="skipSegments"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// In contrast to <see cref="EnumerateEdges(IMesh)"/> this method will return
+        /// objects that include the vertex information (and not only the indices).
+        /// </remarks>
+        public static IEnumerable<ISegment> EnumerateEdges(IMesh mesh, bool skipSegments = true)
         {
-            triangles = mesh.triangles.GetEnumerator();
-            triangles.MoveNext();
+            Otri tri = default;
+            Otri neighbor = default;
+            Osub sub = default;
 
-            tri.tri = triangles.Current;
-            tri.orient = 0;
-        }
+            Vertex p1, p2;
 
-        public Edge Current
-        {
-            get { return current; }
-        }
+            bool segments = !skipSegments;
 
-        public void Dispose()
-        {
-            this.triangles.Dispose();
-        }
-
-        object System.Collections.IEnumerator.Current
-        {
-            get { return current; }
-        }
-
-        public bool MoveNext()
-        {
-            if (tri.tri == null)
+            foreach (var t in mesh.Triangles)
             {
-                return false;
-            }
+                tri.tri = t;
+                tri.orient = 0;
 
-            current = null;
-
-            while (current == null)
-            {
-                if (tri.orient == 3)
+                for (int i = 0; i < 3; i++)
                 {
-                    if (triangles.MoveNext())
+                    tri.Sym(ref neighbor);
+
+                    int nid = neighbor.tri.id;
+
+                    if ((tri.tri.id < nid) || (nid == Mesh.DUMMY))
                     {
-                        tri.tri = triangles.Current;
-                        tri.orient = 0;
+                        p1 = tri.Org();
+                        p2 = tri.Dest();
+
+                        tri.Pivot(ref sub);
+
+                        if (sub.seg.hash == Mesh.DUMMY)
+                        {
+                            yield return new Segment(p1, p2);
+                        }
+                        else if (segments)
+                        {
+                            // Segments might be processed separately, so only
+                            // include them if requested.
+                            yield return sub.seg;
+                        }
                     }
-                    else
-                    {
-                        // Finally no more triangles
-                        return false;
-                    }
+
+                    tri.orient++;
                 }
-
-                tri.Sym(ref neighbor);
-
-                if ((tri.tri.id < neighbor.tri.id) || (neighbor.tri.id == MeshNet.DUMMY))
-                {
-                    p1 = tri.Org();
-                    p2 = tri.Dest();
-
-                    tri.Pivot(ref sub);
-
-                    // Boundary mark of dummysub is 0, so we don't need to worry about that.
-                    current = new Edge(p1.id, p2.id, sub.seg.boundary);
-                }
-
-                tri.orient++;
             }
-
-            return true;
-        }
-
-        public void Reset()
-        {
-            this.triangles.Reset();
         }
     }
 }

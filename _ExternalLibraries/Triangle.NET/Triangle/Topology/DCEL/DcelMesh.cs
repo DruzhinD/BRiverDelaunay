@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="DcelMesh.cs">
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle.NET Copyright (c) 2012-2022 Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -9,10 +9,18 @@ namespace TriangleNet.Topology.DCEL
     using System.Collections.Generic;
     using TriangleNet.Geometry;
 
+    /// <summary>
+    /// DCEL mesh.
+    /// </summary>
     public class DcelMesh
     {
+        /// <summary>List of vertices.</summary>
         protected List<Vertex> vertices;
+        
+        /// <summary>List of half-edges.</summary>
         protected List<HalfEdge> edges;
+
+        /// <summary>List of faces.</summary>
         protected List<Face> faces;
 
         /// <summary>
@@ -24,7 +32,7 @@ namespace TriangleNet.Topology.DCEL
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="" /> class.
+        /// Initializes a new instance of the <see cref="DcelMesh" /> class.
         /// </summary>
         /// <param name="initialize">If false, lists will not be initialized.</param>
         protected DcelMesh(bool initialize)
@@ -40,42 +48,36 @@ namespace TriangleNet.Topology.DCEL
         /// <summary>
         /// Gets the vertices of the Voronoi diagram.
         /// </summary>
-        public List<Vertex> Vertices
-        {
-            get { return vertices; }
-        }
+        public List<Vertex> Vertices => vertices;
 
         /// <summary>
         /// Gets the list of half-edges specify the Voronoi diagram topology.
         /// </summary>
-        public List<HalfEdge> HalfEdges
-        {
-            get { return edges; }
-        }
+        public List<HalfEdge> HalfEdges => edges;
 
         /// <summary>
         /// Gets the faces of the Voronoi diagram.
         /// </summary>
-        public List<Face> Faces
-        {
-            get { return faces; }
-        }
+        public List<Face> Faces => faces;
 
         /// <summary>
         /// Gets the collection of edges of the Voronoi diagram.
         /// </summary>
-        public IEnumerable<IEdge> Edges
-        {
-            get { return EnumerateEdges(); }
-        }
+        public IEnumerable<IEdge> Edges => EnumerateEdges();
 
         /// <summary>
-        /// Check if the DCEL is consistend.
+        /// Check if the DCEL is consistent.
         /// </summary>
         /// <param name="closed">If true, faces are assumed to be closed (i.e. all edges must have
         /// a valid next pointer).</param>
         /// <param name="depth">Maximum edge count of faces (default = 0 means skip check).</param>
         /// <returns></returns>
+        /// <remarks>
+        /// The <paramref name="depth"/> value relates to the maximum degree of a vertex in the
+        /// triangulation. For quality meshes, the maximum degree is usually low, but for meshes
+        /// build from PSLGs without quality constraints applied, either provide a larger value
+        /// or disable the check by setting <paramref name="depth"/> to 0 (default).
+        /// </remarks>
         public virtual bool IsConsistent(bool closed = true, int depth = 0)
         {
             // Check vertices for null pointers.
@@ -220,7 +222,7 @@ namespace TriangleNet.Topology.DCEL
             var map = new Dictionary<int, HalfEdge>();
 
             // TODO: parallel?
-            foreach (var edge in this.edges)
+            foreach (var edge in edges)
             {
                 if (edge.twin == null)
                 {
@@ -238,7 +240,7 @@ namespace TriangleNet.Topology.DCEL
                 edge.id = j++;
                 edge.next = map[edge.twin.origin.id];
 
-                this.edges.Add(edge);
+                edges.Add(edge);
             }
         }
 

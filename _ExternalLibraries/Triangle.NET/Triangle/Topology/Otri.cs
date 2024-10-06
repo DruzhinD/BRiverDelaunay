@@ -1,77 +1,54 @@
-﻿namespace TriangleNet.Topology
+﻿// -----------------------------------------------------------------------
+// <copyright file="Otri.cs">
+// Triangle Copyright (c) 1993, 1995, 1997, 1998, 2002, 2005 Jonathan Richard Shewchuk
+// Triangle.NET code by Christian Woltering
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace TriangleNet.Topology
 {
     using System;
     using TriangleNet.Geometry;
-    /// <сводка>
-    /// Ориентированный треугольник.
-    /// </сводка>
-    /// Включает указатель на треугольник и ориентацию.
-    /// Ориентация обозначает грань треугольника.Таким образом, 
-    /// возможны три направления. По соглашению каждое ребро 
-    /// всегда направлено против часовой стрелки относительно 
-    /// соответствующего треугольника.
+
+    /// <summary>
+    /// An oriented triangle.
+    /// </summary>
+    /// <remarks>
+    /// Includes a pointer to a triangle and orientation.  The orientation denotes an edge
+    /// of the triangle. Hence, there are three possible orientations. By convention, each
+    /// edge always points counterclockwise about the corresponding triangle.
+    /// </remarks>
     public struct Otri
     {
-        /// <summary>
-        /// треугольник
-        /// </summary>
         internal Triangle tri;
-        /// <summary>
-        /// Индекс грани сопряжения для поиска сопряженных треугольников
-        /// Нпример  tri.neighbors[orient].tri;
-        /// </summary>
         internal int orient; // Ranges from 0 to 2.
 
+        public int Orient => orient;
+
+        /// <summary>
+        /// Gets or sets the triangle.
+        /// </summary>
         public Triangle Triangle
         {
             get { return tri; }
             set { tri = value; }
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             if (tri == null)
             {
                 return "O-TID [null]";
             }
-            return String.Format("O-TID {0}", tri.hash);
+            return string.Format("O-TID {0}", tri.hash);
         }
 
         #region Otri primitives (public)
 
-        // For fast access Для быстрого доступа
+        // For fast access
         static readonly int[] plus1Mod3 = { 1, 2, 0 };
         static readonly int[] minus1Mod3 = { 2, 0, 1 };
-
-        // Все следующие примитивы описаны Гибасом и Столфи.
-        // Однако Гуибас и Столфи используют структуру данных на основе ребер,
-        // а я использую структуру данных на основе треугольника.
-        //
-        // lnnext: находит следующее ребро (против часовой стрелки) треугольника.
-        //
-        // onext: вращается против часовой стрелки вокруг вершины;
-        // то есть он находит следующее ребро с тем же началом в направлении
-        // против часовой стрелки. Это ребро является частью другого треугольника.
-        //
-        // oprev: вращение вокруг вершины по часовой стрелке; то есть он находит
-        // следующее ребро с тем же началом в направлении по часовой стрелке.
-        // Этот край часть другого треугольника.
-        //
-        // dnext: вращение вокруг вершины против часовой стрелки; то есть он
-        // находит следующее ребро с тем же пунктом назначения в направлении
-        // против часовой стрелки. Это ребро является частью другого треугольника.
-        //
-        // dprev: вращается вокруг вершины по часовой стрелке; то есть он находит
-        // следующее ребро с тем же пунктом назначения в направлении по часовой
-        // стрелке. Это ребро является частью другого треугольника.
-        //
-        // rnext: перемещает один край против часовой стрелки вокруг соседнего
-        // треугольника. (Лучше всего это понять, прочитав Гибаса и Столфи.
-        // Это предполагает двойную замену треугольников.)
-        //
-        // rprev: перемещает один край по часовой стрелке вокруг соседнего треугольника.
-        // (Лучше всего это понять, прочитав Гибаса и Столфи.Это предполагает двойную
-        // замену треугольников.)
 
         // The following primitives are all described by Guibas and Stolfi.
         // However, Guibas and Stolfi use an edge-based data structure,
@@ -106,17 +83,10 @@
         /// <summary>
         /// Find the abutting triangle; same edge. [sym(abc) -> ba*]
         /// </summary>
+        /// <remarks>
         /// Note that the edge direction is necessarily reversed, because the handle specified 
         /// by an oriented triangle is directed counterclockwise around the triangle.
         /// </remarks>
-
-        /// <сводка>
-        /// Находим примыкающий треугольник; тот же край. [sym(abc) -> ba*]
-        /// </сводка>
-        /// Обратите внимание, что направление края обязательно меняется 
-        /// на противоположное, поскольку маркер, заданный ориентированным
-        /// треугольником, направлен вокруг треугольника против часовой стрелки.
-        /// </примечания>
         public void Sym(ref Otri ot)
         {
             ot.tri = tri.neighbors[orient].tri;
@@ -125,7 +95,6 @@
 
         /// <summary>
         /// Find the abutting triangle; same edge. [sym(abc) -> ba*]
-        /// Найдите примыкающий треугольник; тот же край. [sym(abc) -> ba*]
         /// </summary>
         public void Sym()
         {
@@ -136,7 +105,6 @@
 
         /// <summary>
         /// Find the next edge (counterclockwise) of a triangle. [lnext(abc) -> bca]
-        /// Найдите следующую сторону (против часовой стрелки) треугольника. [lnext(abc) -> bca]
         /// </summary>
         public void Lnext(ref Otri ot)
         {
@@ -163,7 +131,6 @@
 
         /// <summary>
         /// Find the previous edge (clockwise) of a triangle. [lprev(abc) -> cab]
-        /// Найдите предыдущее ребро (по часовой стрелке) треугольника. [lprev(abc) -> cab]
         /// </summary>
         public void Lprev()
         {
@@ -365,7 +332,7 @@
         }
 
         /// <summary>
-        /// Destination [dest(abc) -> b]  Пункт назначения [пункт назначения(abc) -> b]
+        /// Destination [dest(abc) -> b]
         /// </summary>
         public Vertex Dest()
         {
@@ -387,6 +354,14 @@
         {
             ot.tri = tri;
             ot.orient = orient;
+        }
+
+        /// <summary>
+        /// Finds a subsegment abutting a triangle.
+        /// </summary>
+        public void Pivot(ref Osub os)
+        {
+            os = tri.subsegs[orient];
         }
 
         /// <summary>
@@ -437,13 +412,13 @@
             ot.tri.neighbors[ot.orient].orient = this.orient;
         }
 
-        /// <сводка>
-        /// Односторонний разрыв связи с треугольником.
-        /// </сводка>
-        /// <remarks> Обратите внимание, что другой треугольник все равно будет считать, 
-        /// что он соединен с этим треугольником. Однако обычно другой треугольник 
-        /// полностью удаляется или привязывается к другому треугольнику, поэтому это не имеет значения.
-        /// </примечания>
+        /// <summary>
+        /// Dissolve a bond (from one side).  
+        /// </summary>
+        /// <remarks>Note that the other triangle will still think it's connected to 
+        /// this triangle. Usually, however, the other triangle is being deleted 
+        /// entirely, or bonded to another triangle, so it doesn't matter.
+        /// </remarks>
         internal void Dissolve(Triangle dummy)
         {
             tri.neighbors[orient].tri = dummy;
@@ -451,7 +426,7 @@
         }
 
         /// <summary>
-        /// Заразить треугольник.
+        /// Infect a triangle with the virus.
         /// </summary>
         internal void Infect()
         {
@@ -459,7 +434,7 @@
         }
 
         /// <summary>
-        ///Вылечить треугольник от вируса.
+        /// Cure a triangle from the virus.
         /// </summary>
         internal void Uninfect()
         {
@@ -467,7 +442,7 @@
         }
 
         /// <summary>
-        /// Проверьте треугольник на вирусную инфекцию.
+        /// Test a triangle for viral infection.
         /// </summary>
         internal bool IsInfected()
         {
@@ -475,15 +450,7 @@
         }
 
         /// <summary>
-        /// Находит подотрезок, примыкающий к треугольнику.
-        /// </summary>
-        internal void Pivot(ref Osub os)
-        {
-            os = tri.subsegs[orient];
-        }
-
-        /// <summary>
-        /// Прикрепите треугольник к подсегменту.
+        /// Bond a triangle to a subsegment.
         /// </summary>
         internal void SegBond(ref Osub os)
         {

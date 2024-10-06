@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="BadTriangle.cs" company="">
-// Original Triangle code by Jonathan Richard Shewchuk, http://www.cs.cmu.edu/~quake/triangle.html
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle Copyright (c) 1993, 1995, 1997, 1998, 2002, 2005 Jonathan Richard Shewchuk
+// Triangle.NET code by Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -19,14 +19,6 @@ namespace TriangleNet.Meshing.Data
     /// Each triangle's vertices are stored so that one can check whether a
     /// triangle is still the same.
     /// </remarks>
-    /// <сводка>
-    /// Очередь, используемая для хранения плохих треугольников.
-    /// </сводка>
-    /// <примечания>
-    /// Ключом является квадрат косинуса наименьшего угла треугольника. 
-    /// Вершины каждого треугольника сохраняются, чтобы можно было проверить, 
-    /// остался ли треугольник прежним.
-    /// </примечания>
     class BadTriangle
     {
         public Otri poortri; // A skinny or too-large triangle.

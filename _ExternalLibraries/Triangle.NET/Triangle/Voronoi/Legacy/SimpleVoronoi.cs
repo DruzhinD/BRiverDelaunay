@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="Voronoi.cs">
-// Original Triangle code by Jonathan Richard Shewchuk, http://www.cs.cmu.edu/~quake/triangle.html
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle Copyright (c) 1993, 1995, 1997, 1998, 2002, 2005 Jonathan Richard Shewchuk
+// Triangle.NET code by Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -21,7 +21,7 @@ namespace TriangleNet.Voronoi.Legacy
     {
         IPredicates predicates = RobustPredicates.Default;
 
-        MeshNet mesh;
+        Mesh mesh;
 
         Point[] points;
         Dictionary<int, VoronoiRegion> regions;
@@ -40,7 +40,7 @@ namespace TriangleNet.Voronoi.Legacy
         /// <remarks>
         /// Be sure MakeVertexMap has been called (should always be the case).
         /// </remarks>
-        public SimpleVoronoi(MeshNet mesh)
+        public SimpleVoronoi(Mesh mesh)
         {
             this.mesh = mesh;
 
@@ -63,16 +63,17 @@ namespace TriangleNet.Voronoi.Legacy
             get { return regions.Values; }
         }
 
+        /// <summary>
+        /// Enumerates the edges of the Voronoi diagram.
+        /// </summary>
         public IEnumerable<IEdge> Edges
         {
             get { return EnumerateEdges(); }
         }
 
         /// <summary>
-        /// Gets the Voronoi diagram as raw output data.
+        /// Generate the Voronoi diagram.
         /// </summary>
-        /// <param name="mesh"></param>
-        /// <returns></returns>
         /// <remarks>
         /// The Voronoi diagram is the geometric dual of the Delaunay triangulation.
         /// Hence, the Voronoi vertices are listed by traversing the Delaunay
@@ -159,11 +160,11 @@ namespace TriangleNet.Voronoi.Legacy
             f_init.Onext(ref f_next);
 
             // Check if f_init lies on the boundary of the triangulation.
-            if (f_next.tri.id == MeshNet.DUMMY)
+            if (f_next.tri.id == Mesh.DUMMY)
             {
                 f_init.Oprev(ref f_prev);
 
-                if (f_prev.tri.id != MeshNet.DUMMY)
+                if (f_prev.tri.id != Mesh.DUMMY)
                 {
                     f_init.Copy(ref f_next);
                     // Move one triangle clockwise
@@ -173,7 +174,7 @@ namespace TriangleNet.Voronoi.Legacy
             }
 
             // Go counterclockwise until we reach the border or the initial triangle.
-            while (f_next.tri.id != MeshNet.DUMMY)
+            while (f_next.tri.id != Mesh.DUMMY)
             {
                 // Add circumcenter of current triangle
                 vpoints.Add(points[f.tri.id]);
@@ -231,7 +232,7 @@ namespace TriangleNet.Voronoi.Legacy
             f_init.Copy(ref f);
             f.Oprev(ref f_prev);
 
-            while (f_prev.tri.id != MeshNet.DUMMY)
+            while (f_prev.tri.id != Mesh.DUMMY)
             {
                 vpoints.Add(points[f_prev.tri.id]);
                 region.AddNeighbor(f_prev.tri.id, regions[f_prev.Apex().id]);

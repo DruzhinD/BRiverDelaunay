@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="TriangleFormat.cs" company="">
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle.NET Copyright (c) 2012-2022 Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -13,10 +13,11 @@ namespace TriangleNet.IO
     using TriangleNet.Meshing;
 
     /// <summary>
-    /// Implements geometry and mesh file formats of the the original Triangle code.
+    /// Implements geometry and mesh file formats of the original Triangle project.
     /// </summary>
-    public class TriangleFormat : IPolygonFormat, IBaseFormater
+    public class TriangleFormat : IPolygonFormat, IMeshFormat
     {
+        /// <inheritdoc />
         public bool IsSupported(string file)
         {
             string ext = Path.GetExtension(file).ToLower();
@@ -29,7 +30,8 @@ namespace TriangleNet.IO
             return false;
         }
 
-        public IMeshNet Import(string filename)
+        /// <inheritdoc />
+        public IMesh Import(string filename)
         {
             string ext = Path.GetExtension(filename);
 
@@ -42,26 +44,29 @@ namespace TriangleNet.IO
 
                 if (geometry != null && triangles != null)
                 {
-                    return Converter.ToMesh(geometry, triangles.ToArray());
+                    return Converter.Instance.ToMesh(geometry, triangles.ToArray());
                 }
             }
 
             throw new NotSupportedException("Could not load '" + filename + "' file.");
         }
 
-        public void Write(IMeshNet mesh, string filename)
+        /// <inheritdoc />
+        public void Write(IMesh mesh, string filename)
         {
             var writer = new TriangleWriter();
 
-            writer.WritePoly((MeshNet)mesh, Path.ChangeExtension(filename, ".poly"));
-            writer.WriteElements((MeshNet)mesh, Path.ChangeExtension(filename, ".ele"));
+            writer.WritePoly((Mesh)mesh, Path.ChangeExtension(filename, ".poly"));
+            writer.WriteElements((Mesh)mesh, Path.ChangeExtension(filename, ".ele"));
         }
 
-        public void Write(IMeshNet mesh, Stream stream)
+        /// <inheritdoc />
+        public void Write(IMesh mesh, Stream stream)
         {
             throw new NotImplementedException();
         }
 
+        /// <inheritdoc />
         public IPolygon Read(string filename)
         {
             string ext = Path.GetExtension(filename);
@@ -79,11 +84,13 @@ namespace TriangleNet.IO
         }
 
 
+        /// <inheritdoc />
         public void Write(IPolygon polygon, string filename)
         {
             (new TriangleWriter()).WritePoly(polygon, filename);
         }
 
+        /// <inheritdoc />
         public void Write(IPolygon polygon, Stream stream)
         {
             throw new NotImplementedException();

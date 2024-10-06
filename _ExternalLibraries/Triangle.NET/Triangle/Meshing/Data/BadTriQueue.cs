@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="BadTriQueue.cs">
-// Original Triangle code by Jonathan Richard Shewchuk, http://www.cs.cmu.edu/~quake/triangle.html
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle Copyright (c) 1993, 1995, 1997, 1998, 2002, 2005 Jonathan Richard Shewchuk
+// Triangle.NET code by Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -14,9 +14,9 @@ namespace TriangleNet.Meshing.Data
     /// A (priority) queue for bad triangles.
     /// </summary>
     /// <remarks>
-    //  The queue is actually a set of 4096 queues. I use multiple queues to
-    //  give priority to smaller angles. I originally implemented a heap, but
-    //  the queues are faster by a larger margin than I'd suspected.
+    /// The queue is actually a set of 4096 queues. I use multiple queues to
+    /// give priority to smaller angles. I originally implemented a heap, but
+    /// the queues are faster by a larger margin than I'd suspected.
     /// </remarks>
     class BadTriQueue
     {

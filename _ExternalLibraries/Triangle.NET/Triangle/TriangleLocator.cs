@@ -1,18 +1,18 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="TriangleLocator.cs" company="">
-// Original Triangle code by Jonathan Richard Shewchuk, http://www.cs.cmu.edu/~quake/triangle.html
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle Copyright (c) 1993, 1995, 1997, 1998, 2002, 2005 Jonathan Richard Shewchuk
+// Triangle.NET code by Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
 namespace TriangleNet
 {
+    using System;
     using TriangleNet.Geometry;
     using TriangleNet.Topology;
 
     /// <summary>
     /// Locate triangles in a mesh.
-    /// Найдите треугольники в сетке.
     /// </summary>
     /// <remarks>
     /// WARNING: This routine is designed for convex triangulations, and will
@@ -23,38 +23,28 @@ namespace TriangleNet
     /// Delaunay Triangulations," Proceedings of the Twelfth Annual Symposium on
     /// Computational Geometry, ACM, May 1996.
     /// </remarks>
-    /// ВНИМАНИЕ: эта процедура предназначена для выпуклых триангуляций и обычно 
-    /// не работает после того, как вырезаны отверстия и вогнутости.
-    ///
-    /// На основе статьи Эрнста П. Муке, Исаака Сайаса и Биньхая Чжу «Быстрое 
-    /// рандомизированное расположение точек без предварительной обработки в 
-    /// двумерных и трехмерных триангуляциях Делоне», Труды двенадцатого ежегодного 
-    /// симпозиума по вычислительной геометрии, ACM, Май 1996 года.
     public class TriangleLocator
     {
-        TriangleSampler sampler;
-        MeshNet mesh;
-
-        IPredicates predicates;
+        private readonly TriangleSampler sampler;
+        private readonly Mesh mesh;
+        private readonly IPredicates predicates;
 
         // Pointer to a recently visited triangle. Improves point location if
         // proximate vertices are inserted sequentially.
-        // Указатель на недавно посещенный треугольник.
-        // Улучшает расположение точек, если ближайшие вершины
-        // вставляются последовательно.
         internal Otri recenttri;
-
-        public TriangleLocator(MeshNet mesh)
-            : this(mesh, RobustPredicates.Default)
-        {
-        }
-
-        public TriangleLocator(MeshNet mesh, IPredicates predicates)
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TriangleLocator" /> class.
+        /// </summary>
+        /// <param name="mesh">The mesh.</param>
+        /// <param name="predicates">The predicates.</param>
+        /// <param name="random">The random source used in <see cref="TriangleSampler" />.</param>
+        public TriangleLocator(Mesh mesh, IPredicates predicates, Random random)
         {
             this.mesh = mesh;
             this.predicates = predicates;
 
-            sampler = new TriangleSampler(mesh);
+            sampler = new TriangleSampler(mesh, random);
         }
 
         /// <summary>
@@ -66,7 +56,8 @@ namespace TriangleNet
             otri.Copy(ref recenttri);
         }
 
-        public void Reset()
+        // TODO: Remove unused method.
+        internal void Reset()
         {
             sampler.Reset();
             recenttri.tri = null; // No triangle has been visited yet.
@@ -225,7 +216,7 @@ namespace TriangleNet
                 {
                     // Check for walking through a subsegment.
                     backtracktri.Pivot(ref checkedge);
-                    if (checkedge.seg.hash != MeshNet.DUMMY)
+                    if (checkedge.seg.hash != Mesh.DUMMY)
                     {
                         // Go back to the last triangle.
                         backtracktri.Copy(ref searchtri);
@@ -233,7 +224,7 @@ namespace TriangleNet
                     }
                 }
                 // Check for walking right out of the triangulation.
-                if (searchtri.tri.id == MeshNet.DUMMY)
+                if (searchtri.tri.id == Mesh.DUMMY)
                 {
                     // Go back to the last triangle.
                     backtracktri.Copy(ref searchtri);

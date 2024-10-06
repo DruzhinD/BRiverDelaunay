@@ -1,62 +1,47 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="HalfEdge.cs">
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle.NET Copyright (c) 2012-2022 Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
 namespace TriangleNet.Topology.DCEL
 {
     /// <summary>
-    /// полуребро, соединенное с гранью 
+    /// A half-edge of the DCEL data structure.
     /// </summary>
     public class HalfEdge
     {
-        /// <summary>
-        ///  идентификатор полуребра
-        /// </summary>
         internal int id;
-        /// <summary>
-        /// метка полуребра
-        /// </summary>
-        internal int mark;
-        /// <summary>
-        /// начало полуребра
-        /// </summary>
+        internal int label;
+
         internal Vertex origin;
-        /// <summary>
-        /// Грань, соединенная с полуребром.
-        /// </summary>
         internal Face face;
-        /// <summary>
-        /// Двойник полуребра в диаграме 
-        /// </summary>
         internal HalfEdge twin;
-        /// <summary>
-        /// следующий указатель полуребра в списке полуребер
-        /// </summary>
         internal HalfEdge next;
 
         /// <summary>
         /// Gets or sets the half-edge id.
-        /// Получает или задает идентификатор полуребра.
         /// </summary>
         public int ID
         {
             get { return id; }
             set { id = value; }
         }
+
         /// <summary>
-        /// Признак границы
+        /// Gets or sets a general-purpose label.
         /// </summary>
-        public int Boundary
+        /// <remarks>
+        /// Can be used to identify boundary segments.
+        /// </remarks>
+        public int Label
         {
-            get { return mark; }
-            set { mark = value; }
+            get { return label; }
+            set { label = value; }
         }
 
         /// <summary>
         /// Gets or sets the origin of the half-edge.
-        /// Получает или задает начало полуребра.
         /// </summary>
         public Vertex Origin
         {
@@ -66,7 +51,6 @@ namespace TriangleNet.Topology.DCEL
 
         /// <summary>
         /// Gets or sets the face connected to the half-edge.
-        /// Получает или задает грань, соединенную с полуребром.
         /// </summary>
         public Face Face
         {
@@ -76,7 +60,6 @@ namespace TriangleNet.Topology.DCEL
 
         /// <summary>
         /// Gets or sets the twin of the half-edge.
-        /// Получает или задает двойник полуребра.
         /// </summary>
         public HalfEdge Twin
         {
@@ -86,7 +69,6 @@ namespace TriangleNet.Topology.DCEL
 
         /// <summary>
         /// Gets or sets the next pointer of the half-edge.
-        /// Получает или задает следующий указатель полуребра в списке полуребер
         /// </summary>
         public HalfEdge Next
         {
@@ -112,7 +94,7 @@ namespace TriangleNet.Topology.DCEL
         {
             this.origin = origin;
             this.face = face;
-            // ВАЖНО: не снимайте проверку (face.edge == null)!
+
             // IMPORTANT: do not remove the (face.edge == null) check!
             if (face != null && face.edge == null)
             {
@@ -120,6 +102,7 @@ namespace TriangleNet.Topology.DCEL
             }
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return string.Format("HE-ID {0} (Origin = VID-{1})", id, origin.id);

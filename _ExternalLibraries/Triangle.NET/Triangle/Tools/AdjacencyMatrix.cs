@@ -1,76 +1,110 @@
-﻿namespace TriangleNet.Tools
+﻿// -----------------------------------------------------------------------
+// <copyright file="AdjacencyMatrix.cs" company="">
+// Original Matlab code by John Burkardt, Florida State University
+// Triangle.NET code by Christian Woltering
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace TriangleNet.Tools
 {
     using System;
 
-    /// <сводка>
-    /// Матрица смежности для сетки
-    /// </сводка>
+    /// <summary>
+    /// The adjacency matrix of the mesh.
+    /// </summary>
     public class AdjacencyMatrix
     {
-        /// <summary>
-        /// Количество записей смежности.
-        /// </summary>
+        // Number of adjacency entries.
         int nnz;
-        /// <summary>
-        /// Указатели на фактическую структуру смежности прил. 
-        /// Информация о строке k хранится в записях от pcol(k) 
-        /// до pcol(k+1)-1 в adj. Размер: N + 1
-        /// </summary>
+
+        // Pointers into the actual adjacency structure adj. Information about row k is
+        // stored in entries pcol(k) through pcol(k+1)-1 of adj. Size: N + 1
         int[] pcol;
 
-        /// <summary>
-        /// Структура смежности. Для каждой строки он содержит 
-        /// индексы столбцов ненулевых записей. Размер: nnz
-        /// </summary>
+        // The adjacency structure. For each row, it contains the column indices 
+        // of the nonzero entries. Size: nnz
         int[] irow;
 
         /// <summary>
-        /// Получает количество столбцов (узлов сетки).
+        /// Gets the number of columns (nodes of the mesh).
         /// </summary>
-        public readonly int N;
+        public readonly int ColumnCount;
 
         /// <summary>
-        /// Получает указатели столбцов.
+        /// Gets the column pointers.
         /// </summary>
-        public int[] ColumnPointers
+        public int[] ColumnPointers => pcol;
+
+        /// <summary>
+        /// Gets the row indices.
+        /// </summary>
+        public int[] RowIndices => irow;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AdjacencyMatrix" /> class.
+        /// </summary>
+        /// <param name="mesh">The mesh.</param>
+        /// <remarks>
+        /// As a side effect, this constructor will affect the node numbering of the
+        /// mesh to ensure that all regular vertices are numbered in a linear way (undead
+        /// vertices will be skipped and have negative ids). If you want to avoid the
+        /// renumbering, use the <see cref="AdjacencyMatrix(Mesh, bool)"/> constructor.
+        /// </remarks>
+        public AdjacencyMatrix(Mesh mesh)
+            : this(mesh, true)
         {
-            get { return pcol; }
         }
 
         /// <summary>
-        /// Получает индексы строк.
+        /// Initializes a new instance of the <see cref="AdjacencyMatrix" /> class.
         /// </summary>
-        public int[] RowIndices
+        /// <param name="mesh">The mesh.</param>
+        /// <param name="renumber">Determines whether nodes should automatically be renumbered.</param>
+        public AdjacencyMatrix(Mesh mesh, bool renumber)
         {
-            get { return irow; }
-        }
+            int n = mesh.vertices.Count;
 
-        public AdjacencyMatrix(MeshNet mesh)
-        {
-            this.N = mesh.vertices.Count;
+            // Undead vertices should not be considered in the adjacency matrix.
+            ColumnCount = n - mesh.undeads;
 
-            // Настройте массив указателей смежности adj_row.
-            this.pcol = AdjacencyCount(mesh);
-            this.nnz = pcol[N];
+            if (renumber)
+            {
+                // Renumber nodes, excluding undeads.
+                int i = 0;
+                foreach (var vertex in mesh.vertices.Values)
+                {
+                    vertex.id = vertex.type == VertexType.UndeadVertex ? -i : i++;
+                }
+            }
+
+            // Set up the adj_row adjacency pointer array.
+            pcol = AdjacencyCount(mesh);
+            nnz = pcol[ColumnCount];
 
             // Set up the adj adjacency array.
-            this.irow = AdjacencySet(mesh, this.pcol);
+            irow = AdjacencySet(mesh, pcol);
 
             SortIndices();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AdjacencyMatrix" /> class.
+        /// </summary>
+        /// <param name="pcol">The column pointers.</param>
+        /// <param name="irow">The row indices.</param>
+        /// <exception cref="ArgumentException"></exception>
         public AdjacencyMatrix(int[] pcol, int[] irow)
         {
-            this.N = pcol.Length - 1;
+            ColumnCount = pcol.Length - 1;
 
-            this.nnz = pcol[N];
+            nnz = pcol[ColumnCount];
 
             this.pcol = pcol;
             this.irow = irow;
 
             if (pcol[0] != 0)
             {
-                throw new ArgumentException("Expected 0-based indexing.", "pcol");
+                throw new ArgumentException("Expected 0-based indexing.", nameof(pcol));
             }
 
             if (irow.Length < nnz)
@@ -80,24 +114,19 @@
         }
 
         /// <summary>
-        /// Вычисляет пропускную способность матрицы смежности.
+        /// Computes the bandwidth of an adjacency matrix.
         /// </summary>
-        /// <returns>Пропускная способность матрицы смежности.</returns>
+        /// <returns>Bandwidth of the adjacency matrix.</returns>
         public int Bandwidth()
         {
-            int band_hi;
-            int band_lo;
-            int col;
-            int i, j;
+            int band_lo = 0;
+            int band_hi = 0;
 
-            band_lo = 0;
-            band_hi = 0;
-
-            for (i = 0; i < N; i++)
+            for (int i = 0; i < ColumnCount; i++)
             {
-                for (j = pcol[i]; j < pcol[i + 1]; j++)
+                for (int j = pcol[i]; j < pcol[i + 1]; j++)
                 {
-                    col = irow[j];
+                    int col = irow[j];
                     band_lo = Math.Max(band_lo, i - col);
                     band_hi = Math.Max(band_hi, col - i);
                 }
@@ -108,34 +137,34 @@
 
         #region Adjacency matrix
 
-
         /// <summary>
-        /// Подсчитывает смежности в триангуляции.
-        /// --------------------------------------------------------------
-        /// Эта процедура вызывается для подсчета смежностей, так что
-        /// соответствующий объем памяти может быть выделен для 
-        /// хранения при создании структуры смежности.
-        /// Предполагается, что в триангуляции участвуют трехузловые треугольники. 
-        /// Два узла являются «смежными», если они оба являются узлами 
-        /// некоторого треугольника.Кроме того, узел считается смежным сам с собой.
+        /// Counts adjacencies in a triangulation.
         /// </summary>
-        /// <param name="mesh"></param>
-        /// <returns></returns>
-        int[] AdjacencyCount(MeshNet mesh)
+        /// <remarks>
+        /// This routine is called to count the adjacencies, so that the
+        /// appropriate amount of memory can be set aside for storage when
+        /// the adjacency structure is created.
+        ///
+        /// The triangulation is assumed to involve 3-node triangles.
+        ///
+        /// Two nodes are "adjacent" if they are both nodes in some triangle.
+        /// Also, a node is considered to be adjacent to itself.
+        /// </remarks>
+        int[] AdjacencyCount(Mesh mesh)
         {
-            int n = N;
+            int n = ColumnCount;
             int n1, n2, n3;
             int tid, nid;
 
             int[] pcol = new int[n + 1];
 
-            // Установите каждый узел смежным с самим собой.
+            // Set every node to be adjacent to itself.
             for (int i = 0; i < n; i++)
             {
                 pcol[i] = 1;
             }
 
-            // Рассмотрите каждый треугольник.
+            // Examine each triangle.
             foreach (var tri in mesh.triangles)
             {
                 tid = tri.id;
@@ -191,38 +220,38 @@
         }
 
         /// <summary>
-        /// Эту процедуру можно использовать для создания сжатого хранилища столбцов 
-        /// для дискретизации конечных элементов линейного 
-        /// треугольника уравнения Пуассона в двух измерениях.
+        /// Sets adjacencies in a triangulation.
         /// </summary>
-        /// <param name="mesh"></param>
-        /// <param name="pcol"></param>
-        /// <returns></returns>
-        int[] AdjacencySet(MeshNet mesh, int[] pcol)
+        /// <remarks>
+        /// This routine can be used to create the compressed column storage
+        /// for a linear triangle finite element discretization of Poisson's
+        /// equation in two dimensions.
+        /// </remarks>
+        int[] AdjacencySet(Mesh mesh, int[] pcol)
         {
-            int n = this.N;
+            int n = ColumnCount;
 
             int[] col = new int[n];
 
-            // Копия ввода строк смежности.
+            // Copy of the adjacency rows input.
             Array.Copy(pcol, col, n);
 
             int i, nnz = pcol[n];
 
-            // Выходной список хранит фактическую информацию о смежности.
+            // Output list, stores the actual adjacency information.
             int[] list = new int[nnz];
 
-            // Установите каждый узел смежным с самим собой.
+            // Set every node to be adjacent to itself.
             for (i = 0; i < n; i++)
             {
                 list[col[i]] = i;
                 col[i] += 1;
             }
-            // Номера вершин
-            int n1, n2, n3;
-            // Треугольник и идентификатор соседа.
-            int tid, nid; 
-            // Цикл по треугольникам
+
+            int n1, n2, n3; // Vertex numbers.
+            int tid, nid; // Triangle and neighbor id.
+
+            // Examine each triangle.
             foreach (var tri in mesh.triangles)
             {
                 tid = tri.id;
@@ -263,16 +292,17 @@
 
             return list;
         }
+
         /// <summary>
-        /// сортировка по возрастанию
+        /// Sort indices.
         /// </summary>
         public void SortIndices()
         {
-            int k1, k2, n = N;
+            int k1, k2, n = ColumnCount;
 
-            int[] list = this.irow;
+            var list = irow;
 
-            // По возрастанию сортируйте записи для каждого столбца.
+            // Ascending sort the entries for each column.
             for (int i = 0; i < n; i++)
             {
                 k1 = pcol[i];

@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="Segment.cs" company="">
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle.NET Copyright (c) 2012-2022 Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -13,34 +13,23 @@ namespace TriangleNet.Geometry
     /// </summary>
     public class Segment : ISegment
     {
-        Vertex v0;
-        Vertex v1;
-
-        int label;
+        private readonly Vertex v0;
+        private readonly Vertex v1;
 
         /// <summary>
         /// Gets or sets the segments boundary mark.
         /// </summary>
-        public int Label
-        {
-            get { return label; }
-            set { label = value; }
-        }
+        public int Label { get; set; }
+
         /// <summary>
         /// Gets the first endpoints index.
         /// </summary>
-        public int P0
-        {
-            get { return v0.id; }
-        }
+        public int P0 => v0.id;
 
         /// <summary>
         /// Gets the second endpoints index.
         /// </summary>
-        public int P1
-        {
-            get { return v1.id; }
-        }
+        public int P1 => v1.id;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Segment" /> class.
@@ -58,7 +47,7 @@ namespace TriangleNet.Geometry
             this.v0 = v0;
             this.v1 = v1;
 
-            this.label = label;
+            Label = label;
         }
 
         /// <summary>
@@ -68,15 +57,8 @@ namespace TriangleNet.Geometry
         /// <returns></returns>
         public Vertex GetVertex(int index)
         {
-            if (index == 0)
-            {
-                return v0;
-            }
-
-            if (index == 1)
-            {
-                return v1;
-            }
+            if (index == 0) return v0;
+            if (index == 1) return v1;
 
             throw new IndexOutOfRangeException();
         }

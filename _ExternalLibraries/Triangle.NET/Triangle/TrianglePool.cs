@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="TrianglePool.cs" company="">
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle.NET Copyright (c) 2012-2022 Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -8,31 +8,41 @@ namespace TriangleNet
 {
     using System;
     using System.Collections.Generic;
-    using TriangleNet.Geometry;
     using TriangleNet.Topology;
 
+    /// <summary>
+    /// Pool datastructure storing triangles of a <see cref="Mesh" />.
+    /// </summary>
     public class TrianglePool : ICollection<Triangle>
     {
-        // Определяет размер каждого блока в пуле.
+        // Determines the size of each block in the pool.
         private const int BLOCKSIZE = 1024;
 
-        // Общее количество выделенных на данный момент треугольников.
+        // The total number of currently allocated triangles.
         int size;
 
-        // Количество треугольников, используемых в данный момент.
+        // The number of triangles currently used.
         int count;
 
         // The pool.
         Triangle[][] pool;
 
-        // Стек свободных треугольников.
+        // A stack of free triangles.
         Stack<Triangle> stack;
 
+        /// <summary>
+        /// Gets the total number of currently allocated triangles.
+        /// </summary>
+        public int Capacity => size;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TrianglePool" /> class.
+        /// </summary>
         public TrianglePool()
         {
             size = 0;
 
-            // При запуске пул должен содержать 2^16 треугольников.
+            // On startup, the pool should be able to hold 2^16 triangles.
             int n = Math.Max(1, 65536 / BLOCKSIZE);
 
             pool = new Triangle[n][];
@@ -42,7 +52,7 @@ namespace TriangleNet
         }
 
         /// <summary>
-        /// Достает треугольник из пула.
+        /// Gets a triangle from the pool.
         /// </summary>
         /// <returns></returns>
         public Triangle Get()
@@ -77,14 +87,14 @@ namespace TriangleNet
                 {
                     pool[block] = new Triangle[BLOCKSIZE];
 
-                    // Проверяем, нужно ли изменить размер пула.
+                    // Check if the pool has to be resized.
                     if (block + 1 == pool.Length)
                     {
                         Array.Resize(ref pool, 2 * pool.Length);
                     }
                 }
 
-                // Добавляем треугольник в пул.
+                // Add triangle to pool.
                 pool[block][size % BLOCKSIZE] = triangle;
 
                 count = ++size;
@@ -93,15 +103,19 @@ namespace TriangleNet
             return triangle;
         }
 
+        /// <summary>
+        /// Release triangle (making it a free triangle).
+        /// </summary>
         public void Release(Triangle triangle)
         {
             stack.Push(triangle);
-            // Отмечаем треугольник как свободный (используется перечислителем).
+
+            // Mark the triangle as free (used by enumerator).
             triangle.hash = -triangle.hash - 1;
         }
 
         /// <summary>
-        /// Перезапустите пул треугольников
+        /// Restart the triangle pool.
         /// </summary>
         public TrianglePool Restart()
         {
@@ -167,11 +181,17 @@ namespace TriangleNet
             }
         }
 
+        /// <summary>
+        /// Not supported for this <see cref="ICollection{Triangle}" />.
+        /// </summary>
         public void Add(Triangle item)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
+        /// <summary>
+        /// Clear the pool.
+        /// </summary>
         public void Clear()
         {
             stack.Clear();
@@ -194,6 +214,7 @@ namespace TriangleNet
             size = count = 0;
         }
 
+        /// <inheritdoc />
         public bool Contains(Triangle item)
         {
             int i = item.hash;
@@ -206,6 +227,7 @@ namespace TriangleNet
             return pool[i / BLOCKSIZE][i % BLOCKSIZE].hash >= 0;
         }
 
+        /// <inheritdoc />
         public void CopyTo(Triangle[] array, int index)
         {
             var enumerator = GetEnumerator();
@@ -217,21 +239,19 @@ namespace TriangleNet
             }
         }
 
-        public int Count
-        {
-            get { return count - stack.Count; }
-        }
+        /// <inheritdoc />
+        public int Count => count - stack.Count;
 
-        public bool IsReadOnly
-        {
-            get { return true; }
-        }
+        /// <inheritdoc />
+        public bool IsReadOnly => true;
 
+        /// <inheritdoc />
         public bool Remove(Triangle item)
         {
             throw new NotImplementedException();
         }
 
+        /// <inheritdoc />
         public IEnumerator<Triangle> GetEnumerator()
         {
             return new Enumerator(this);

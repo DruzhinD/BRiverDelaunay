@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="SweepLine.cs">
-// Original Triangle code by Jonathan Richard Shewchuk, http://www.cs.cmu.edu/~quake/triangle.html
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle Copyright (c) 1993, 1995, 1997, 1998, 2002, 2005 Jonathan Richard Shewchuk
+// Triangle.NET code by Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -15,7 +15,6 @@ namespace TriangleNet.Meshing.Algorithm
 
     /// <summary>
     /// Builds a delaunay triangulation using the sweepline algorithm.
-    /// Строит триангуляцию Делоне, используя алгоритм развертки.
     /// </summary>
     public class SweepLine : ITriangulator
     {
@@ -30,16 +29,18 @@ namespace TriangleNet.Meshing.Algorithm
 
         IPredicates predicates;
 
-        MeshNet mesh;
+        Mesh mesh;
         double xminextreme; // Nonexistent x value used as a flag in sweepline.
         List<SplayNode> splaynodes;
 
-        public IMeshNet Triangulate(IList<Vertex> points, Configuration config)
+        /// <summary>
+        /// Compute a Delaunay triangulation by the sweepline method.
+        /// </summary>
+        public IMesh Triangulate(IList<Vertex> points, Configuration config)
         {
-            this.predicates = config.Predicates();
+            predicates = config.Predicates();
 
-            this.mesh = new MeshNet(config);
-            this.mesh.TransferNodes(points);
+            mesh = new Mesh(config, points);
 
             // Nonexistent x value used as a flag to mark circle events in sweepline
             // Delaunay algorithm.
@@ -724,7 +725,7 @@ namespace TriangleNet.Meshing.Algorithm
                 if (noPoly)
                 {
                     // Watch out for the case where all the input vertices are collinear.
-                    if (dissolveedge.tri.id != MeshNet.DUMMY)
+                    if (dissolveedge.tri.id != Mesh.DUMMY)
                     {
                         markorg = dissolveedge.Org();
                         if (markorg.label == 0)

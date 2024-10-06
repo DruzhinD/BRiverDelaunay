@@ -2,7 +2,7 @@
 namespace TriangleNet.Meshing
 {
     /// <summary>
-    /// MeshNet constraint options for polygon triangulation.
+    /// Mesh constraint options for polygon triangulation.
     /// </summary>
     public class ConstraintOptions
     {

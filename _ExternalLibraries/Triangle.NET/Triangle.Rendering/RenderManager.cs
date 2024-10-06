@@ -2,12 +2,13 @@
 namespace TriangleNet.Rendering
 {
     using System.Collections.Generic;
-    using System.Windows.Forms;
     using TriangleNet.Geometry;
     using TriangleNet.Meshing;
-    using TriangleNet.Rendering.GDI;
     using TriangleNet.Rendering.Util;
 
+    /// <summary>
+    /// A helper class to handle <see cref="IRenderControl"/> and <see cref="IRenderContext"/>.
+    /// </summary>
     public class RenderManager
     {
         // TODO: delete
@@ -18,40 +19,37 @@ namespace TriangleNet.Rendering
         IRenderer renderer;
         Projection zoom;
 
-        public IRenderControl Control
-        {
-            get { return control; }
-        }
+        public IRenderControl Control => control; 
 
-        public IRenderContext Context
-        {
-            get { return context; }
-        }
+        public IRenderContext Context => context;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RenderManager"/> class.
+        /// </summary>
         public RenderManager()
         {
         }
 
-        public RenderManager(IRenderControl control)
-        {
-            Initialize(control);
-        }
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RenderManager"/> class.
+        /// </summary>
+        /// <param name="control">The <see cref="IRenderControl"/> instance.</param>
+        /// <param name="renderer">The <see cref="IRenderer"/> instance.</param>
         public RenderManager(IRenderControl control, IRenderer renderer)
         {
             Initialize(control, renderer);
         }
 
-        public void Initialize(IRenderControl control)
-        {
-            Initialize(control, new LayerRenderer());
-        }
-
+        /// <summary>
+        /// Initializes the <see cref="RenderManager"/> instance.
+        /// </summary>
+        /// <param name="control">The <see cref="IRenderControl"/> instance.</param>
+        /// <param name="renderer">The <see cref="IRenderer"/> instance.</param>
         public void Initialize(IRenderControl control, IRenderer renderer)
         {
-            this.zoom = new Projection(control.ClientRectangle);
+            zoom = new Projection(control.ClientRectangle);
 
-            this.context = new RenderContext(zoom, ColorManager.Default());
+            context = new RenderContext(zoom, ColorManager.Default());
 
             this.renderer = renderer;
             this.renderer.Context = context;
@@ -61,22 +59,39 @@ namespace TriangleNet.Rendering
             this.control.Renderer = renderer;
         }
 
+        /// <summary>
+        /// Try to create a <see cref="IRenderControl"/> form the given assembly name.
+        /// </summary>
+        /// <param name="assemblyName">The name of the assembly that contains the control.</param>
+        /// <param name="dependencies">A list of (local) assembly dependencies.</param>
+        /// <param name="control">The <see cref="IRenderControl"/> (output).</param>
+        /// <returns>True if control was created successfully.</returns>
         public bool TryCreateControl(string assemblyName, IEnumerable<string> dependencies,
             out IRenderControl control)
         {
-            if (!ReflectionHelper.TryCreateControl(assemblyName, dependencies, out control))
-            {
-                return false;
-            }
-
-            return control is Control;
+            return ReflectionHelper.TryCreateControl(assemblyName, dependencies, out control);
         }
 
+        /// <summary>
+        /// Update render control to reflect size changes of the window.
+        /// </summary>
         public void Resize()
         {
             control.HandleResize();
         }
 
+        /// <summary>
+        /// Clear all data.
+        /// </summary>
+        public void Clear()
+        {
+            context.Clear();
+            control.Refresh();
+        }
+
+        /// <summary>
+        /// Enable or disable the given layer.
+        /// </summary>
         public void Enable(int layer, bool enabled)
         {
             context.Enable(layer, enabled);
@@ -84,6 +99,9 @@ namespace TriangleNet.Rendering
             control.Refresh();
         }
 
+        /// <summary>
+        /// Add polygon data.
+        /// </summary>
         public void Set(IPolygon data, bool refresh = true)
         {
             context.Add(data);
@@ -94,7 +112,10 @@ namespace TriangleNet.Rendering
             }
         }
 
-        public void Set(IMeshNet data, bool reset, bool refresh = true)
+        /// <summary>
+        /// Add mesh data.
+        /// </summary>
+        public void Set(IMesh data, bool reset, bool refresh = true)
         {
             context.Add(data, reset);
 
@@ -105,7 +126,7 @@ namespace TriangleNet.Rendering
         }
 
         /// <summary>
-        /// Set data for Voronoi layer.
+        /// Add data for Voronoi layer.
         /// </summary>
         public void Set(ICollection<Point> points, IEnumerable<IEdge> edges, bool reset, bool refresh = true)
         {
@@ -117,13 +138,19 @@ namespace TriangleNet.Rendering
             }
         }
 
+        /// <summary>
+        /// Update data for function values.
+        /// </summary>
         public void Update(float[] values)
         {
             context.Add(values);
             control.Refresh();
         }
 
-        public void Update(int[] partition)
+        /// <summary>
+        /// Update data for mesh partitioning.
+        /// </summary>
+        public void Update(uint[] partition)
         {
             context.Add(partition);
             control.Refresh();

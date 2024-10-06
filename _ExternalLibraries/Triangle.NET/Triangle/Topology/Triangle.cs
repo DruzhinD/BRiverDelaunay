@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="Triangle.cs" company="">
-// Original Triangle code by Jonathan Richard Shewchuk, http://www.cs.cmu.edu/~quake/triangle.html
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle Copyright (c) 1993, 1995, 1997, 1998, 2002, 2005 Jonathan Richard Shewchuk
+// Triangle.NET code by Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -11,51 +11,35 @@ namespace TriangleNet.Topology
     using TriangleNet.Geometry;
 
     /// <summary>
-    /// Треугольник.
+    /// The triangle data structure.
     /// </summary>
     public class Triangle : ITriangle
     {
-        /// <summary>
-        /// Хэш для словаря. Будет установлен экземпляром сетки.
-        /// </summary>
+        // Hash for dictionary. Will be set by mesh instance.
         internal int hash;
-        /// <summary>
-        /// Идентификатор используется только для вывода сетки.
-        /// </summary>
+
+        // The ID is only used for mesh output.
         internal int id;
-        /// <summary>
-        /// Инициализируем три ближайших сопряженных треугольника как «внешнее пространство».
-        /// </summary>
+
         internal Otri[] neighbors;
-        
-        /// <summary>
-        /// вершины треугольника
-        /// </summary>
-        public Vertex[] vertices;
-        /// <summary>
-        /// 
-        /// </summary>
+        internal Vertex[] vertices;
         internal Osub[] subsegs;
         internal int label;
         internal double area;
-        /// <summary>
-        /// Метрка на треугольнике
-        /// </summary>
         internal bool infected;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса Triangle
+        /// Initializes a new instance of the <see cref="Triangle" /> class.
         /// </summary>
         public Triangle()
         {
-            // Три NULL-вершины.
+            // Three NULL vertices.
             vertices = new Vertex[3];
 
-            // Инициализируйте три соседних подсегмента, чтобы они были вездесущими.
+            // Initialize the three adjoining subsegments to be the omnipresent subsegment.
             subsegs = new Osub[3];
 
             // Initialize the three adjoining triangles to be "outer space".
-            // Инициализируем три соседних треугольника как «внешнее пространство».
             neighbors = new Otri[3];
 
             // area = -1.0;
@@ -68,8 +52,8 @@ namespace TriangleNet.Topology
         /// </summary>
         public int ID
         {
-            get { return this.id; }
-            set { this.id = value; }
+            get { return id; }
+            set { id = value; }
         }
 
         /// <summary>
@@ -77,8 +61,8 @@ namespace TriangleNet.Topology
         /// </summary>
         public int Label
         {
-            get { return this.label; }
-            set { this.label = value; }
+            get { return label; }
+            set { label = value; }
         }
 
         /// <summary>
@@ -86,37 +70,44 @@ namespace TriangleNet.Topology
         /// </summary>
         public double Area
         {
-            get { return this.area; }
-            set { this.area = value; }
+            get { return area; }
+            set { area = value; }
         }
 
         /// <summary>
         /// Gets the specified corners vertex.
         /// </summary>
+        /// <param name="index">The corner index (0, 1 or 2).</param>
+        /// <returns></returns>
         public Vertex GetVertex(int index)
         {
-            return this.vertices[index]; // TODO: Check range?
+            return vertices[index]; // TODO: Check range?
         }
 
+        /// <summary>
+        /// Gets the specified corners vertex id.
+        /// </summary>
+        /// <param name="index">The corner index (0, 1 or 2).</param>
+        /// <returns></returns>
         public int GetVertexID(int index)
         {
-            return this.vertices[index].id;
+            return vertices[index].id;
         }
 
         /// <summary>
         /// Gets a triangles' neighbor.
         /// </summary>
         /// <param name="index">The neighbor index (0, 1 or 2).</param>
-        /// <returns>The neigbbor opposite of vertex with given index.</returns>
+        /// <returns>The neighbor opposite of vertex with given index.</returns>
         public ITriangle GetNeighbor(int index)
         {
-            return neighbors[index].tri.hash == MeshNet.DUMMY ? null : neighbors[index].tri;
+            return neighbors[index].tri.hash == Mesh.DUMMY ? null : neighbors[index].tri;
         }
 
         /// <inheritdoc />
         public int GetNeighborID(int index)
         {
-            return neighbors[index].tri.hash == MeshNet.DUMMY ? -1 : neighbors[index].tri.id;
+            return neighbors[index].tri.hash == Mesh.DUMMY ? -1 : neighbors[index].tri.id;
         }
 
         /// <summary>
@@ -126,19 +117,21 @@ namespace TriangleNet.Topology
         /// <returns>The segment opposite of vertex with given index.</returns>
         public ISegment GetSegment(int index)
         {
-            return subsegs[index].seg.hash == MeshNet.DUMMY ? null : subsegs[index].seg;
+            return subsegs[index].seg.hash == Mesh.DUMMY ? null : subsegs[index].seg;
         }
 
         #endregion
 
+        /// <inheritdoc />
         public override int GetHashCode()
         {
-            return this.hash;
+            return hash;
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
-            return String.Format("TID {0}", hash);
+            return string.Format("TID {0}", hash);
         }
     }
 }

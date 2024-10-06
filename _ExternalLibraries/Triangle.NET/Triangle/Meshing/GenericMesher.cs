@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="GenericMesher.cs">
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle.NET Copyright (c) 2012-2022 Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -15,60 +15,103 @@ namespace TriangleNet.Meshing
     /// <summary>
     /// Create meshes of point sets or polygons.
     /// </summary>
+    /// <remarks>
+    /// If not specified otherwise, the default triangulation algorithm used is <see cref="Dwyer" />.
+    /// </remarks>
     public class GenericMesher
     {
         Configuration config;
         ITriangulator triangulator;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GenericMesher" /> class.
+        /// </summary>
         public GenericMesher()
             : this(new Dwyer(), new Configuration())
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GenericMesher" /> class.
+        /// </summary>
+        /// <param name="triangulator">The <see cref="ITriangulator" /> algorithm implementation.</param>
         public GenericMesher(ITriangulator triangulator)
             : this(triangulator, new Configuration())
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GenericMesher" /> class.
+        /// </summary>
+        /// <param name="config">The <see cref="Configuration" />.</param>
         public GenericMesher(Configuration config)
             : this(new Dwyer(), config)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GenericMesher" /> class.
+        /// </summary>
+        /// <param name="triangulator">The <see cref="ITriangulator" /> algorithm implementation.</param>
+        /// <param name="config">The <see cref="Configuration" />.</param>
         public GenericMesher(ITriangulator triangulator, Configuration config)
         {
             this.config = config;
             this.triangulator = triangulator;
         }
 
-        /// <inheritdoc />
-        public IMeshNet Triangulate(IList<Vertex> points)
+        /// <summary>
+        /// Triangulate the given point set.
+        /// </summary>
+        /// <param name="points">The input point set</param>
+        /// <returns>The mesh.</returns>
+        public IMesh Triangulate(IList<Vertex> points)
         {
             return triangulator.Triangulate(points, config);
         }
 
-        /// <inheritdoc />
-        public IMeshNet Triangulate(IPolygon polygon)
+        /// <summary>
+        /// Triangulate the given polygon.
+        /// </summary>
+        /// <param name="polygon">The input polygon.</param>
+        /// <returns>The mesh.</returns>
+        public IMesh Triangulate(IPolygon polygon)
         {
             return Triangulate(polygon, null, null);
         }
 
-        /// <inheritdoc />
-        public IMeshNet Triangulate(IPolygon polygon, ConstraintOptions options)
+        /// <summary>
+        /// Triangulate the given polygon.
+        /// </summary>
+        /// <param name="polygon">The input polygon.</param>
+        /// <param name="options">The <see cref="ConstraintOptions"/>.</param>
+        /// <returns>The mesh.</returns>
+        public IMesh Triangulate(IPolygon polygon, ConstraintOptions options)
         {
             return Triangulate(polygon, options, null);
         }
 
-        /// <inheritdoc />
-        public IMeshNet Triangulate(IPolygon polygon, QualityOptions quality)
+        /// <summary>
+        /// Triangulate the given polygon.
+        /// </summary>
+        /// <param name="polygon">The input polygon.</param>
+        /// <param name="quality">The <see cref="QualityOptions"/>.</param>
+        /// <returns>The mesh.</returns>
+        public IMesh Triangulate(IPolygon polygon, QualityOptions quality)
         {
             return Triangulate(polygon, null, quality);
         }
 
-        /// <inheritdoc />
-        public IMeshNet Triangulate(IPolygon polygon, ConstraintOptions options, QualityOptions quality)
+        /// <summary>
+        /// Triangulate the given polygon.
+        /// </summary>
+        /// <param name="polygon">The input polygon.</param>
+        /// <param name="options">The <see cref="ConstraintOptions"/>.</param>
+        /// <param name="quality">The <see cref="QualityOptions"/>.</param>
+        /// <returns>The mesh.</returns>
+        public IMesh Triangulate(IPolygon polygon, ConstraintOptions options, QualityOptions quality)
         {
-            var mesh = (MeshNet)triangulator.Triangulate(polygon.Points, config);
+            var mesh = (Mesh)triangulator.Triangulate(polygon.Points, config);
 
             var cmesher = new ConstraintMesher(mesh, config);
             var qmesher = new QualityMesher(mesh, config);
@@ -91,8 +134,8 @@ namespace TriangleNet.Meshing
         /// <param name="height">Height of the mesh (must be > 0).</param>
         /// <param name="nx">Number of segments in x direction.</param>
         /// <param name="ny">Number of segments in y direction.</param>
-        /// <returns>MeshNet</returns>
-        public static IMeshNet StructuredMesh(double width, double height, int nx, int ny)
+        /// <returns>Mesh</returns>
+        public static IMesh StructuredMesh(double width, double height, int nx, int ny)
         {
             if (width <= 0.0)
             {
@@ -113,8 +156,8 @@ namespace TriangleNet.Meshing
         /// <param name="bounds">Bounds of the mesh.</param>
         /// <param name="nx">Number of segments in x direction.</param>
         /// <param name="ny">Number of segments in y direction.</param>
-        /// <returns>MeshNet</returns>
-        public static IMeshNet StructuredMesh(Rectangle bounds, int nx, int ny)
+        /// <returns>Mesh</returns>
+        public static IMesh StructuredMesh(Rectangle bounds, int nx, int ny)
         {
             var polygon = new Polygon((nx + 1) * (ny + 1));
 
@@ -227,7 +270,7 @@ namespace TriangleNet.Meshing
                 }
             }
 
-            return Converter.ToMesh(polygon, triangles);
+            return Converter.Instance.ToMesh(polygon, triangles);
         }
     }
 }

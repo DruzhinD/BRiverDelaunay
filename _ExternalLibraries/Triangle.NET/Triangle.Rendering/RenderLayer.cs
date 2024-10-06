@@ -1,9 +1,6 @@
 ﻿
 namespace TriangleNet.Rendering
 {
-    using System.Collections.Generic;
-    using TriangleNet.Geometry;
-    using TriangleNet.Meshing;
     using TriangleNet.Rendering.Buffer;
     using TriangleNet.Rendering.Util;
 
@@ -14,49 +11,44 @@ namespace TriangleNet.Rendering
         int count;
 
         protected IBuffer<float> points;
-        protected IBuffer<int> indices;
+        protected IBuffer<uint> indices;
 
-        protected IBuffer<int> partition;
+        protected IBuffer<uint> partition;
         protected IBuffer<Color> colors;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RenderLayer"/> class.
+        /// </summary>
         public RenderLayer()
         {
-            this.IsEnabled = false;
+            IsEnabled = false;
         }
 
-        public int Count
-        {
-            get { return count; }
-        }
+        /// <inheritdoc />
+        public int Count => count;
 
-        public IBuffer<float> Points
-        {
-            get { return points; }
-            set { points = value; }
-        }
+        /// <inheritdoc />
+        public IBuffer<float> Points => points;
 
-        public IBuffer<int> Indices
-        {
-            get { return indices; }
-        }
+        /// <inheritdoc />
+        public IBuffer<uint> Indices => indices;
 
-        public IBuffer<int> Partition
-        {
-            get { return partition; }
-        }
+        /// <inheritdoc />
+        public IBuffer<uint> Partition => partition;
 
-        public IBuffer<Color> Colors
-        {
-            get { return colors; }
-        }
+        /// <inheritdoc />
+        public IBuffer<Color> Colors => colors;
 
+        /// <inheritdoc />
         public bool IsEnabled { get; set; }
 
+        /// <inheritdoc />
         public bool IsEmpty()
         {
             return (points == null || points.Count == 0);
         }
 
+        /// <inheritdoc />
         public void Reset(bool clear)
         {
             if (clear)
@@ -70,12 +62,13 @@ namespace TriangleNet.Rendering
             colors = null;
         }
 
-        public BoundingBox SetPoints(IBuffer<float> buffer)
+        /// <inheritdoc />
+        public void SetPoints(IBuffer<float> buffer, bool reset = true)
         {
-            BoundingBox bounds = new BoundingBox();
-
-            if (points != null && points.Count < buffer.Count)
+            if (!reset && points != null && points.Count < buffer.Count)
             {
+                // NOTE: we keep the old size to be able to render new Steiner
+                //       points in a different color than existing points.
                 count = points.Count / points.Size;
             }
             else
@@ -83,104 +76,27 @@ namespace TriangleNet.Rendering
                 count = buffer.Count / buffer.Size;
             }
 
-            this.points = buffer;
-
-            return bounds;
+            points = buffer;
         }
 
-        public BoundingBox SetPoints(IPolygon poly)
+        /// <inheritdoc />
+        public void SetIndices(IBuffer<uint> buffer)
         {
-            BoundingBox bounds = new BoundingBox();
-
-            points = BufferHelper.CreateVertexBuffer(poly.Points, ref bounds);
-            count = points.Count / points.Size;
-
-            return bounds;
+            indices = buffer;
         }
 
-        public BoundingBox SetPoints(IMeshNet mesh)
-        {
-            BoundingBox bounds = new BoundingBox();
-
-            points = BufferHelper.CreateVertexBuffer(mesh.Vertices, ref bounds);
-            count = points.Count / points.Size;
-
-            return bounds;
-        }
-
-        public BoundingBox SetPoints(ICollection<Point> vertices)
-        {
-            BoundingBox bounds = new BoundingBox();
-
-            points = BufferHelper.CreateVertexBuffer(vertices, ref bounds);
-            count = points.Count / points.Size;
-
-            return bounds;
-        }
-
-        public void SetPolygon(IPolygon poly)
-        {
-            indices = BufferHelper.CreateIndexBuffer(poly.Segments, 2);
-        }
-
-        public void SetPolygon(IMeshNet mesh)
-        {
-            indices = BufferHelper.CreateIndexBuffer(mesh.Segments, 2);
-        }
-
-        public void SetMesh(IEnumerable<IEdge> edges)
-        {
-            indices = BufferHelper.CreateIndexBuffer(edges, 2);
-        }
-
-        public void SetMesh(IMeshNet mesh, bool elements)
-        {
-            mesh.Renumber();
-
-            if (!elements)
-            {
-                indices = BufferHelper.CreateIndexBuffer(mesh.Edges, 2);
-            }
-
-            if (elements || indices.Count == 0)
-            {
-                indices = BufferHelper.CreateIndexBuffer(mesh.Triangles, 3);
-            }
-        }
-
-        // TODO: remove colormap argument
+        /// <inheritdoc />
         public void AttachLayerData(float[] values, ColorMap colormap)
         {
-            int length = values.Length;
+            var colorData = new Color[values.Length];
 
-            Color[] data = new Color[length];
+            colormap.GetColors(values, colorData);
 
-            double min = double.MaxValue;
-            double max = double.MinValue;
-
-            // Find min and max of given values.
-            for (int i = 0; i < length; i++)
-            {
-                if (values[i] < min)
-                {
-                    min = values[i];
-                }
-
-                if (values[i] > max)
-                {
-                    max = values[i];
-                }
-            }
-
-            for (int i = 0; i < length; i++)
-            {
-                data[i] = colormap.GetColor(values[i], min, max);
-            }
-
-            colors = new ColorBuffer(data, 1);
+            colors = new ColorBuffer(colorData, 1);
         }
 
-        public void AttachLayerData(int[] partition)
+        /// <inheritdoc />
+        public void AttachLayerData(uint[] partition)
         {
             this.partition = new IndexBuffer(partition, 1);
         }

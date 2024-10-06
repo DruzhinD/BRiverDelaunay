@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="CuthillMcKee.cs" company="">
 // Original Matlab code by John Burkardt, Florida State University
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle.NET code by Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -13,6 +13,23 @@ namespace TriangleNet.Tools
     /// Applies the Cuthill and McKee renumbering algorithm to reduce the bandwidth of
     /// the adjacency matrix associated with the mesh.
     /// </summary>
+    /// <remarks>
+    /// References:
+    /// 
+    /// Alan George, Joseph Liu,
+    /// Computer Solution of Large Sparse Positive Definite Systems,
+    /// Prentice Hall, 1981.
+    ///
+    /// Norman Gibbs, William Poole, Paul Stockmeyer,
+    /// An Algorithm for Reducing the Bandwidth and Profile of a Sparse Matrix,
+    /// SIAM Journal on Numerical Analysis,
+    /// Volume 13, pages 236-250, 1976.
+    ///
+    /// Norman Gibbs,
+    /// Algorithm 509: A Hybrid Profile Reduction Algorithm,
+    /// ACM Transactions on Mathematical Software,
+    /// Volume 2, pages 378-387, 1976.
+    /// </remarks>
     public class CuthillMcKee
     {
         // The adjacency matrix of the mesh.
@@ -23,24 +40,19 @@ namespace TriangleNet.Tools
         /// </summary>
         /// <param name="mesh">The mesh.</param>
         /// <returns>Permutation vector.</returns>
-        public int[] Renumber(MeshNet mesh)
+        public int[] Renumber(Mesh mesh)
         {
-            // Algorithm needs linear numbering of the nodes.
-            mesh.Renumber(NodeNumbering.Linear);
-
             return Renumber(new AdjacencyMatrix(mesh));
         }
 
         /// <summary>
         /// Gets the permutation vector for the Reverse Cuthill-McKee numbering.
         /// </summary>
-        /// <param name="mesh">The mesh.</param>
+        /// <param name="matrix">The adjacency matrix.</param>
         /// <returns>Permutation vector.</returns>
         public int[] Renumber(AdjacencyMatrix matrix)
         {
             this.matrix = matrix;
-
-            int bandwidth1 = matrix.Bandwidth();
 
             var pcol = matrix.ColumnPointers;
 
@@ -54,16 +66,17 @@ namespace TriangleNet.Tools
 
             int[] perm_inv = PermInverse(perm);
 
-            int bandwidth2 = PermBandwidth(perm, perm_inv);
+            // Adjust column pointers (0-based indexing).
+            Shift(pcol, false);
 
             if (Log.Verbose)
             {
-                Log.Instance.Info(String.Format("Reverse Cuthill-McKee (Bandwidth: {0} > {1})",
+                int bandwidth1 = matrix.Bandwidth();
+                int bandwidth2 = PermBandwidth(perm, perm_inv);
+
+                Log.Instance.Info(string.Format("Reverse Cuthill-McKee (Bandwidth: {0} > {1})",
                     bandwidth1, bandwidth2));
             }
-
-            // Adjust column pointers (0-based indexing).
-            Shift(pcol, false);
 
             return perm_inv;
         }
@@ -81,7 +94,7 @@ namespace TriangleNet.Tools
         int[] GenerateRcm()
         {
             // Number of nodes in the mesh.
-            int n = matrix.N;
+            int n = matrix.ColumnCount;
 
             int[] perm = new int[n];
 
@@ -89,11 +102,11 @@ namespace TriangleNet.Tools
             int iccsze = 0;
             int level_num = 0;
 
-            /// Index vector for a level structure. The level structure is stored in the
-            /// currently unused  spaces in the permutation vector PERM.
+            // Index vector for a level structure. The level structure is stored in the
+            // currently unused  spaces in the permutation vector PERM.
             int[] level_row = new int[n + 1];
 
-            /// Marks variables that have been numbered.
+            // Marks variables that have been numbered.
             int[] mask = new int[n];
 
             for (i = 0; i < n; i++)
@@ -139,21 +152,21 @@ namespace TriangleNet.Tools
         /// nonzero input mask values are considered by the routine. The nodes numbered by RCM will have 
         /// their mask values set to zero.</param>
         /// <param name="perm">Output, int PERM(NODE_NUM), the RCM ordering.</param>
+        /// <param name="offset">Internal array offset.</param>
         /// <param name="iccsze">Output, int ICCSZE, the size of the connected component that has been numbered.</param>
-        /// <param name="node_num">the number of nodes.</param>
         /// <remarks>
-        ///    The connected component is specified by a node ROOT and a mask.
-        ///    The numbering starts at the root node.
+        /// The connected component is specified by a node ROOT and a mask.
+        /// The numbering starts at the root node.
         ///
-        ///    An outline of the algorithm is as follows:
+        /// An outline of the algorithm is as follows:
         ///
-        ///    X(1) = ROOT.
+        /// X(1) = ROOT.
         ///
-        ///    for ( I = 1 to N-1)
-        ///      Find all unlabeled neighbors of X(I),
-        ///      assign them the next available labels, in order of increasing degree.
+        /// for ( I = 1 to N-1)
+        ///   Find all unlabeled neighbors of X(I),
+        ///   assign them the next available labels, in order of increasing degree.
         ///
-        ///    When done, reverse the ordering.
+        /// When done, reverse the ordering.
         /// </remarks>
         void Rcm(int root, int[] mask, int[] perm, int offset, ref int iccsze)
         {
@@ -167,10 +180,10 @@ namespace TriangleNet.Tools
             int nbr, node;
 
             // Number of nodes in the mesh.
-            int n = matrix.N;
+            int n = matrix.ColumnCount;
 
-            /// Workspace, int DEG[NODE_NUM], a temporary vector used to hold 
-            /// the degree of the nodes in the section graph specified by mask and root.
+            // Workspace, int DEG[NODE_NUM], a temporary vector used to hold 
+            // the degree of the nodes in the section graph specified by mask and root.
             int[] deg = new int[n];
 
             // Find the degrees of the nodes in the component specified by MASK and ROOT.
@@ -269,7 +282,7 @@ namespace TriangleNet.Tools
         /// containing the level structure found.</param>
         /// <param name="level">Output, int LEVEL(NODE_NUM), the level structure array pair 
         /// containing the level structure found.</param>
-        /// <param name="node_num">the number of nodes.</param>
+        /// <param name="offset">Internal array offset.</param>
         /// <remarks>
         /// The diameter of a graph is the maximum distance (number of edges)
         /// between any two nodes of the graph.
@@ -295,21 +308,6 @@ namespace TriangleNet.Tools
         /// returned as a list of nodes LS, and pointers to the beginning
         /// of the list of nodes that are at a distance of 0, 1, 2, ...,
         /// NODE_NUM-1 from the pseudo-peripheral node.
-        ///
-        /// Reference:
-        ///    Alan George, Joseph Liu,
-        ///    Computer Solution of Large Sparse Positive Definite Systems,
-        ///    Prentice Hall, 1981.
-        ///
-        ///    Norman Gibbs, William Poole, Paul Stockmeyer,
-        ///    An Algorithm for Reducing the Bandwidth and Profile of a Sparse Matrix,
-        ///    SIAM Journal on Numerical Analysis,
-        ///    Volume 13, pages 236-250, 1976.
-        ///
-        ///    Norman Gibbs,
-        ///    Algorithm 509: A Hybrid Profile Reduction Algorithm,
-        ///    ACM Transactions on Mathematical Software,
-        ///    Volume 2, pages 378-387, 1976.
         /// </remarks>
         void FindRoot(ref int root, int[] mask, ref int level_num, int[] level_row,
             int[] level, int offset)
@@ -409,7 +407,7 @@ namespace TriangleNet.Tools
         /// in level 1.  The neighbors of ROOT are in level 2, and so on.</param>
         /// <param name="level_row">Output, int LEVEL_ROW[NODE_NUM+1], the rooted level structure.</param>
         /// <param name="level">Output, int LEVEL[NODE_NUM], the rooted level structure.</param>
-        /// <param name="node_num">the number of nodes.</param>
+        /// <param name="offset">Internal array offset.</param>
         /// <remarks>
         /// Only nodes for which MASK is nonzero will be considered.
         ///
@@ -418,11 +416,6 @@ namespace TriangleNet.Tools
         /// assigned level 2 and masked.  The process continues until there
         /// are no unmasked nodes adjacent to any node in the current level.
         /// The number of levels may vary between 2 and NODE_NUM.
-        ///
-        /// Reference:
-        ///    Alan George, Joseph Liu,
-        ///    Computer Solution of Large Sparse Positive Definite Systems,
-        ///    Prentice Hall, 1981.
         /// </remarks>
         void GetLevelSet(ref int root, int[] mask, ref int level_num, int[] level_row,
             int[] level, int offset)
@@ -502,15 +495,10 @@ namespace TriangleNet.Tools
         /// <param name="iccsze">Output, int ICCSIZE, the number of nodes in the connected component.</param>
         /// <param name="ls">Output, int LS[NODE_NUM], stores in entries 1 through ICCSIZE the nodes in the 
         /// connected component, starting with ROOT, and proceeding by levels.</param>
-        /// <param name="node_num">the number of nodes.</param>
+        /// <param name="offset">Internal array offset.</param>
         /// <remarks>
-        ///    The connected component is specified by MASK and ROOT.
-        ///    Nodes for which MASK is zero are ignored.
-        ///
-        ///  Reference:
-        ///    Alan George, Joseph Liu,
-        ///    Computer Solution of Large Sparse Positive Definite Systems,
-        ///    Prentice Hall, 1981.
+        /// The connected component is specified by MASK and ROOT.
+        /// Nodes for which MASK is zero are ignored.
         /// </remarks>
         void Degree(int root, int[] mask, int[] deg, ref int iccsze, int[] ls, int offset)
         {
@@ -550,13 +538,13 @@ namespace TriangleNet.Tools
                     {
                         nbr = irow[j - 1];
 
-                        if (mask[nbr] != 0) // EDIT: [nbr - 1]
+                        if (mask[nbr] != 0)
                         {
                             ideg = ideg + 1;
 
-                            if (0 <= pcol[nbr]) // EDIT: [nbr - 1]
+                            if (0 <= pcol[nbr])
                             {
-                                pcol[nbr] = -pcol[nbr]; // EDIT: [nbr - 1]
+                                pcol[nbr] = -pcol[nbr];
                                 iccsze = iccsze + 1;
                                 ls[offset + iccsze - 1] = nbr;
                             }
@@ -598,18 +586,20 @@ namespace TriangleNet.Tools
             int[] pcol = matrix.ColumnPointers;
             int[] irow = matrix.RowIndices;
 
-            int col, i, j;
+            int col, end;
 
             int band_lo = 0;
             int band_hi = 0;
 
-            int n = matrix.N;
+            int n = matrix.ColumnCount;
 
-            for (i = 0; i < n; i++)
+            for (int i = 0; i < n; i++)
             {
-                for (j = pcol[perm[i]]; j < pcol[perm[i] + 1]; j++)
+                end = pcol[perm[i] + 1];
+
+                for (int j = pcol[perm[i]]; j < end; j++)
                 {
-                    col = perm_inv[irow[j - 1]];
+                    col = perm_inv[irow[j]];
                     band_lo = Math.Max(band_lo, i - col);
                     band_hi = Math.Max(band_hi, col - i);
                 }
@@ -621,12 +611,11 @@ namespace TriangleNet.Tools
         /// <summary>
         /// Produces the inverse of a given permutation.
         /// </summary>
-        /// <param name="n">Number of items permuted.</param>
         /// <param name="perm">PERM[N], a permutation.</param>
         /// <returns>The inverse permutation.</returns>
         int[] PermInverse(int[] perm)
         {
-            int n = matrix.N;
+            int n = matrix.ColumnCount;
 
             int[] perm_inv = new int[n];
 
@@ -642,6 +631,7 @@ namespace TriangleNet.Tools
         /// Reverses the elements of an integer vector.
         /// </summary>
         /// <param name="size">number of entries in the array.</param>
+        /// <param name="offset">Internal array offset.</param>
         /// <param name="a">the array to be reversed.</param>
         /// <example>
         ///   Input:
@@ -653,17 +643,15 @@ namespace TriangleNet.Tools
         /// </example>
         void ReverseVector(int[] a, int offset, int size)
         {
-            int i;
-            int j;
+            int j, middle = offset + size / 2,
+                end = offset + size - 1;
 
-            for (i = 0; i < size / 2; i++)
+            for (int i = offset; i < middle; i++)
             {
-                j = a[offset + i];
-                a[offset + i] = a[offset + size - 1 - i];
-                a[offset + size - 1 - i] = j;
+                j = a[i];
+                a[i] = a[end - i + offset];
+                a[end - i + offset] = j;
             }
-
-            return;
         }
 
         void Shift(int[] a, bool up)

@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Segment.cs" company="">
-// Original Triangle code by Jonathan Richard Shewchuk, http://www.cs.cmu.edu/~quake/triangle.html
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// <copyright file="SubSegment.cs" company="">
+// Triangle Copyright (c) 1993, 1995, 1997, 1998, 2002, 2005 Jonathan Richard Shewchuk
+// Triangle.NET code by Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -23,6 +23,9 @@ namespace TriangleNet.Topology
         internal Otri[] triangles;
         internal int boundary;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SubSegment" /> class.
+        /// </summary>
         public SubSegment()
         {
             // Four NULL vertices.
@@ -44,26 +47,17 @@ namespace TriangleNet.Topology
         /// <summary>
         /// Gets the first endpoints vertex id.
         /// </summary>
-        public int P0
-        {
-            get { return this.vertices[0].id; }
-        }
+        public int P0 => vertices[0].id;
 
         /// <summary>
         /// Gets the seconds endpoints vertex id.
         /// </summary>
-        public int P1
-        {
-            get { return this.vertices[1].id; }
-        }
+        public int P1 => vertices[1].id;
 
         /// <summary>
         /// Gets the segment boundary mark.
         /// </summary>
-        public int Label
-        {
-            get { return this.boundary; }
-        }
+        public int Label => boundary;
 
         #endregion
 
@@ -72,7 +66,7 @@ namespace TriangleNet.Topology
         /// </summary>
         public Vertex GetVertex(int index)
         {
-            return this.vertices[index]; // TODO: Check range?
+            return vertices[index]; // TODO: Check range?
         }
 
         /// <summary>
@@ -80,17 +74,27 @@ namespace TriangleNet.Topology
         /// </summary>
         public ITriangle GetTriangle(int index)
         {
-            return triangles[index].tri.hash == MeshNet.DUMMY ? null : triangles[index].tri;
+            return triangles[index].tri.hash == Mesh.DUMMY ? null : triangles[index].tri;
         }
 
+        /// <summary>
+        /// Gets an adjoining triangle.
+        /// </summary>
+        public void GetTriangle(int index, ref Otri otri)
+        {
+            otri = triangles[index];
+        }
+
+        /// <inheritdoc />
         public override int GetHashCode()
         {
-            return this.hash;
+            return hash;
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
-            return String.Format("SID {0}", hash);
+            return string.Format("SID {0}", hash);
         }
     }
 }

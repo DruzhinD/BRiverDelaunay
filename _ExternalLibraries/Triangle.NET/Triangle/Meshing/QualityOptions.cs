@@ -5,7 +5,7 @@ namespace TriangleNet.Meshing
     using TriangleNet.Geometry;
 
     /// <summary>
-    /// MeshNet constraint options for quality triangulation.
+    /// Mesh constraint options for quality triangulation.
     /// </summary>
     public class QualityOptions
     {
@@ -35,6 +35,15 @@ namespace TriangleNet.Meshing
         public Func<ITriangle, double, bool> UserTest { get; set; }
 
         /// <summary>
+        /// Gets or sets a test function for excluding triangles from refinement.
+        /// </summary>
+        /// <remarks>
+        /// The exclude test takes higher priority than all other test, i.e. if a
+        /// triangle passes the exclude test, no other test will be executed.
+        /// </remarks>
+        public Func<ITriangle, bool> Exclude { get; set; }
+
+        /// <summary>
         /// Gets or sets an area constraint per triangle.
         /// </summary>
         /// <remarks>
@@ -51,5 +60,14 @@ namespace TriangleNet.Meshing
         /// to meet the other quality constraints.
         /// </remarks>
         public int SteinerPoints { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to use the legacy refinement strategy (default = <c>false</c>).
+        /// </summary>
+        /// <remarks>
+        /// If this flag is set to true, the original Triangle refinement algorithm will be
+        /// used (Ruppert's algorithm). Otherwise the aCute algorithm is used.
+        /// </remarks>
+        public bool UseLegacyRefinement { get; set; }
     }
 }

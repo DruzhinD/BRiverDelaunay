@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="Osub.cs">
-// Original Triangle code by Jonathan Richard Shewchuk, http://www.cs.cmu.edu/~quake/triangle.html
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle Copyright (c) 1993, 1995, 1997, 1998, 2002, 2005 Jonathan Richard Shewchuk
+// Triangle.NET code by Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -23,18 +23,19 @@ namespace TriangleNet.Topology
         internal SubSegment seg;
         internal int orient; // Ranges from 0 to 1.
 
-        public SubSegment Segment
-        {
-            get { return seg; }
-        }
+        /// <summary>
+        /// Gets the subsegment.
+        /// </summary>
+        public SubSegment Segment => seg;
 
+        /// <inheritdoc />
         public override string ToString()
         {
             if (seg == null)
             {
                 return "O-TID [null]";
             }
-            return String.Format("O-SID {0}", seg.hash);
+            return string.Format("O-SID {0}", seg.hash);
         }
 
         #region Osub primitives

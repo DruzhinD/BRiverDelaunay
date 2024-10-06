@@ -1,40 +1,50 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="BoundedVoronoi.cs">
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle.NET Copyright (c) 2012-2022 Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
 namespace TriangleNet.Voronoi
 {
-    using System.Collections.Generic;
     using TriangleNet.Geometry;
     using TriangleNet.Tools;
     using TriangleNet.Topology.DCEL;
 
-    using HVertex = TriangleNet.Topology.DCEL.Vertex;
     using TVertex = TriangleNet.Geometry.Vertex;
 
+    /// <summary>
+    /// Computing the bounded Voronoi diagram of a constrained and conforming Delaunay triangulation.
+    /// </summary>
     public class BoundedVoronoi : VoronoiBase
     {
         int offset;
 
-        public BoundedVoronoi(MeshNet mesh)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StandardVoronoi" /> class.
+        /// </summary>
+        /// <param name="mesh">The mesh.</param>
+        public BoundedVoronoi(Mesh mesh)
             : this(mesh, new DefaultVoronoiFactory(), RobustPredicates.Default)
         {
         }
 
-        public BoundedVoronoi(MeshNet mesh, IVoronoiFactory factory, IPredicates predicates)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StandardVoronoi" /> class.
+        /// </summary>
+        /// <param name="mesh">The mesh.</param>
+        /// <param name="factory"></param>
+        /// <param name="predicates"></param>
+        public BoundedVoronoi(Mesh mesh, IVoronoiFactory factory, IPredicates predicates)
             : base(mesh, factory, predicates, true)
         {
             // We explicitly told the base constructor to call the Generate method, so
             // at this point the basic Voronoi diagram is already created.
-            offset = base.vertices.Count;
+            offset = vertices.Count;
 
             // Each vertex of the hull will be part of a Voronoi cell.
-            base.vertices.Capacity = offset + mesh.hullsize;
+            vertices.Capacity = offset + mesh.hullsize;
 
             // Create bounded Voronoi diagram.
-            // Создайте ограниченную диаграмму Вороного.
             PostProcess();
 
             ResolveBoundaryEdges();
@@ -95,16 +105,16 @@ namespace TriangleNet.Voronoi
             // Let the face edge point to the edge leaving at generator.
             edge.face.edge = h2;
 
-            base.edges.Add(h1);
-            base.edges.Add(h2);
+            edges.Add(h1);
+            edges.Add(h2);
 
-            int count = base.edges.Count;
+            int count = edges.Count;
 
             h1.id = count;
             h2.id = count + 1;
 
             gen.id = offset++;
-            base.vertices.Add(gen);
+            vertices.Add(gen);
         }
 
         /// <summary>
@@ -120,6 +130,17 @@ namespace TriangleNet.Voronoi
             var e1 = edge.twin.next;
             var e2 = e1.twin.next;
 
+            // Check if the neighboring cell was closed before.
+            if (edge.twin.id != edge.twin.face.edge.id)
+            {
+                edge.twin.face.edge.next = e1;
+            }
+            else
+            {
+                // If the cell isn't closed yet, make sure to update the faces edge pointer.
+                e1.face.edge = e1;
+            }
+
             // Find the two intersections with boundary edge.
             IntersectionHelper.IntersectSegments(v1, v2, e1.origin, e1.twin.origin, ref p2);
             IntersectionHelper.IntersectSegments(v1, v2, e2.origin, e2.twin.origin, ref p1);
@@ -131,6 +152,7 @@ namespace TriangleNet.Voronoi
 
             e1.origin = edge.twin.origin;
 
+            // Dissolve edge from other edges (origin and face stay the same).
             edge.twin.twin = null;
             edge.twin = null;
 
@@ -138,18 +160,21 @@ namespace TriangleNet.Voronoi
             var gen = factory.CreateVertex(v1.x, v1.y);
             var he = factory.CreateHalfEdge(gen, edge.face);
 
+            gen.leaving = he;
+
             edge.next = he;
             he.next = edge.face.edge;
+            e2.twin.next = edge;
 
             // Let the face edge point to the edge leaving at generator.
             edge.face.edge = he;
 
-            base.edges.Add(he);
+            edges.Add(he);
 
-            he.id = base.edges.Count;
+            he.id = edges.Count;
 
             gen.id = offset++;
-            base.vertices.Add(gen);
+            vertices.Add(gen);
         }
 
         /*

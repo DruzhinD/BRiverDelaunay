@@ -1,9 +1,4 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="ITriangulator.cs" company="">
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
-// </copyright>
-// -----------------------------------------------------------------------
-
+﻿
 namespace TriangleNet.Meshing
 {
     using System.Collections.Generic;
@@ -19,7 +14,7 @@ namespace TriangleNet.Meshing
         /// </summary>
         /// <param name="points">Collection of points.</param>
         /// <param name="config"></param>
-        /// <returns>MeshNet</returns>
-        IMeshNet Triangulate(IList<Vertex> points, Configuration config);
+        /// <returns>Mesh</returns>
+        IMesh Triangulate(IList<Vertex> points, Configuration config);
     }
 }

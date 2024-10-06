@@ -7,98 +7,47 @@ namespace TriangleNet.Rendering
 
     public class ColorManager
     {
-        Color background;
-        SolidBrush point;
-        SolidBrush steinerPoint;
-        Pen line;
-        Pen segment;
-        Pen voronoiLine;
-
         #region Public properties
 
         /// <summary>
         /// Gets or sets the background color.
         /// </summary>
-        public Color Background
-        {
-            get { return background; }
-            set { background = value; }
-        }
+        public Color Background { get; set; }
 
         /// <summary>
         /// Gets or sets the brush used for points.
         /// </summary>
-        public SolidBrush Point
-        {
-            get { return point; }
-            set
-            {
-                if (point != null) point.Dispose();
-                point = value;
-            }
-        }
+        public Color Point { get; set; }
 
         /// <summary>
         /// Gets or sets the brush used for steiner points.
         /// </summary>
-        public SolidBrush SteinerPoint
-        {
-            get { return steinerPoint; }
-            set
-            {
-                if (steinerPoint != null) steinerPoint.Dispose();
-                steinerPoint = value;
-            }
-        }
+        public Color SteinerPoint { get; set; }
 
         /// <summary>
         /// Gets or sets the pen used for mesh edges.
         /// </summary>
-        public Pen Line
-        {
-            get { return line; }
-            set
-            {
-                if (line != null) line.Dispose();
-                line = value;
-            }
-        }
+        public Color Line { get; set; }
 
         /// <summary>
         /// Gets or sets the pen used for mesh segments.
         /// </summary>
-        public Pen Segment
-        {
-            get { return segment; }
-            set
-            {
-                if (segment != null) segment.Dispose();
-                segment = value;
-            }
-        }
+        public Color Segment { get; set; }
 
         /// <summary>
         /// Gets or sets the pen used for Voronoi edges.
         /// </summary>
-        public Pen VoronoiLine
-        {
-            get { return voronoiLine; }
-            set
-            {
-                if (voronoiLine != null) voronoiLine.Dispose();
-                voronoiLine = value;
-            }
-        }
+        public Color VoronoiLine { get; set; }
 
         #endregion
 
         /// <summary>
         /// Gets or sets a dictionary which maps region ids (or partition indices) to a color.
         /// </summary>
-        public Dictionary<int, Color> ColorDictionary { get; set; }
+        public Dictionary<uint, Color> ColorDictionary { get; set; }
 
         /// <summary>
-        /// Gets or sets a colormap which is used for function plotting.
+        /// Gets or sets a color map used for function plotting.
         /// </summary>
         public ColorMap ColorMap { get; set; }
 
@@ -110,72 +59,53 @@ namespace TriangleNet.Rendering
             var colors = new ColorManager();
 
             colors.Background = Color.FromArgb(0, 0, 0);
-            colors.Point = new SolidBrush(Color.Green);
-            colors.SteinerPoint = new SolidBrush(Color.Peru);
-            colors.Line = new Pen(Color.FromArgb(30, 30, 30));
-            colors.Segment = new Pen(Color.DarkBlue);
-            colors.VoronoiLine = new Pen(Color.FromArgb(40, 50, 60));
+            colors.Point = Color.Green;
+            colors.SteinerPoint = Color.Peru;
+            colors.Line = Color.FromArgb(30, 30, 30);
+            colors.Segment = Color.DarkBlue;
+            colors.VoronoiLine = Color.FromArgb(40, 50, 60);
 
             return colors;
         }
 
-        public void CreateColorDictionary(int length)
+        public Dictionary<uint, Color> CreateColorDictionary(int length)
         {
-            var keys = new int[length];
+            var keys = new uint[length];
 
-            for (int i = 0; i < length; i++)
+            for (uint i = 0; i < length; i++)
             {
                 keys[i] = i;
             }
 
-            CreateColorDictionary(keys, length);
+            return CreateColorDictionary(keys);
         }
 
-        public void CreateColorDictionary(IEnumerable<int> keys, int length)
+        public Dictionary<uint, Color> CreateColorDictionary(IEnumerable<uint> keys)
         {
-            this.ColorDictionary = new Dictionary<int, Color>();
+            ColorDictionary = new Dictionary<uint, Color>();
 
             int i = 0, n = regionColors.Length;
 
             foreach (var key in keys)
             {
-                this.ColorDictionary.Add(key, regionColors[i]);
+                ColorDictionary.Add(key, regionColors[i]);
 
                 i = (i + 1) % n;
             }
-        }
 
-        internal void Dispose(Dictionary<int, SolidBrush> brushes)
-        {
-            foreach (var brush in brushes.Values)
-            {
-                brush.Dispose();
-            }
-        }
-
-        internal Dictionary<int, SolidBrush> GetBrushDictionary()
-        {
-            var brushes = new Dictionary<int, SolidBrush>();
-
-            foreach (var item in ColorDictionary)
-            {
-                brushes.Add(item.Key, new SolidBrush(item.Value));
-            }
-
-            return brushes;
+            return ColorDictionary;
         }
 
         // Change or add as many colors as you like...
         private static Color[] regionColors = {
-            Color.Transparent,
-            Color.FromArgb(200,   0, 255,   0),
-            Color.FromArgb(200, 255,   0,   0),
-            Color.FromArgb(200,   0,   0, 255),
-            Color.FromArgb(200,   0, 255, 255),
-            Color.FromArgb(200, 255, 255,   0),
-            Color.FromArgb(200, 255,   0, 255),
-            Color.FromArgb(200, 127,   0, 255),
-            Color.FromArgb(200,   0, 127, 255)
+            Color.FromArgb(127,   0, 255,   0),
+            Color.FromArgb(127, 255,   0,   0),
+            Color.FromArgb(127,   0,   0, 255),
+            Color.FromArgb(127,   0, 255, 255),
+            Color.FromArgb(127, 255, 255,   0),
+            Color.FromArgb(127, 255,   0, 255),
+            Color.FromArgb(127, 127,   0, 255),
+            Color.FromArgb(127,   0, 127, 255)
         };
     }
 }

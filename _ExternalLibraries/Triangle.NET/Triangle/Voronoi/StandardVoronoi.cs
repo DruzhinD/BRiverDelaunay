@@ -1,29 +1,46 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="StandardVoronoi.cs">
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle.NET Copyright (c) 2012-2022 Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
 namespace TriangleNet.Voronoi
 {
-    using System.Collections.Generic;
     using TriangleNet.Geometry;
     using TriangleNet.Tools;
-    using TriangleNet.Topology.DCEL;
 
+    /// <summary>
+    /// Computing the standard Voronoi diagram of a Delaunay triangulation.
+    /// </summary>
     public class StandardVoronoi : VoronoiBase
     {
-        public StandardVoronoi(MeshNet mesh)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StandardVoronoi" /> class.
+        /// </summary>
+        /// <param name="mesh">The mesh.</param>
+        public StandardVoronoi(Mesh mesh)
             : this(mesh, mesh.bounds, new DefaultVoronoiFactory(), RobustPredicates.Default)
         {
         }
 
-        public StandardVoronoi(MeshNet mesh, Rectangle box)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StandardVoronoi" /> class.
+        /// </summary>
+        /// <param name="mesh">The mesh.</param>
+        /// <param name="box">The bounding box used to clip infinite Voronoi edges.</param>
+        public StandardVoronoi(Mesh mesh, Rectangle box)
             : this(mesh, box, new DefaultVoronoiFactory(), RobustPredicates.Default)
         {
         }
 
-        public StandardVoronoi(MeshNet mesh, Rectangle box, IVoronoiFactory factory, IPredicates predicates)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StandardVoronoi" /> class.
+        /// </summary>
+        /// <param name="mesh">The mesh.</param>
+        /// <param name="box">The bounding box used for clipping (not implemented).</param>
+        /// <param name="factory"></param>
+        /// <param name="predicates"></param>
+        public StandardVoronoi(Mesh mesh, Rectangle box, IVoronoiFactory factory, IPredicates predicates)
             : base(mesh, factory, predicates, true)
         {
             // We assume the box to be at least as large as the mesh.

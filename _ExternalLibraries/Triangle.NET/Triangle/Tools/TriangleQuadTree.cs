@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="TriangleQuadTree.cs" company="">
-// Original code by Frank Dockhorn, [not available anymore: http://sourceforge.net/projects/quadtreesim/]
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Copyright(c) 2018 Frank Dockhorn, MIT license, https://sourceforge.net/projects/quadtreedemo/
+// Triangle.NET code by Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -13,7 +13,6 @@ namespace TriangleNet.Tools
 
     /// <summary>
     /// A Quadtree implementation optimized for triangles.
-    /// Реализация Quadtree, оптимизированная для треугольников.
     /// </summary>
     public class TriangleQuadTree
     {
@@ -27,7 +26,7 @@ namespace TriangleNet.Tools
         /// <summary>
         /// Initializes a new instance of the <see cref="TriangleQuadTree" /> class.
         /// </summary>
-        /// <param name="mesh">MeshNet containing triangles.</param>
+        /// <param name="mesh">Mesh containing triangles.</param>
         /// <param name="maxDepth">The maximum depth of the tree.</param>
         /// <param name="sizeBound">The maximum number of triangles contained in a leaf.</param>
         /// <remarks>
@@ -38,13 +37,7 @@ namespace TriangleNet.Tools
         /// A node of the tree will be split, if its level if less than the max depth parameter
         /// AND the number of triangles in the node is greater than the size bound.
         /// </remarks>
-        /// Дерево квадрантов не отслеживает изменения сетки. 
-        /// Если сетка уточняется или изменяется каким-либо другим способом, 
-        /// необходимо построить новое квадродерево, чтобы местоположение точки работало.
-        /// Узел дерева будет разделен, если его уровень меньше параметра максимальной 
-        /// глубины И количество треугольников в узле больше установленного размера.
-        /// 
-        public TriangleQuadTree(MeshNet mesh, int maxDepth = 10, int sizeBound = 10)
+        public TriangleQuadTree(Mesh mesh, int maxDepth = 10, int sizeBound = 10)
         {
             this.maxDepth = maxDepth;
             this.sizeBound = sizeBound;
@@ -57,6 +50,12 @@ namespace TriangleNet.Tools
             root.CreateSubRegion(++currentDepth);
         }
 
+        /// <summary>
+        /// Query the quadtree a given point.
+        /// </summary>
+        /// <param name="x">The x coordinate.</param>
+        /// <param name="y">The y coordinate.</param>
+        /// <returns></returns>
         public ITriangle Query(double x, double y)
         {
             var point = new Point(x, y);
@@ -77,7 +76,6 @@ namespace TriangleNet.Tools
 
         /// <summary>
         /// Test, if a given point lies inside a triangle.
-        /// Проверьте, лежит ли данная точка внутри треугольника.
         /// </summary>
         /// <param name="p">Point to locate.</param>
         /// <param name="t0">Corner point of triangle.</param>
@@ -124,7 +122,6 @@ namespace TriangleNet.Tools
 
         /// <summary>
         /// A node of the quadtree.
-        /// Узел квадродерева.
         /// </summary>
         class QuadNode
         {
@@ -136,9 +133,7 @@ namespace TriangleNet.Tools
             const double EPS = 1e-6;
 
             static readonly byte[] BITVECTOR = { 0x1, 0x2, 0x4, 0x8 };
-            /// <summary>
-            /// минимальный объемлющий прямоугольник для треугольника
-            /// </summary>
+
             Rectangle bounds;
             Point pivot;
             TriangleQuadTree tree;
@@ -268,11 +263,6 @@ namespace TriangleNet.Tools
                 // Handling of component comparison is tightly associated with the implementation 
                 // of the findRegion() function. That means when the point to be compared equals 
                 // the pivot point the triangle must be put at least into region 2.
-                //
-                // ПОЖАЛУЙСТА, ОБРАТИ ВНИМАНИЕ:
-                // Обработка сравнения компонентов тесно связана с реализацией функции findRegion().
-                // Это означает, что когда сравниваемая точка равна точке поворота,
-                // треугольник должен быть помещен как минимум в область 2.
                 //
                 // Linear equations are in parametric form.
                 //    pivot.x = triangle[0].x + t * (triangle[1].x - triangle[0].x)

@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="QualityMesher.cs">
-// Original Triangle code by Jonathan Richard Shewchuk, http://www.cs.cmu.edu/~quake/triangle.html
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle Copyright (c) 1993, 1995, 1997, 1998, 2002, 2005 Jonathan Richard Shewchuk
+// Triangle.NET code by Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -10,9 +10,7 @@ namespace TriangleNet.Meshing
     using System;
     using System.Collections.Generic;
     using TriangleNet.Geometry;
-    using TriangleNet.Logging;
     using TriangleNet.Meshing.Data;
-    using TriangleNet.Tools;
     using TriangleNet.Topology;
 
     /// <summary>
@@ -24,21 +22,21 @@ namespace TriangleNet.Meshing
 
         Queue<BadSubseg> badsubsegs;
         BadTriQueue queue;
-        MeshNet mesh;
+        Mesh mesh;
         Behavior behavior;
 
         NewLocation newLocation;
 
-        ILog<LogItem> logger;
+        Log logger = Log.Instance;
 
         // Stores the vertices of the triangle that contains newvertex
         // in SplitTriangle method.
         Triangle newvertex_tri;
 
-        public QualityMesher(MeshNet mesh, Configuration config)
-        {
-            logger = Log.Instance;
+        bool enableAcute = true;
 
+        public QualityMesher(Mesh mesh, Configuration config)
+        {
             badsubsegs = new Queue<BadSubseg>();
             queue = new BadTriQueue();
 
@@ -56,16 +54,10 @@ namespace TriangleNet.Meshing
         /// Apply quality constraints to a mesh.
         /// </summary>
         /// <param name="quality">The quality constraints.</param>
-        /// <param name="delaunay">A value indicating, if the refined mesh should be Conforming Delaunay.</param>
-        /// <сводка>
-        /// Применяем ограничения качества к сетке.
-        /// </сводка>
-        /// <param name="quality">Ограничения качества.</param>
-        /// <param name="delaunay">Значение, указывающее, должна ли уточненная сетка соответствовать требованиям Делоне.</param>
+        /// <param name="delaunay">A value indicating, whether the refined mesh should be Conforming Delaunay.</param>
         public void Apply(QualityOptions quality, bool delaunay = false)
         {
             // Copy quality options
-            // копирование параметров качества 
             if (quality != null)
             {
                 behavior.Quality = true;
@@ -74,27 +66,26 @@ namespace TriangleNet.Meshing
                 behavior.MaxAngle = quality.MaximumAngle;
                 behavior.MaxArea = quality.MaximumArea;
                 behavior.UserTest = quality.UserTest;
+                behavior.Exclude = quality.Exclude;
                 behavior.VarArea = quality.VariableArea;
 
                 behavior.ConformingDelaunay = behavior.ConformingDelaunay || delaunay;
 
                 mesh.steinerleft = quality.SteinerPoints == 0 ? -1 : quality.SteinerPoints;
+
+                enableAcute = !quality.UseLegacyRefinement;
             }
 
-            // TODO: remove // ЗАДАЧА: удалить
+            // TODO: remove
             if (!behavior.Poly)
             {
                 // Be careful not to allocate space for element area constraints that
                 // will never be assigned any value (other than the default -1.0).
-                // Будьте осторожны и не выделяйте место для ограничений области элемента, которые
-                // никогда не будет присвоено никакого значения (кроме значения по умолчанию -1.0).
                 behavior.VarArea = false;
             }
 
             // Ensure that no vertex can be mistaken for a triangular bounding
             // box vertex in insertvertex().
-            // Убедитесь, что ни одну вершину нельзя принять за треугольную границу
-            // вершина прямоугольника в методе Insertvertex().
             mesh.infvertex1 = null;
             mesh.infvertex2 = null;
             mesh.infvertex3 = null;
@@ -107,14 +98,12 @@ namespace TriangleNet.Meshing
             if (behavior.Quality && mesh.triangles.Count > 0)
             {
                 // Enforce angle and area constraints.
-                // Применение ограничений угла и площади.
                 EnforceQuality();
             }
         }
 
         /// <summary>
         /// Add a bad subsegment to the queue.
-        /// Добавьте в очередь плохой подсегмент.
         /// </summary>
         /// <param name="badseg">Bad subsegment.</param>
         public void AddBadSubseg(BadSubseg badseg)
@@ -162,7 +151,7 @@ namespace TriangleNet.Meshing
             // Check one neighbor of the subsegment.
             testsubseg.Pivot(ref neighbortri);
             // Does the neighbor exist, or is this a boundary edge?
-            if (neighbortri.tri.id != MeshNet.DUMMY)
+            if (neighbortri.tri.id != Mesh.DUMMY)
             {
                 sides++;
                 // Find a vertex opposite this subsegment.
@@ -192,7 +181,7 @@ namespace TriangleNet.Meshing
             testsubseg.Sym(ref testsym);
             testsym.Pivot(ref neighbortri);
             // Does the neighbor exist, or is this a boundary edge?
-            if (neighbortri.tri.id != MeshNet.DUMMY)
+            if (neighbortri.tri.id != Mesh.DUMMY)
             {
                 sides++;
                 // Find the other vertex opposite this subsegment.
@@ -265,6 +254,11 @@ namespace TriangleNet.Meshing
             double dist1, dist2;
 
             double maxangle;
+
+            if (behavior.Exclude != null && behavior.Exclude(testtri.tri))
+            {
+                return;
+            }
 
             torg = testtri.Org();
             tdest = testtri.Dest();
@@ -388,7 +382,7 @@ namespace TriangleNet.Meshing
                     // Check if both points lie in a common segment. If they do, the
                     // skinny triangle is enqueued to be split as usual.
                     tri1.Pivot(ref testsub);
-                    if (testsub.seg.hash == MeshNet.DUMMY)
+                    if (testsub.seg.hash == Mesh.DUMMY)
                     {
                         // No common segment.  Find a subsegment that contains 'torg'.
                         tri1.Copy(ref tri2);
@@ -396,7 +390,7 @@ namespace TriangleNet.Meshing
                         {
                             tri1.Oprev();
                             tri1.Pivot(ref testsub);
-                        } while (testsub.seg.hash == MeshNet.DUMMY);
+                        } while (testsub.seg.hash == Mesh.DUMMY);
                         // Find the endpoints of the containing segment.
                         org1 = testsub.SegOrg();
                         dest1 = testsub.SegDest();
@@ -405,7 +399,7 @@ namespace TriangleNet.Meshing
                         {
                             tri2.Dnext();
                             tri2.Pivot(ref testsub);
-                        } while (testsub.seg.hash == MeshNet.DUMMY);
+                        } while (testsub.seg.hash == Mesh.DUMMY);
                         // Find the endpoints of the containing segment.
                         org2 = testsub.SegOrg();
                         dest2 = testsub.SegDest();
@@ -444,7 +438,7 @@ namespace TriangleNet.Meshing
 
         #endregion
 
-        #region Maintanance
+        #region Maintenance
 
         /// <summary>
         /// Traverse the entire list of subsegments, and check each to see if it 
@@ -474,17 +468,6 @@ namespace TriangleNet.Meshing
         /// vertex at or near its midpoint.  Newly inserted vertices may encroach
         /// upon other subsegments; these are also repaired.
         /// </remarks>
-        /// <summary>
-        /// Разделить все захваченные подсегменты.
-        /// </summary>
-        /// <param name="triflaws">Флаг, указывающий, следует ли брать
-        /// примечание о новых плохих треугольниках, возникающих в результате вставки вершин для исправления
-        /// посягательство на подсегменты.</param>
-        /// <примечания>
-        /// Каждый захваченный подсегмент восстанавливается путем его разделения - вставки
-        /// вершина в средней точке или рядом с ней. Вновь вставленные вершины могут посягать на
-        /// по другим подсегментам; они тоже ремонтируются.
-        /// </примечания>
         private void SplitEncSegs(bool triflaws)
         {
             Otri enctri = default(Otri);
@@ -534,31 +517,16 @@ namespace TriangleNet.Meshing
                     // split. (If both endpoints are shared with adjacent
                     // segments, split the segment in the middle, and apply the
                     // concentric circles for later splittings.)
-                    // Is the origin shared with another segment?
 
-                    // Чтобы решить, где разделить сегмент, нам нужно знать,
-                    // имеет ли этот сегмент общую конечную точку с соседним сегментом.
-                    // Проблема в том, что если мы просто разделим каждый захваченный
-                    // сегмент в его центре, два соседних сегмента с небольшим углом
-                    // между ними могут привести к бесконечному циклу; каждая вершина,
-                    // добавленная для разделения одного сегмента, будет посягать на другой
-                    // сегмент, который затем необходимо разделить на вершину, которая
-                    // будет посягать на первый сегмент, и так до бесконечности.
-                    // Чтобы избежать этого, представьте себе набор концентрических кругов,
-                    // радиусы которых являются степенями двойки, вокруг конечной точки каждого сегмента.
-                    // Эти концентрические круги определяют место разделения сегмента.
-                    // (Если обе конечные точки являются общими для соседних сегментов,
-                    // разделите сегмент посередине и примените концентрические круги
-                    // для последующего разделения.)
-                    // Является ли источник общим с другим сегментом?
+                    // Is the origin shared with another segment?
                     currentenc.Pivot(ref enctri);
                     enctri.Lnext(ref testtri);
                     testtri.Pivot(ref testsh);
-                    acuteorg = testsh.seg.hash != MeshNet.DUMMY;
+                    acuteorg = testsh.seg.hash != Mesh.DUMMY;
                     // Is the destination shared with another segment?
                     testtri.Lnext();
                     testtri.Pivot(ref testsh);
-                    acutedest = testsh.seg.hash != MeshNet.DUMMY;
+                    acutedest = testsh.seg.hash != Mesh.DUMMY;
 
                     // If we're using Chew's algorithm (rather than Ruppert's)
                     // to define encroachment, delete free vertices from the
@@ -579,17 +547,17 @@ namespace TriangleNet.Meshing
 
                     // Now, check the other side of the segment, if there's a triangle there.
                     enctri.Sym(ref testtri);
-                    if (testtri.tri.id != MeshNet.DUMMY)
+                    if (testtri.tri.id != Mesh.DUMMY)
                     {
                         // Is the destination shared with another segment?
                         testtri.Lnext();
                         testtri.Pivot(ref testsh);
-                        acutedest2 = testsh.seg.hash != MeshNet.DUMMY;
+                        acutedest2 = testsh.seg.hash != Mesh.DUMMY;
                         acutedest = acutedest || acutedest2;
                         // Is the origin shared with another segment?
                         testtri.Lnext();
                         testtri.Pivot(ref testsh);
-                        acuteorg2 = testsh.seg.hash != MeshNet.DUMMY;
+                        acuteorg2 = testsh.seg.hash != Mesh.DUMMY;
                         acuteorg = acuteorg || acuteorg2;
 
                         // Delete free vertices from the subsegment's diametral circle.
@@ -765,18 +733,13 @@ namespace TriangleNet.Meshing
             {
                 errorflag = false;
                 // Create a new vertex at the triangle's circumcenter.
-
-                // Using the original (simpler) Steiner point location method
-                // for mesh refinement.
-                // TODO: NewLocation doesn't work for refinement. Why? Maybe 
-                // reset VertexType?
-                if (behavior.fixedArea || behavior.VarArea)
+                if (enableAcute)
                 {
-                    newloc = predicates.FindCircumcenter(borg, bdest, bapex, ref xi, ref eta, behavior.offconstant);
+                    newloc = newLocation.FindLocation(borg, bdest, bapex, ref xi, ref eta, true, badotri);
                 }
                 else
                 {
-                    newloc = newLocation.FindLocation(borg, bdest, bapex, ref xi, ref eta, true, badotri);
+                    newloc = predicates.FindCircumcenter(borg, bdest, bapex, ref xi, ref eta, behavior.offconstant);
                 }
 
                 // Check whether the new vertex lies on a triangle vertex.
@@ -787,8 +750,8 @@ namespace TriangleNet.Meshing
                     if (Log.Verbose)
                     {
                         logger.Warning("New vertex falls on existing vertex.", "Quality.SplitTriangle()");
-                        errorflag = true;
                     }
+                    errorflag = true;
                 }
                 else
                 {
@@ -859,8 +822,8 @@ namespace TriangleNet.Meshing
                         if (Log.Verbose)
                         {
                             logger.Warning("New vertex falls on existing vertex.", "Quality.SplitTriangle()");
-                            errorflag = true;
                         }
+                        errorflag = true;
                     }
                 }
                 if (errorflag)

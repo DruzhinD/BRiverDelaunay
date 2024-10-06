@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="Vertex.cs">
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle.NET Copyright (c) 2012-2022 Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -8,6 +8,9 @@ namespace TriangleNet.Topology.DCEL
 {
     using System.Collections.Generic;
 
+    /// <summary>
+    /// A vertex of the DCEL datastructure.
+    /// </summary>
     public class Vertex : TriangleNet.Geometry.Point
     {
         internal HalfEdge leaving;
@@ -60,6 +63,7 @@ namespace TriangleNet.Topology.DCEL
             } while (edge.ID != first);
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return string.Format("V-ID {0}", base.id);

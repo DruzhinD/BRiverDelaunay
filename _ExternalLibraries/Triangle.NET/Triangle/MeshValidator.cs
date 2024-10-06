@@ -1,25 +1,32 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="MeshValidator.cs">
-// Original Triangle code by Jonathan Richard Shewchuk, http://www.cs.cmu.edu/~quake/triangle.html
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle Copyright (c) 1993, 1995, 1997, 1998, 2002, 2005 Jonathan Richard Shewchuk
+// Triangle.NET code by Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
 namespace TriangleNet
 {
     using System;
-    using TriangleNet.Topology;
+    using System.Collections.Generic;
     using TriangleNet.Geometry;
+    using TriangleNet.Meshing;
+    using TriangleNet.Tools;
+    using TriangleNet.Topology;
 
+    /// <summary>
+    /// Mesh validation helper.
+    /// </summary>
     public static class MeshValidator
     {
         private static RobustPredicates predicates = RobustPredicates.Default;
 
         /// <summary>
         /// Test the mesh for topological consistency.
-        /// Проверьте сетку на топологическую согласованность.
         /// </summary>
-        public static bool IsConsistent(MeshNet mesh)
+        /// <param name="mesh">The mesh.</param>
+        /// <returns>True, if mesh is topologically consistent.</returns>
+        public static bool IsConsistent(Mesh mesh)
         {
             Otri tri = default(Otri);
             Otri oppotri = default(Otri), oppooppotri = default(Otri);
@@ -53,7 +60,7 @@ namespace TriangleNet
                         {
                             if (Log.Verbose)
                             {
-                                logger.Warning(String.Format("Triangle is flat or inverted (ID {0}).", t.id),
+                                logger.Warning(string.Format("Triangle is flat or inverted (ID {0}).", t.id),
                                     "MeshValidator.IsConsistent()");
                             }
 
@@ -63,7 +70,7 @@ namespace TriangleNet
 
                     // Find the neighboring triangle on this edge.
                     tri.Sym(ref oppotri);
-                    if (oppotri.tri.id != MeshNet.DUMMY)
+                    if (oppotri.tri.id != Mesh.DUMMY)
                     {
                         // Check that the triangle's neighbor knows it's a neighbor.
                         oppotri.Sym(ref oppooppotri);
@@ -113,17 +120,21 @@ namespace TriangleNet
         }
 
         /// <summary>
-        /// Check if the mesh is (conforming) Delaunay.
+        /// Check whether the mesh is (conforming) Delaunay.
         /// </summary>
-        public static bool IsDelaunay(MeshNet mesh)
+        /// <param name="mesh">The mesh.</param>
+        /// <returns>True, if mesh is (conforming) Delaunay.</returns>
+        public static bool IsDelaunay(Mesh mesh)
         {
             return IsDelaunay(mesh, false);
         }
 
         /// <summary>
-        /// Check if that the mesh is (constrained) Delaunay.
+        /// Check whether the mesh is (constrained) Delaunay.
         /// </summary>
-        public static bool IsConstrainedDelaunay(MeshNet mesh)
+        /// <param name="mesh">The mesh.</param>
+        /// <returns>True, if mesh is (constrained) Delaunay.</returns>
+        public static bool IsConstrainedDelaunay(Mesh mesh)
         {
             return IsDelaunay(mesh, true);
         }
@@ -131,7 +142,7 @@ namespace TriangleNet
         /// <summary>
         /// Ensure that the mesh is (constrained) Delaunay.
         /// </summary>
-        private static bool IsDelaunay(MeshNet mesh, bool constrained)
+        private static bool IsDelaunay(Mesh mesh, bool constrained)
         {
             Otri loop = default(Otri);
             Otri oppotri = default(Otri);
@@ -172,7 +183,7 @@ namespace TriangleNet
                     // adjoining triangle whose pointer is larger (to ensure that
                     // each pair isn't tested twice).
                     shouldbedelaunay = (loop.tri.id < oppotri.tri.id) &&
-                           !Otri.IsDead(oppotri.tri) && (oppotri.tri.id != MeshNet.DUMMY) &&
+                           !Otri.IsDead(oppotri.tri) && (oppotri.tri.id != Mesh.DUMMY) &&
                           (org != inf1) && (org != inf2) && (org != inf3) &&
                           (dest != inf1) && (dest != inf2) && (dest != inf3) &&
                           (apex != inf1) && (apex != inf2) && (apex != inf3) &&
@@ -184,7 +195,7 @@ namespace TriangleNet
                         // constrained, so no local Delaunay test should be done.
                         loop.Pivot(ref opposubseg);
 
-                        if (opposubseg.seg.hash != MeshNet.DUMMY)
+                        if (opposubseg.seg.hash != Mesh.DUMMY)
                         {
                             shouldbedelaunay = false;
                         }
@@ -196,7 +207,7 @@ namespace TriangleNet
                         {
                             if (Log.Verbose)
                             {
-                                logger.Warning(String.Format("Non-regular pair of triangles found (IDs {0}/{1}).",
+                                logger.Warning(string.Format("Non-regular pair of triangles found (IDs {0}/{1}).",
                                     loop.tri.id, oppotri.tri.id), "MeshValidator.IsDelaunay()");
                             }
 
@@ -211,6 +222,44 @@ namespace TriangleNet
             Behavior.NoExact = saveexact;
 
             return (horrors == 0);
+        }
+
+        /// <summary>
+        /// Check whether the mesh has degenerate boundary triangles.
+        /// </summary>
+        /// <param name="mesh">The mesh.</param>
+        /// <param name="threshold">Threshold for what angle is considered invalid (too small).</param>
+        /// <returns></returns>
+        public static IEnumerable<ITriangle> GetDegenerateBoundaryTriangles(IMesh mesh, double threshold = 1e-8)
+        {
+            // We will compare against the squared cosine of the maximum angle.
+            threshold = Math.Sqrt(threshold);
+
+            var data = new double[6];
+
+            foreach (var triangle in mesh.Triangles)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    var neighbor = triangle.GetNeighbor(i);
+
+                    // Triangle lies on mesh boundary.
+                    if (neighbor == null)
+                    {
+                        Statistic.ComputeAngles(triangle, data);
+                        
+                        // The squared cosine of the maximum angle will be near 1.0 only
+                        // if the maximum angle is near 180 degrees.
+                        if (Math.Abs(1.0 - data[1]) < threshold)
+                        {
+                            yield return triangle;
+                        }
+
+                        // Next triangle.
+                        break;
+                    }
+                }
+            }
         }
     }
 }

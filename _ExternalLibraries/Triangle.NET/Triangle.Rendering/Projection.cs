@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="Projection.cs" company="">
-// TODO: Update copyright text.
+// Triangle.NET Copyright (c) 2012-2022 Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -9,99 +9,111 @@ namespace TriangleNet.Rendering
     using System;
     using System.Drawing;
 
+    using TRectangle = Geometry.Rectangle;
+
     /// <summary>
     /// Manages a world to screen transformation (2D orthographic projection).
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The projection implementation is actually not world-to-screen, but NDC-to-screen
+    /// (Normalized-Device-Coordinates). NDC here is - in contrast for example to OpenGL, the
+    /// transformation of world coordinates to a unit rectangle with origin (0,0) and a max
+    /// side length 1 (the width/height ratio is preserved). It's a simple translate-scale
+    /// transform, which is automatically applied in <c>VertexBuffer.Create(points, bounds)</c>.
+    /// </para>
+    /// <para>
+    /// Since the upper-left corner of the display is usually the screen coordinate origin
+    /// (0,0), the projection will automatically invert the y-axis.
+    /// </para>
+    /// </remarks>
     public class Projection
     {
-        // The screen.
+        // The original mesh bounds (needed for screen-to-world projection).
+        TRectangle world_;
+
+        // Precomputed scaling factor for normalized coordinates.
+        double scale_;
+
+        // The screen dimensions.
         Rectangle screen;
 
-        // The complete mesh.
-        RectangleF world;
+        // The original mesh and the viewport in normalized coordinates.
+        RectangleF world, viewport;
 
         /// <summary>
-        /// Gets or sets the current viewport (visible mesh).
+        /// Gets or sets the current viewport (normalized coordinates).
         /// </summary>
-        public RectangleF Viewport { get; set; }
-
-        /// <summary>
-        /// Gets the current scale.
-        /// </summary>
-        public float Scale
-        {
-            get { return screen.Width / Viewport.Width; }
-        }
+        public RectangleF Viewport => viewport;
 
         /// <summary>
         /// Gets the zoom level.
         /// </summary>
         public int Level { get; private set; }
 
+        private const int MAX_ZOOM = 100;
+
         /// <summary>
-        /// Gets or sets a clip margin (default is 5% of viewport width on each side).
+        /// Initializes a new instance of the <see cref="Projection"/> class.
         /// </summary>
-        public float ClipMargin { get; set; }
-
-        // The y-direction of windows screen coordinates is upside down,
-        // so inverY must be set to true.
-        bool invertY = false;
-
-        int maxZoomLevel = 100;
-
-        public Projection(Rectangle screen, bool invertY = true)
+        /// <param name="screen">The current screen (viewport) dimensions.</param>
+        public Projection(Rectangle screen)
         {
             this.screen = screen;
-            this.world = screen;
-            this.Viewport = screen;
 
-            this.Level = 1;
+            world = viewport = new RectangleF(screen.X, screen.Y, screen.Width, screen.Height);
 
-            this.ClipMargin = this.Viewport.Width * 0.05f;
+            world_ = new TRectangle();
+            scale_ = 0;
 
-            this.invertY = invertY;
+            Level = 1;
         }
 
         /// <summary>
-        /// Inititialize the projection.
+        /// Initialize the projection.
         /// </summary>
         /// <param name="world">The world that should be transformed to screen coordinates.</param>
-        public void Initialize(BoundingBox world)
+        public void Initialize(TRectangle world)
         {
-            this.Level = 1;
+            Level = 1;
 
-            // Add a margin so there's some space around the border
-            float worldMargin = (world.Width < world.Height) ? world.Height * 0.05f : world.Width * 0.05f;
+            // Bounding box of original (non-normalized) coordinates.
+            world_ = world;
+
+            // Scaling factor for normalized coordinates.
+            scale_ = Math.Max(world.Width, world.Height);
+
+            // Dimensions in normalized coordinates.
+            float ww = (float)(world.Width / scale_);
+            float wh = (float)(world.Height / scale_);
+
+            // Add a margin so there's some space around the screen borders.
+            float margin = (ww < wh) ? wh * 0.05f : ww * 0.05f;
+
+            int sw = screen.Width;
+            int sh = screen.Height;
+
+            float wRatio = ww / wh;
+            float sRatio = sw / (float)sh;
+
+            float scale = (sRatio < wRatio) ? (ww + margin) / sw : (wh + margin) / sh;
+
+            // Center in normalized coordinates (left = bottom = 0)
+            float centerX = ww / 2;
+            float centerY = wh / 2;
 
             // Get the initial viewport (complete mesh centered on the screen)
-            float screenRatio = screen.Width / (float)screen.Height;
-            float worldRatio = world.Width / world.Height;
-
-            float scale = (world.Width + worldMargin) / screen.Width;
-
-            if (screenRatio > worldRatio)
-            {
-                scale = (world.Height + worldMargin) / screen.Height;
-            }
-
-            float centerX = world.Left + world.Width / 2;
-            float centerY = world.Bottom + world.Height / 2;
-
-            // TODO: Add initial margin
-            this.Viewport = new RectangleF(centerX - screen.Width * scale / 2,
-                centerY - screen.Height * scale / 2,
-                screen.Width * scale,
-                screen.Height * scale);
-
-            this.ClipMargin = this.Viewport.Width * 0.05f;
-
-            this.world = this.Viewport;
+            this.world = viewport = new RectangleF(
+                centerX - sw * scale / 2,
+                centerY - sh * scale / 2,
+                sw * scale,
+                sh * scale);
         }
 
         /// <summary>
-        /// Handle resize of the screen.
+        /// Handle resize of the screen (viewport).
         /// </summary>
-        /// <param name="newScreen">The new screen dimensions.</param>
+        /// <param name="newScreen">The new screen (viewport) dimensions.</param>
         public void Resize(Rectangle newScreen)
         {
             // The viewport has to be updated, but we want to keep
@@ -111,9 +123,9 @@ namespace TriangleNet.Rendering
             float scaleX = newScreen.Width / (float)screen.Width;
             float scaleY = newScreen.Height / (float)screen.Height;
 
-            this.screen = newScreen;
+            screen = newScreen;
 
-            var view = this.Viewport;
+            var view = viewport;
 
             // Center of the viewport
             float centerX = (view.Left + view.Right) / 2;
@@ -123,7 +135,7 @@ namespace TriangleNet.Rendering
             float width = view.Width * scaleX;
             float height = view.Height * scaleY;
 
-            this.Viewport = new RectangleF(
+            viewport = new RectangleF(
                 centerX - width / 2,
                 centerY - height / 2,
                 width, height);
@@ -135,7 +147,7 @@ namespace TriangleNet.Rendering
             width = world.Width * scaleX;
             height = world.Height * scaleY;
 
-            this.world = new RectangleF(
+            world = new RectangleF(
                 centerX - width / 2,
                 centerY - height / 2,
                 width, height);
@@ -148,12 +160,12 @@ namespace TriangleNet.Rendering
                 return false;
             }
 
-            var view = this.Viewport;
+            var view = viewport;
 
             float x = view.X + dx * view.Width / 4;
             float y = view.Y + dy * view.Height / 4;
 
-            this.Viewport = new RectangleF(x, y, view.Width, view.Height);
+            viewport = new RectangleF(x, y, view.Width, view.Height);
 
             return true;
         }
@@ -161,49 +173,46 @@ namespace TriangleNet.Rendering
         /// <summary>
         /// Zoom in or out of the viewport.
         /// </summary>
-        /// <param name="amount">Zoom amount</param>
-        /// <param name="focusX">Relative x point position</param>
-        /// <param name="focusY">Relative y point position</param>
+        /// <param name="amount">Zoom amount.</param>
+        /// <param name="focusX">Relative x point position (in [0..1] range).</param>
+        /// <param name="focusY">Relative y point position (in [0..1] range).</param>
         public bool Zoom(int amount, float focusX, float focusY)
         {
             float width, height;
 
-            if (invertY)
-            {
-                focusY = 1 - focusY;
-            }
+            // Invert y coordinate.
+            focusY = 1 - focusY;
 
             if (amount > 0) // Zoom in
             {
-                this.Level++;
+                Level++;
 
-                if (this.Level > maxZoomLevel)
+                if (Level > MAX_ZOOM)
                 {
-                    this.Level = maxZoomLevel;
+                    Level = MAX_ZOOM;
                     return false;
                 }
 
-                width = Viewport.Width / 1.1f;
-                height = Viewport.Height / 1.1f;
+                width = viewport.Width / 1.1f;
+                height = viewport.Height / 1.1f;
             }
             else
             {
-                this.Level--;
+                Level--;
 
-                if (this.Level < 1)
+                if (Level < 1)
                 {
-                    this.Level = 1;
-                    this.Viewport = this.world;
+                    Reset();
                     return false;
                 }
 
-                width = Viewport.Width * 1.1f;
-                height = Viewport.Height * 1.1f;
+                width = viewport.Width * 1.1f;
+                height = viewport.Height * 1.1f;
             }
 
             // Current focus on viewport
-            float x = Viewport.X + Viewport.Width * focusX;
-            float y = Viewport.Y + Viewport.Height * focusY;
+            float x = viewport.X + viewport.Width * focusX;
+            float y = viewport.Y + viewport.Height * focusY;
 
             // New left and top positions
             x = x - width * focusX;
@@ -229,43 +238,45 @@ namespace TriangleNet.Rendering
             }
 
             // Set new viewport
-            this.Viewport = new RectangleF(x, y, width, height);
-
-            this.ClipMargin = this.Viewport.Width * 0.05f;
+            viewport = new RectangleF(x, y, width, height);
 
             return true;
         }
 
+        /// <summary>
+        /// Reset the zoom to initial state.
+        /// </summary>
         public void Reset()
         {
-            this.Viewport = this.world;
-            this.Level = 1;
+            viewport = world;
+            Level = 1;
         }
 
-        public void WorldToScreen(ref PointF pt)
+        /// <summary>
+        /// Project a normalized device coordinate to screen coordinates.
+        /// </summary>
+        /// <param name="pt">Input normalized device coordinate, output screen coordinate.</param>
+        public void NdcToScreen(ref PointF pt)
         {
-            pt.X = (pt.X - Viewport.X) / Viewport.Width * screen.Width;
-            pt.Y = (1 - (pt.Y - Viewport.Y) / Viewport.Height) * screen.Height;
+            pt.X = (pt.X - viewport.X) / viewport.Width * screen.Width;
+            pt.Y = (1 - (pt.Y - viewport.Y) / viewport.Height) * screen.Height;
         }
 
-        public void ScreenToWorld(ref PointF pt)
+        /// <summary>
+        /// Project a screen coordinate to world coordinates.
+        /// </summary>
+        /// <param name="pt">Normalized position on screen (both coordinates in [0..1] range).</param>
+        /// <param name="x">The world x-coordinate.</param>
+        /// <param name="y">The world y-coordinate.</param>
+        public void ScreenToWorld(PointF pt, out double x, out double y)
         {
-            pt.X = Viewport.X + Viewport.Width * pt.X;
-            pt.Y = Viewport.Y + Viewport.Height * (1 - pt.Y);
-        }
+            // Position in normalized coordinates.
+            var nx = viewport.X + viewport.Width * pt.X;
+            var ny = viewport.Y + viewport.Height * (1 - pt.Y);
 
-        [Obsolete]
-        public PointF WorldToScreen(float x, float y)
-        {
-            return new PointF((x - Viewport.X) / Viewport.Width * screen.Width,
-                (1 - (y - Viewport.Y) / Viewport.Height) * screen.Height);
-        }
-
-        [Obsolete]
-        public PointF ScreenToWorld(float x, float y)
-        {
-            return new PointF(Viewport.X + Viewport.Width * x,
-                Viewport.Y + Viewport.Height * (1 - y));
+            // Translate and scale to world coordinates.
+            x = world_.X + nx * scale_;
+            y = world_.Y + ny * scale_;
         }
     }
 }

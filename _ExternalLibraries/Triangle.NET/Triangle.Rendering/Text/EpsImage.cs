@@ -11,14 +11,13 @@ namespace TriangleNet.Rendering.Text
     using System.IO;
     using TriangleNet;
     using TriangleNet.Geometry;
-
+    using TriangleNet.Meshing.Iterators;
     using Color = System.Drawing.Color;
     using IntPoint = System.Drawing.Point;
     using IntRectangle = System.Drawing.Rectangle;
 
     /// <summary>
     /// Writes a mesh to an EPS file.
-    /// Записывает сетку в файл EPS.
     /// </summary>
     public class EpsImage
     {
@@ -26,7 +25,7 @@ namespace TriangleNet.Rendering.Text
         PageSize ps = new PageSize(36, 126, 576, 666);
         PageSize clip = new PageSize(18, 108, 594, 684);
 
-        // MeshNet metrics
+        // Mesh metrics
         double x_max, x_min;
         double y_max, y_min;
 
@@ -42,7 +41,7 @@ namespace TriangleNet.Rendering.Text
         /// <param name="mesh">The current mesh.</param>
         /// <param name="filename">The EPS filename.</param>
         /// <param name="width">The desired width of the image (currently ignored).</param>
-        public void Export(MeshNet mesh, string filename, int width)
+        public void Export(Mesh mesh, string filename, int width)
         {
             // Check file name
             if (String.IsNullOrWhiteSpace(filename))

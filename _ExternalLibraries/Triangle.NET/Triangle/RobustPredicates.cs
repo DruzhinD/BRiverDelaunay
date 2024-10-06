@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="RobustPredicates.cs">
-// Original Triangle code by Jonathan Richard Shewchuk, http://www.cs.cmu.edu/~quake/triangle.html
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle Copyright (c) 1993, 1995, 1997, 1998, 2002, 2005 Jonathan Richard Shewchuk
+// Triangle.NET code by Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -13,33 +13,17 @@ namespace TriangleNet
 
     /// <summary>
     /// Adaptive exact arithmetic geometric predicates.
-    /// Адаптивные точные арифметические геометрические предикаты.
     /// </summary>
     /// <remarks>
     /// The adaptive exact arithmetic geometric predicates implemented herein are described in
     /// detail in the paper "Adaptive Precision Floating-Point Arithmetic and Fast Robust
     /// Geometric Predicates." by Jonathan Richard Shewchuk, see
-    /// Реализованные здесь адаптивные точные арифметические геометрические предикаты 
-    /// подробно описаны в статье «Адаптивная точная арифметика с плавающей запятой и 
-    /// быстрые устойчивые геометрические предикаты». Джонатан Ричард Шевчук, см.
     /// http://www.cs.cmu.edu/~quake/robust.html
     /// 
     /// The macros of the original C code were automatically expanded using the Visual Studio
     /// command prompt with the command "CL /P /C EXACT.C", see
-    /// Макросы исходного кода C были автоматически расширены с помощью командной 
-    /// строки Visual Studio с помощью команды «CL /P /C EXACT.C», см.
     /// http://msdn.microsoft.com/en-us/library/8z9z0bx6.aspx
     /// </remarks>
-    /// ---------------------------------------------------------------
-    /// Экземпляр предикатов по умолчанию (Singleton)
-    /// ---------------------------------------------------------------
-    /// При необходимости использует точную арифметику, чтобы гарантировать правильный ответ. 
-    /// Возвращаемый результат является определителем матрицы. Этот определитель вычисляется 
-    /// адаптивно, в том смысле, что точная арифметика используется только в той степени, в 
-    /// которой это необходимо для обеспечения правильного знака возвращаемого значения. 
-    /// Следовательно, эта функция обычно работает довольно быстро, но будет работать медленнее, 
-    /// если входные точки совпадают или почти совпадают.
-    /// ---------------------------------------------------------------
     public class RobustPredicates : IPredicates
     {
         #region Default predicates instance (Singleton)
@@ -49,7 +33,6 @@ namespace TriangleNet
 
         /// <summary>
         /// Gets the default configuration instance.
-        /// Получает экземпляр конфигурации по умолчанию.
         /// </summary>
         public static RobustPredicates Default
         {
@@ -111,11 +94,6 @@ namespace TriangleNet
             // one without causing roundoff.  (Also check if the sum is equal to
             // the previous sum, for machines that round up instead of using exact
             // rounding.  Not that these routines will work on such machines.)
-            // Неоднократно делим «эпсилон» на два, пока оно не станет слишком
-            // маленьким, чтобы прибавлять к единице без округления. (Также
-            // проверьте, равна ли сумма предыдущей сумме, для машин, которые
-            // округляют вместо точного округления.Эти процедуры не будут
-            // работать на таких машинах.)
             do
             {
                 lastcheck = check;
@@ -143,39 +121,17 @@ namespace TriangleNet
 
         #endregion
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RobustPredicates" /> class.
+        /// </summary>
         public RobustPredicates()
         {
             AllocateWorkspace();
         }
 
-        /// <summary>
-        /// Check, if the three points appear in counterclockwise order. The result is 
-        /// also a rough approximation of twice the signed area of the triangle defined 
-        /// by the three points.
-        /// 
-        /// Проверяем, появляются ли три точки против часовой стрелки. 
-        /// Результат также является грубой аппроксимацией удвоенной площади 
-        /// треугольника со знаком, определяемого тремя точками.
-        /// 
-        /// </summary>
-        /// <param name="pa">Point a.</param>
-        /// <param name="pb">Point b.</param>
-        /// <param name="pc">Point c.</param>
-        /// <returns>Return a positive value if the points pa, pb, and pc occur in 
-        /// counterclockwise order; a negative value if they occur in clockwise order; 
-        /// and zero if they are collinear.
-        /// 
-        /// Возвращает положительное значение, если точки pa, pb и pc расположены против 
-        /// часовой стрелки; отрицательное значение, если они происходят по часовой стрелке; 
-        /// и ноль, если они коллинеарны.
-        /// </returns>
+        /// <inheritdoc/>
         public double CounterClockwise(Point pa, Point pb, Point pc)
         {
-            //if (double.IsInfinity(pa.x) == true || double.IsInfinity(pb.x) == true || double.IsInfinity(pc.x) == true)
-            //{
-            //    return 0.0;
-            //}
-
             double detleft, detright, det;
             double detsum, errbound;
 
@@ -227,18 +183,7 @@ namespace TriangleNet
             return CounterClockwiseAdapt(pa, pb, pc, detsum);
         }
 
-        /// <summary>
-        /// Check if the point pd lies inside the circle passing through pa, pb, and pc. The 
-        /// points pa, pb, and pc must be in counterclockwise order, or the sign of the result 
-        /// will be reversed.
-        /// </summary>
-        /// <param name="pa">Point a.</param>
-        /// <param name="pb">Point b.</param>
-        /// <param name="pc">Point c.</param>
-        /// <param name="pd">Point d.</param>
-        /// <returns>Return a positive value if the point pd lies inside the circle passing through 
-        /// pa, pb, and pc; a negative value if it lies outside; and zero if the four points 
-        /// are cocircular.</returns>
+        /// <inheritdoc/>
         public double InCircle(Point pa, Point pb, Point pc, Point pd)
         {
             double adx, bdx, cdx, ady, bdy, cdy;
@@ -310,16 +255,7 @@ namespace TriangleNet
             return InCircle(pa, pb, pc, pd);
         }
 
-        /// <summary>
-        /// Find the circumcenter of a triangle.
-        /// </summary>
-        /// <param name="org">Triangle point.</param>
-        /// <param name="dest">Triangle point.</param>
-        /// <param name="apex">Triangle point.</param>
-        /// <param name="xi">Relative coordinate of new location.</param>
-        /// <param name="eta">Relative coordinate of new location.</param>
-        /// <param name="offconstant">Off-center constant.</param>
-        /// <returns>Coordinates of the circumcenter (or off-center)</returns>
+        /// <inheritdoc/>
         public Point FindCircumcenter(Point org, Point dest, Point apex,
             ref double xi, ref double eta, double offconstant)
         {
@@ -421,24 +357,7 @@ namespace TriangleNet
             return new Point(org.x + dx, org.y + dy);
         }
 
-        /// <summary>
-        /// Find the circumcenter of a triangle.
-        /// </summary>
-        /// <param name="org">Triangle point.</param>
-        /// <param name="dest">Triangle point.</param>
-        /// <param name="apex">Triangle point.</param>
-        /// <param name="xi">Relative coordinate of new location.</param>
-        /// <param name="eta">Relative coordinate of new location.</param>
-        /// <returns>Coordinates of the circumcenter</returns>
-        /// <remarks>
-        /// The result is returned both in terms of x-y coordinates and xi-eta
-        /// (barycentric) coordinates. The xi-eta coordinate system is defined in
-        /// terms of the triangle: the origin of the triangle is the origin of the
-        /// coordinate system; the destination of the triangle is one unit along the
-        /// xi axis; and the apex of the triangle is one unit along the eta axis.
-        /// This procedure also returns the square of the length of the triangle's
-        /// shortest edge.
-        /// </remarks>
+        /// <inheritdoc/>
         public Point FindCircumcenter(Point org, Point dest, Point apex,
             ref double xi, ref double eta)
         {
@@ -488,8 +407,7 @@ namespace TriangleNet
         #region Exact arithmetics
 
         /// <summary>
-        /// Sum two expansions, eliminating zero components from the output expansion. 
-        /// Суммируйте два расширения, исключая нулевые компоненты из выходного расширения.
+        /// Sum two expansions, eliminating zero components from the output expansion.  
         /// </summary>
         /// <param name="elen"></param>
         /// <param name="e"></param>
@@ -502,12 +420,7 @@ namespace TriangleNet
         /// 
         /// If round-to-even is used (as with IEEE 754), maintains the strongly nonoverlapping
         /// property.  (That is, if e is strongly nonoverlapping, h will be also.) Does NOT
-        /// maintain the nonoverlapping or nonadjacent properties.
-        /// 
-        /// Устанавливает h = e + f. Подробности см. в статье «Надежные предикаты».
-        /// Если используется округление до четности(как в IEEE 754), сохраняется 
-        /// свойство строгой неперекрытия. (То есть, если e сильно не перекрывается, 
-        /// то h тоже будет.) НЕ поддерживает свойства непересекающихся или несмежных.
+        /// maintain the nonoverlapping or nonadjacent properties. 
         /// </remarks>
         private int FastExpansionSumZeroElim(int elen, double[] e, int flen, double[] f, double[] h)
         {
@@ -703,12 +616,6 @@ namespace TriangleNet
         /// order; a negative value if they occur in clockwise order; and zero if they are
         /// collinear. The result is also a rough approximation of twice the signed area of
         /// the triangle defined by the three points. 
-        /// 
-        /// Возвращает положительное значение, если точки pa, pb и pc расположены против часовой стрелки; 
-        /// отрицательное значение, если они происходят по часовой стрелке; и ноль, если они коллинеарны. 
-        /// Результат также является грубой аппроксимацией удвоенной площади треугольника со знаком, 
-        /// определяемого тремя точками.
-        /// 
         /// </summary>
         /// <param name="pa"></param>
         /// <param name="pb"></param>
@@ -721,13 +628,6 @@ namespace TriangleNet
         /// sense that exact arithmetic is used only to the degree it is needed to ensure that
         /// the returned value has the correct sign.  Hence, this function is usually quite fast,
         /// but will run more slowly when the input points are collinear or nearly so.
-        /// 
-        /// При необходимости использует точную арифметику, чтобы гарантировать правильный ответ. 
-        /// Возвращаемый результат является определителем матрицы. Этот определитель вычисляется адаптивно, 
-        /// в том смысле, что точная арифметика используется только в той степени, в которой это необходимо 
-        /// для обеспечения правильного знака возвращаемого значения. Следовательно, эта функция обычно 
-        /// работает довольно быстро, но будет работать медленнее, 
-        /// если входные точки лежат на одной прямой или близко к ней.
         /// </remarks>
         private double CounterClockwiseAdapt(Point pa, Point pb, Point pc, double detsum)
         {
@@ -761,57 +661,11 @@ namespace TriangleNet
             acy = (double)(pa.y - pc.y);
             bcy = (double)(pb.y - pc.y);
 
-            detleft = (double)(acx * bcy); 
-            c = (double)(splitter * acx); 
-            abig = (double)(c - acx); 
-            ahi = c - abig; 
-            alo = acx - ahi; 
-            c = (double)(splitter * bcy); 
-            abig = (double)(c - bcy); 
-            bhi = c - abig; 
-            blo = bcy - bhi; 
-            err1 = detleft - (ahi * bhi); 
-            err2 = err1 - (alo * bhi); 
-            err3 = err2 - (ahi * blo); 
-            detlefttail = (alo * blo) - err3;
-            detright = (double)(acy * bcx); 
-            c = (double)(splitter * acy); 
-            abig = (double)(c - acy); 
-            ahi = c - abig; 
-            alo = acy - ahi; 
-            c = (double)(splitter * bcx); 
-            abig = (double)(c - bcx); 
-            bhi = c - abig; 
-            blo = bcx - bhi; 
-            err1 = detright - (ahi * bhi); 
-            err2 = err1 - (alo * bhi); 
-            err3 = err2 - (ahi * blo); 
-            detrighttail = (alo * blo) - err3;
+            detleft = (double)(acx * bcy); c = (double)(splitter * acx); abig = (double)(c - acx); ahi = c - abig; alo = acx - ahi; c = (double)(splitter * bcy); abig = (double)(c - bcy); bhi = c - abig; blo = bcy - bhi; err1 = detleft - (ahi * bhi); err2 = err1 - (alo * bhi); err3 = err2 - (ahi * blo); detlefttail = (alo * blo) - err3;
+            detright = (double)(acy * bcx); c = (double)(splitter * acy); abig = (double)(c - acy); ahi = c - abig; alo = acy - ahi; c = (double)(splitter * bcx); abig = (double)(c - bcx); bhi = c - abig; blo = bcx - bhi; err1 = detright - (ahi * bhi); err2 = err1 - (alo * bhi); err3 = err2 - (ahi * blo); detrighttail = (alo * blo) - err3;
 
-            _i = (double)(detlefttail - detrighttail); 
-            bvirt = (double)(detlefttail - _i); 
-            avirt = _i + bvirt; 
-            bround = bvirt - detrighttail; 
-            around = detlefttail - avirt; 
-            B[0] = around + bround; 
-            _j = (double)(detleft + _i); 
-            bvirt = (double)(_j - detleft); 
-            avirt = _j - bvirt; 
-            bround = _i - bvirt; 
-            around = detleft - avirt; 
-            _0 = around + bround; 
-            _i = (double)(_0 - detright); 
-            bvirt = (double)(_0 - _i); 
-            avirt = _i + bvirt; 
-            bround = bvirt - detright; 
-            around = _0 - avirt; 
-            B[1] = around + bround; 
-            B3 = (double)(_j + _i); 
-            bvirt = (double)(B3 - _j); 
-            avirt = B3 - bvirt; 
-            bround = _i - bvirt; 
-            around = _j - avirt; 
-            B[2] = around + bround;
+            _i = (double)(detlefttail - detrighttail); bvirt = (double)(detlefttail - _i); avirt = _i + bvirt; bround = bvirt - detrighttail; around = detlefttail - avirt; B[0] = around + bround; _j = (double)(detleft + _i); bvirt = (double)(_j - detleft); avirt = _j - bvirt; bround = _i - bvirt; around = detleft - avirt; _0 = around + bround; _i = (double)(_0 - detright); bvirt = (double)(_0 - _i); avirt = _i + bvirt; bround = bvirt - detright; around = _0 - avirt; B[1] = around + bround; B3 = (double)(_j + _i); bvirt = (double)(B3 - _j); avirt = B3 - bvirt; bround = _i - bvirt; around = _j - avirt; B[2] = around + bround;
+
             B[3] = B3;
 
             det = Estimate(4, B);
@@ -880,12 +734,6 @@ namespace TriangleNet
         /// the returned value has the correct sign. Hence, this function is usually quite fast,
         /// but will run more slowly when the input points are cocircular or nearly so.
         /// </remarks>
-        /// При необходимости использует точную арифметику, чтобы гарантировать правильный ответ.
-        /// Возвращаемый результат является определителем матрицы. Этот определитель вычисляется 
-        /// адаптивно, в том смысле, что точная арифметика используется только в той степени, в 
-        /// которой это необходимо для обеспечения правильного знака возвращаемого значения. 
-        /// Следовательно, эта функция обычно работает довольно быстро, но будет работать медленнее, 
-        /// если входные точки совпадают или почти совпадают.
         private double InCircleAdapt(Point pa, Point pb, Point pc, Point pd, double permanent)
         {
             double adx, bdx, cdx, ady, bdy, cdy;

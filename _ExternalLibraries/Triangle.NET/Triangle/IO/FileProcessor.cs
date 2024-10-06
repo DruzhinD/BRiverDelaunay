@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="FileProcessor.cs" company="">
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle.NET Copyright (c) 2012-2022 Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -13,14 +13,15 @@ namespace TriangleNet.IO
 
     public static class FileProcessor
     {
-        static List<IFileFormat> formats;
+        static readonly List<IFileFormat> formats;
 
         static FileProcessor()
         {
-            formats = new List<IFileFormat>();
-
             // Add Triangle file format as default.
-            formats.Add(new TriangleFormat());
+            formats = new List<IFileFormat>
+            {
+                new TriangleFormat()
+            };
         }
 
         public static void Add(IFileFormat format)
@@ -64,7 +65,7 @@ namespace TriangleNet.IO
         /// <summary>
         /// Save a polygon geometry to disk.
         /// </summary>
-        /// <param name="mesh">An instance of the <see cref="IPolygon" /> class.</param>
+        /// <param name="polygon">An instance of the <see cref="IPolygon" /> class.</param>
         /// <param name="filename">The path of the file to save.</param>
         public static void Write(IPolygon polygon, string filename)
         {
@@ -76,21 +77,22 @@ namespace TriangleNet.IO
                     return;
                 }
             }
+
             throw new Exception("File format not supported.");
         }
 
         #endregion
 
-        #region MeshNet read/write
+        #region Mesh read/write
 
         /// <summary>
         /// Read a file containing a mesh.
         /// </summary>
         /// <param name="filename">The path of the file to read.</param>
-        /// <returns>An instance of the <see cref="IMeshNet" /> interface.</returns>
-        public static IMeshNet Import(string filename)
+        /// <returns>An instance of the <see cref="IMesh" /> interface.</returns>
+        public static IMesh Import(string filename)
         {
-            foreach (IBaseFormater format in formats)
+            foreach (IMeshFormat format in formats)
             {
                 if (format != null && format.IsSupported(filename))
                 {
@@ -104,11 +106,11 @@ namespace TriangleNet.IO
         /// <summary>
         /// Save a mesh to disk.
         /// </summary>
-        /// <param name="mesh">An instance of the <see cref="IMeshNet" /> interface.</param>
+        /// <param name="mesh">An instance of the <see cref="IMesh" /> interface.</param>
         /// <param name="filename">The path of the file to save.</param>
-        public static void Write(IMeshNet mesh, string filename)
+        public static void Write(IMesh mesh, string filename)
         {
-            foreach (IBaseFormater format in formats)
+            foreach (IMeshFormat format in formats)
             {
                 if (format != null && format.IsSupported(filename))
                 {
@@ -118,11 +120,6 @@ namespace TriangleNet.IO
             }
 
             throw new Exception("File format not supported.");
-        }
-
-        public static void Save(string fileName, IPolygon cloudPoints)
-        {
-            throw new NotImplementedException();
         }
 
         #endregion

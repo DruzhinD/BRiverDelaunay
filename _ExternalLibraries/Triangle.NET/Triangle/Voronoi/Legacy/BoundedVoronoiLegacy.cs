@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="BoundedVoronoi.cs" company="">
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// <copyright file="BoundedVoronoiLegacy.cs" company="">
+// Triangle.NET Copyright (c) 2012-2022 Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ namespace TriangleNet.Voronoi.Legacy
     {
         IPredicates predicates = RobustPredicates.Default;
 
-        MeshNet mesh;
+        Mesh mesh;
 
         Point[] points;
         List<VoronoiRegion> regions;
@@ -39,8 +39,8 @@ namespace TriangleNet.Voronoi.Legacy
         /// <summary>
         /// Initializes a new instance of the <see cref="BoundedVoronoiLegacy" /> class.
         /// </summary>
-        /// <param name="mesh">MeshNet instance.</param>
-        public BoundedVoronoiLegacy(MeshNet mesh)
+        /// <param name="mesh">Mesh instance.</param>
+        public BoundedVoronoiLegacy(Mesh mesh)
             : this(mesh, true)
         {
         }
@@ -48,8 +48,8 @@ namespace TriangleNet.Voronoi.Legacy
         /// <summary>
         /// Initializes a new instance of the <see cref="BoundedVoronoiLegacy" /> class.
         /// </summary>
-        /// <param name="mesh">MeshNet instance.</param>
-        public BoundedVoronoiLegacy(MeshNet mesh, bool includeBoundary)
+        /// <param name="mesh">Mesh instance.</param>
+        public BoundedVoronoiLegacy(Mesh mesh, bool includeBoundary)
         {
             this.mesh = mesh;
             this.includeBoundary = includeBoundary;
@@ -179,7 +179,7 @@ namespace TriangleNet.Voronoi.Legacy
                 e.orient = 0;
                 e.Pivot(ref f);
 
-                if (f.tri.id != MeshNet.DUMMY && !f.tri.infected)
+                if (f.tri.id != Mesh.DUMMY && !f.tri.infected)
                 {
                     triangles.Push(f.tri);
                 }
@@ -187,7 +187,7 @@ namespace TriangleNet.Voronoi.Legacy
                 e.Sym();
                 e.Pivot(ref f);
 
-                if (f.tri.id != MeshNet.DUMMY && !f.tri.infected)
+                if (f.tri.id != Mesh.DUMMY && !f.tri.infected)
                 {
                     triangles.Push(f.tri);
                 }
@@ -218,7 +218,7 @@ namespace TriangleNet.Voronoi.Legacy
 
                             // if f0 is finite and tagged non-blind & the common edge 
                             // between f and f0 is unconstrained then
-                            if (f0.tri.id != MeshNet.DUMMY && !f0.tri.infected && sub1.seg.hash == MeshNet.DUMMY)
+                            if (f0.tri.id != Mesh.DUMMY && !f0.tri.infected && sub1.seg.hash == Mesh.DUMMY)
                             {
                                 // Push f0 into triangles.
                                 triangles.Push(f0.tri);
@@ -415,10 +415,10 @@ namespace TriangleNet.Voronoi.Legacy
             f_init.Oprev(ref f_prev);
 
             // Is the border to the left?
-            if (f_prev.tri.id != MeshNet.DUMMY)
+            if (f_prev.tri.id != Mesh.DUMMY)
             {
                 // Go clockwise until we reach the border (or the initial triangle)
-                while (f_prev.tri.id != MeshNet.DUMMY && !f_prev.Equals(f_init))
+                while (f_prev.tri.id != Mesh.DUMMY && !f_prev.Equals(f_init))
                 {
                     f_prev.Copy(ref f);
                     f_prev.Oprev();
@@ -428,7 +428,7 @@ namespace TriangleNet.Voronoi.Legacy
                 f.Onext(ref f_next);
             }
 
-            if (f_prev.tri.id == MeshNet.DUMMY)
+            if (f_prev.tri.id == Mesh.DUMMY)
             {
                 // For vertices on the domain boundaray, add the vertex. For 
                 // internal boundaries don't add it.
@@ -454,7 +454,7 @@ namespace TriangleNet.Voronoi.Legacy
                 // Call Lffnext the line going through the circumcenters of f and f_next
                 cc_f = this.points[f.tri.id];
 
-                if (f_next.tri.id == MeshNet.DUMMY)
+                if (f_next.tri.id == Mesh.DUMMY)
                 {
                     if (!f.tri.infected)
                     {

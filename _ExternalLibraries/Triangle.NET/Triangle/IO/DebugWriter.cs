@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="DebugWriter.cs" company="">
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle.NET Copyright (c) 2012-2022 Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -87,7 +87,7 @@ namespace TriangleNet.IO
         /// <summary>
         /// Write complete mesh to file.
         /// </summary>
-        public void Write(MeshNet mesh, bool skip = false)
+        public void Write(Mesh mesh, bool skip = false)
         {
             this.WriteMesh(mesh, skip);
 
@@ -134,9 +134,9 @@ namespace TriangleNet.IO
             stream.WriteLine("#!G{0}", this.iteration++);
         }
 
-        private void WriteMesh(MeshNet mesh, bool skip)
+        private void WriteMesh(Mesh mesh, bool skip)
         {
-            // MeshNet may have changed, but we choose to skip
+            // Mesh may have changed, but we choose to skip
             if (triangles == mesh.triangles.Count && skip)
             {
                 return;
@@ -227,7 +227,7 @@ namespace TriangleNet.IO
             }
         }
 
-        private bool VerticesChanged(MeshNet mesh)
+        private bool VerticesChanged(Mesh mesh)
         {
             if (vertices == null || mesh.Vertices.Count != vertices.Length)
             {
@@ -246,7 +246,7 @@ namespace TriangleNet.IO
             return false;
         }
 
-        private void HashVertices(MeshNet mesh)
+        private void HashVertices(Mesh mesh)
         {
             if (vertices == null || mesh.Vertices.Count != vertices.Length)
             {

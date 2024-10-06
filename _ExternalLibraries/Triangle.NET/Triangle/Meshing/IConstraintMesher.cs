@@ -12,15 +12,15 @@ namespace TriangleNet.Meshing
         /// Triangulates a polygon.
         /// </summary>
         /// <param name="polygon">The polygon.</param>
-        /// <returns>MeshNet</returns>
-        IMeshNet Triangulate(IPolygon polygon);
+        /// <returns>Mesh</returns>
+        IMesh Triangulate(IPolygon polygon);
 
         /// <summary>
         /// Triangulates a polygon, applying constraint options.
         /// </summary>
         /// <param name="polygon">The polygon.</param>
         /// <param name="options">Constraint options.</param>
-        /// <returns>MeshNet</returns>
-        IMeshNet Triangulate(IPolygon polygon, ConstraintOptions options);
+        /// <returns>Mesh</returns>
+        IMesh Triangulate(IPolygon polygon, ConstraintOptions options);
     }
 }

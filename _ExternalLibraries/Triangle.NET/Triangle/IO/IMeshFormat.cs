@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="IBaseFormater.cs" company="">
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// <copyright file="IMeshFormat.cs" company="">
+// Triangle.NET Copyright (c) 2012-2022 Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -12,27 +12,27 @@ namespace TriangleNet.IO
     /// <summary>
     /// Interface for mesh I/O.
     /// </summary>
-    public interface IBaseFormater : IFileFormat
+    public interface IMeshFormat : IFileFormat
     {
         /// <summary>
         /// Read a file containing a mesh.
         /// </summary>
         /// <param name="filename">The path of the file to read.</param>
-        /// <returns>An instance of the <see cref="IMeshNet" /> interface.</returns>
-        IMeshNet Import(string filename);
+        /// <returns>An instance of the <see cref="IMesh" /> interface.</returns>
+        IMesh Import(string filename);
 
         /// <summary>
         /// Save a mesh to disk.
         /// </summary>
-        /// <param name="mesh">An instance of the <see cref="IMeshNet" /> interface.</param>
+        /// <param name="mesh">An instance of the <see cref="IMesh" /> interface.</param>
         /// <param name="filename">The path of the file to save.</param>
-        void Write(IMeshNet mesh, string filename);
+        void Write(IMesh mesh, string filename);
 
         /// <summary>
         /// Save a mesh to a <see cref="Stream" />.
         /// </summary>
-        /// <param name="mesh">An instance of the <see cref="IMeshNet" /> interface.</param>
+        /// <param name="mesh">An instance of the <see cref="IMesh" /> interface.</param>
         /// <param name="stream">The stream to save to.</param>
-        void Write(IMeshNet mesh, Stream stream);
+        void Write(IMesh mesh, Stream stream);
     }
 }

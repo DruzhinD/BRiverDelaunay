@@ -1,22 +1,32 @@
-﻿
+﻿// -----------------------------------------------------------------------
+// <copyright file="VertexCirculator.cs" company="">
+// Triangle.NET Copyright (c) 2012-2022 Christian Woltering
+// </copyright>
+// -----------------------------------------------------------------------
+
 namespace TriangleNet.Meshing.Iterators
 {
     using System.Collections.Generic;
     using TriangleNet.Geometry;
     using TriangleNet.Topology;
 
+    /// <summary>
+    /// Vertex circulator to enumerate the vertices connected to a mesh vertex.
+    /// </summary>
     public class VertexCirculator
     {
         List<Otri> cache = new List<Otri>();
 
-        public VertexCirculator(MeshNet mesh)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VertexCirculator" /> class.
+        /// </summary>
+        public VertexCirculator(Mesh mesh)
         {
             mesh.MakeVertexMap();
         }
 
         /// <summary>
         /// Enumerate all vertices adjacent to given vertex.
-        /// Перечислить все вершины, смежные с данной вершиной.
         /// </summary>
         /// <param name="vertex">The center vertex.</param>
         /// <returns></returns>
@@ -32,7 +42,6 @@ namespace TriangleNet.Meshing.Iterators
 
         /// <summary>
         /// Enumerate all triangles adjacent to given vertex.
-        /// Перечислить все треугольники, примыкающие к данной вершине.
         /// </summary>
         /// <param name="vertex">The center vertex.</param>
         /// <returns></returns>
@@ -57,7 +66,7 @@ namespace TriangleNet.Meshing.Iterators
             init.Copy(ref next);
 
             // Move counter-clockwise around the vertex.
-            while (next.tri.id != MeshNet.DUMMY)
+            while (next.tri.id != Mesh.DUMMY)
             {
                 cache.Add(next);
 
@@ -70,13 +79,10 @@ namespace TriangleNet.Meshing.Iterators
                 }
             }
 
-            if (next.tri.id == MeshNet.DUMMY)
+            if (next.tri.id == Mesh.DUMMY)
             {
                 // We reached the boundary. To get all adjacent triangles, start
                 // again at init triangle and now move clockwise.
-                // Мы достигли границы. Чтобы получить все соседние треугольники,
-                // начните снова с начального треугольника и теперь двигайтесь по
-                // часовой стрелке.
                 init.Copy(ref next);
 
                 if (vertices)
@@ -88,7 +94,7 @@ namespace TriangleNet.Meshing.Iterators
 
                 next.Oprev();
 
-                while (next.tri.id != MeshNet.DUMMY)
+                while (next.tri.id != Mesh.DUMMY)
                 {
                     cache.Insert(0, next);
 

@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="Dwyer.cs">
-// Original Triangle code by Jonathan Richard Shewchuk, http://www.cs.cmu.edu/~quake/triangle.html
-// Triangle.NET code by Christian Woltering, http://triangle.codeplex.com/
+// Triangle Copyright (c) 1993, 1995, 1997, 1998, 2002, 2005 Jonathan Richard Shewchuk
+// Triangle.NET code by Christian Woltering
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -44,112 +44,56 @@ namespace TriangleNet.Meshing.Algorithm
     /// The bounding box also makes it easy to traverse the convex hull, as the
     /// divide-and-conquer algorithm needs to do.
     /// </remarks>
-
-    /// Строит триангуляцию Делоне, используя алгоритм «разделяй и властвуй». 
-    /// Ограничивающая рамка «разделяй и властвуй» 
-    /// Первоначально я реализовал триангуляцию «разделяй и властвуй» и инкрементную 
-    /// триангуляцию Делоне, используя структуру данных на основе ребер, представленную 
-    /// Гибасом и Столфи. 
-    /// Переход на треугольную структуру данных увеличил скорость вдвое. Однако мне 
-    /// пришлось придумать несколько дополнительных уловок, чтобы сохранить 
-    /// элегантность исходных алгоритмов.
-    /// «Ограничивающая рамка», используемая в моем варианте алгоритма «разделяй и 
-    /// властвуй», использует один треугольник для каждого края выпуклой оболочки 
-    /// триангуляции.Все эти ограничивающие треугольники имеют общую вершину, 
-    /// которая обозначается NULL и ничего не представляет. Ограничивающие 
-    /// треугольники соединяются в круговой веер вокруг этой NULL-вершины, а 
-    /// края выпуклой оболочки триангуляции появляются напротив NULL-вершины.
-    /// Возможно, вам проще всего представить, что NULL-вершина — это точка в 
-    /// трехмерном пространстве позади центра триангуляции и что ограничивающие 
-    /// треугольники образуют своего рода конус.
-    /// Эта ограничивающая рамка позволяет легко представлять вырожденные случаи.
-    /// Например, триангуляция двух вершин представляет собой одно ребро.Это ребро 
-    /// представлено двумя треугольниками ограничивающей рамки, по одному на каждой
-    /// «стороне» ребра.Эти треугольники также соединены веером вокруг нулевой 
-    /// вершины. Ограничивающая рамка также позволяет легко перемещаться по выпуклой 
-    /// оболочке, как это необходимо для алгоритма «разделяй и властвуй».
     public class Dwyer : ITriangulator
     {
-        // Random is not threadsafe, so don't make this static.
-        // Рандомный тип не является потокобезопасным, поэтому не делайте его статичным.
-        Random rand = new Random(DateTime.Now.Millisecond);
-        /// <summary>
-        /// Фильтр
-        /// </summary>
         IPredicates predicates;
+
         /// <summary>
-        /// Использовать алгоритм Дуайера
+        /// Gets or sets a value indicating whether to use alternating cuts (default = true).
         /// </summary>
         public bool UseDwyer = true;
-        /// <summary>
-        /// Сортированные вершины
-        /// </summary>
+
         Vertex[] sortarray;
+        Mesh mesh;
+
         /// <summary>
-        /// Сетка
-        /// </summary>
-        MeshNet mesh;
-        /// <summary>
-        /// Сравнение вещественных чисел
-        /// </summary>
-        public bool Equals(double a, double b, double eps = 1e-8)
-        {
-            double norm = Math.Abs(a) + Math.Abs(b);
-            if (norm < eps) norm = eps;
-            if (Math.Abs(a - b) / norm < 100 * eps)
-                return true;
-            else
-                return false;
-        }
-        /// <summary>
-        /// Form a Delaunay triangulation by the divide-and-conquer method.
-        /// Сформируйте триангуляцию Делоне методом «разделяй и властвуй».
+        /// Compute a Delaunay triangulation by the divide-and-conquer method.
         /// </summary>
         /// <returns></returns>
         /// <remarks>
         /// Sorts the vertices, calls a recursive procedure to triangulate them, and
         /// removes the bounding box, setting boundary markers as appropriate.
-        /// 1. Сортирует вершины 
-        /// 2. Вызывает рекурсивную процедуру для триангуляции вершин
-        /// 3. Удаляет ограничивающую рамку 
-        /// 4. Устанавливая маркеры границ.
         /// </remarks>
-        public IMeshNet Triangulate(IList<Vertex> points, Configuration config)
+        public IMesh Triangulate(IList<Vertex> points, Configuration config)
         {
-            this.predicates = config.Predicates();
+            predicates = config.Predicates();
 
-            this.mesh = new MeshNet(config);
-            // Записывает вершины в сетку
-            this.mesh.TransferNodes(points);
+            mesh = new Mesh(config, points);
 
-            Otri hullleft = default(Otri);
-            Otri hullright = default(Otri);
+            Otri hullleft = default(Otri), hullright = default(Otri);
             int i, j, n = points.Count;
 
             // Allocate an array of pointers to vertices for sorting.
-            // Создать массив указателей на вершины для сортировки.
-            this.sortarray = new Vertex[n];
+            sortarray = new Vertex[n];
             i = 0;
             foreach (var v in points)
             {
                 sortarray[i++] = v;
             }
 
-            // Сортируем вершины.
+            // Sort the vertices.
             VertexSorter.Sort(sortarray);
 
             // Discard duplicate vertices, which can really mess up the algorithm.
-            // Отбрасываем повторяющиеся вершины, которые могут сильно испортить алгоритм.
             i = 0;
             for (j = 1; j < n; j++)
             {
-                if (Equals(sortarray[i].x, sortarray[j].x) &&
-                    Equals(sortarray[i].y, sortarray[j].y))
+                if ((sortarray[i].x == sortarray[j].x) && (sortarray[i].y == sortarray[j].y))
                 {
                     if (Log.Verbose)
                     {
                         Log.Instance.Warning(
-                            String.Format("A duplicate vertex appeared and was ignored (ID {0}).", sortarray[j].id),
+                            string.Format("A duplicate vertex appeared and was ignored (ID {0}).", sortarray[j].id),
                             "Dwyer.Triangulate()");
                     }
                     sortarray[j].type = VertexType.UndeadVertex;
@@ -162,22 +106,18 @@ namespace TriangleNet.Meshing.Algorithm
                 }
             }
             i++;
-            if (UseDwyer == true)
+            if (UseDwyer)
             {
                 // Re-sort the array of vertices to accommodate alternating cuts.
-                // Пересортируем массив вершин для размещения чередующихся разрезов.
                 VertexSorter.Alternate(sortarray, i);
             }
 
             // Form the Delaunay triangulation.
-            // Формируем триангуляцию Делоне.
             DivconqRecurse(0, i - 1, 0, ref hullleft, ref hullright);
-            // Удаляем призрачные треугольники. (все что находится за границей области) или в дырках
-            // удаляет границу выпуклой области, устанавливая соответствующие маркеры границ
-            // заданном контуре границы
-            this.mesh.hullsize = RemoveGhosts(ref hullleft);
 
-            return this.mesh;
+            mesh.hullsize = RemoveGhosts(ref hullleft);
+
+            return mesh;
         }
 
         /// <summary>
@@ -216,45 +156,10 @@ namespace TriangleNet.Meshing.Algorithm
         /// On completion, the origin of 'farleft' is the leftmost vertex of the
         /// merged triangulation, and the destination of 'farright' is the rightmost
         /// vertex.
-        /// 
-        ///  Это похоже на алгоритм, предложенный Гуибасом и Столфи, но использует 
-        ///  структуру данных на основе треугольников, а не ребер.
-        ///        
-        /// Алгоритм преодолевает разрыв между двумя триангуляциями, связывая их 
-        /// вместе.По мере их слияния некоторые из их ограничивающих треугольников 
-        /// превращаются в настоящие треугольники триангуляции.Эта процедура раздвигает 
-        /// ограничивающие треугольники каждого корпуса, а затем соединяет их вместе, 
-        /// как зубья двух шестерен. Свойство Делоне определяет на каждом шаге, 
-        /// является ли следующий «зуб» ограничивающим треугольником левой или правой оболочки. 
-        /// 
-        /// Когда ограничивающий треугольник становится реальным, его вершина меняется с NULL на реальную вершину.
-        /// Необходимо выделить только два новых треугольника. Они станут новыми ограничивающими 
-        /// треугольниками вверху и внизу шва.Они используются для соединения остальных ограничивающих 
-        /// треугольников (тех, которые не были преобразованы в настоящие треугольники) в единый веер.
-        /// 
-        /// При вводе «крайний левый» и «внутренний левый» являются ограничивающими треугольниками левой 
-        /// триангуляции.Началом «крайнего левого» является крайняя левая вершина, а назначением 
-        /// «внутреннего левого» — крайняя правая вершина триангуляции.Точно так же «внутренний 
-        /// правый» и «дальний правый» являются ограничивающими треугольниками правой триангуляции.
-        /// 
-        /// Исходная точка «внутреннего правого» и конечная точка «крайнего правого» — это крайняя 
-        /// левая и самая правая вершины.
-        /// 
-        /// По завершении начало координат «крайнего левого» — это самая левая вершина объединенной 
-        /// триангуляции, а местом назначения «крайнего левого» — крайняя правая вершина.
         /// </remarks>
         void MergeHulls(ref Otri farleft, ref Otri innerleft, ref Otri innerright,
                         ref Otri farright, int axis)
         {
-            //if (double.IsInfinity(farleft.Triangle.vertices[1].x) == true ||
-            //    double.IsInfinity(innerleft.Triangle.vertices[1].x) == true ||
-            //    double.IsInfinity(innerright.Triangle.vertices[1].x) == true ||
-            //    double.IsInfinity(farright.Triangle.vertices[1].x) == true)
-            //{
-            //    return;
-            //}
-
-
             Otri leftcand = default(Otri), rightcand = default(Otri);
             Otri nextedge = default(Otri);
             Otri sidecasing = default(Otri), topcasing = default(Otri), outercasing = default(Otri);
@@ -277,10 +182,6 @@ namespace TriangleNet.Meshing.Algorithm
             innerleftapex = innerleft.Apex();
             innerrightorg = innerright.Org();
             innerrightapex = innerright.Apex();
-
-
-
-
             // Special treatment for horizontal cuts.
             if (UseDwyer && (axis == 1))
             {
@@ -340,7 +241,6 @@ namespace TriangleNet.Meshing.Algorithm
                     changemade = true;
                 }
                 // Make innerrightorg the "bottommost" vertex of the right hull.
-                // Сделать Innerrightorg «самой нижней» вершиной правой оболочки.
                 if (predicates.CounterClockwise(innerrightapex, innerrightorg, innerleftdest) > 0.0)
                 {
                     innerright.Lnext();
@@ -567,7 +467,6 @@ namespace TriangleNet.Meshing.Algorithm
 
         /// <summary>
         /// Recursively form a Delaunay triangulation by the divide-and-conquer method.
-        /// Рекурсивно сформируйте триангуляцию Делоне методом «разделяй и властвуй».
         /// </summary>
         /// <param name="left"></param>
         /// <param name="right"></param>
@@ -584,26 +483,10 @@ namespace TriangleNet.Meshing.Algorithm
         /// choosing the highest leftmost vertex), and the destination of
         /// 'farright' is the rightmost vertex (breaking ties by choosing the
         /// lowest rightmost vertex).
-        /// 
-        /// Рекурсивно разбивает задачу на более мелкие части, которые связываются 
-        /// вместе mergehulls(). Базовые случаи (задачи двух или трех вершин) 
-        /// обрабатываются здесь специально.
-        /// 
-        /// По завершении 'farleft' и 'farright' являются ограничивающими треугольниками, 
-        /// такими, что начало 'farleft' является самой левой вершиной (разрыв связей 
-        /// путем выбора самой высокой левой вершины), а назначение 'farright' является 
-        /// самой правой вершиной (разрыв связей путем выбора самой низкой правой вершины).
         /// </remarks>
         void DivconqRecurse(int left, int right, int axis,
                             ref Otri farleft, ref Otri farright)
         {
-            
-            //if(farright.Triangle!=null)
-            //    if (double.IsInfinity(farright.Triangle.vertices[1].X) == true )
-            //    {
-            //        left = left;
-            //    }
-
             Otri midtri = default(Otri);
             Otri tri1 = default(Otri);
             Otri tri2 = default(Otri);
@@ -722,10 +605,8 @@ namespace TriangleNet.Meshing.Algorithm
                     tri3.Lprev();
                     tri2.Bond(ref tri3);
                     // Ensure that the origin of 'farleft' is sortarray[0].
-                    // Убедитесь, что назначением «farright» является sortarray[0].
                     tri1.Copy(ref farleft);
                     // Ensure that the destination of 'farright' is sortarray[2].
-                    // Убедитесь, что назначением «farright» является sortarray[2].
                     if (area > 0.0)
                     {
                         tri2.Copy(ref farright);
@@ -743,18 +624,17 @@ namespace TriangleNet.Meshing.Algorithm
                 // Split the vertices in half.
                 divider = vertices >> 1;
 
-                // Recursively triangulate each half. Рекурсивно триангулируйте каждую половину.
+                // Recursively triangulate each half.
                 DivconqRecurse(left, left + divider - 1, 1 - axis, ref farleft, ref innerleft);
                 DivconqRecurse(left + divider, right, 1 - axis, ref innerright, ref farright);
 
-                // Merge the two triangulations into one. Объедините две триангуляции в одну.
+                // Merge the two triangulations into one.
                 MergeHulls(ref farleft, ref innerleft, ref innerright, ref farright, axis);
             }
         }
 
         /// <summary>
         /// Removes ghost triangles.
-        /// Удаляет призрачные треугольники.
         /// </summary>
         /// <param name="startghost"></param>
         /// <returns>Number of vertices on the hull.</returns>
@@ -770,34 +650,26 @@ namespace TriangleNet.Meshing.Algorithm
             bool noPoly = !mesh.behavior.Poly;
 
             // Find an edge on the convex hull to start point location from.
-            // Найдите ребро на выпуклой оболочке, с которого будет начинаться определение точки.
             startghost.Lprev(ref searchedge);
             searchedge.Sym();
             mesh.dummytri.neighbors[0] = searchedge;
 
             // Remove the bounding box and count the convex hull edges.
-            // Удалим ограничивающую рамку и посчитаем выпуклые ребра оболочки.
             startghost.Copy(ref dissolveedge);
             hullsize = 0;
             do
             {
                 hullsize++;
-                // Найдите следующую сторону (против часовой стрелки) треугольника.
                 dissolveedge.Lnext(ref deadtriangle);
-                // Найдите предыдущее ребро (по часовой стрелке) треугольника. [lprev(abc) -> cab]
                 dissolveedge.Lprev();
-                // Найдите примыкающий треугольник; тот же край. [sym(abc) -> ba*]
                 dissolveedge.Sym();
 
                 // If no PSLG is involved, set the boundary markers of all the vertices
                 // on the convex hull.  If a PSLG is used, this step is done later.
-                // Если PSLG не задействован, устанавливаем граничные маркеры всех вершин
-                // на выпуклой оболочке. Если используется PSLG, этот шаг выполняется позже.
                 if (noPoly)
                 {
                     // Watch out for the case where all the input vertices are collinear.
-                    // Обратите внимание на случай, когда все входные вершины коллинеарны.
-                    if (dissolveedge.tri.id != MeshNet.DUMMY)
+                    if (dissolveedge.tri.id != Mesh.DUMMY)
                     {
                         markorg = dissolveedge.Org();
                         if (markorg.label == 0)
@@ -807,17 +679,13 @@ namespace TriangleNet.Meshing.Algorithm
                     }
                 }
                 // Remove a bounding triangle from a convex hull triangle.
-                // Удалить ограничивающий треугольник из треугольника выпуклой оболочки.
-                // Односторонний разрыв связи с ограничивающий треугольником.
                 dissolveedge.Dissolve(mesh.dummytri);
                 // Find the next bounding triangle.
-                // Найти следующий ограничивающий треугольник.
                 deadtriangle.Sym(ref dissolveedge);
+
                 // Delete the bounding triangle.
-                // Удалить ограничивающий треугольник.
                 mesh.TriangleDealloc(deadtriangle.tri);
-            } 
-            while (!dissolveedge.Equals(startghost));
+            } while (!dissolveedge.Equals(startghost));
 
             return hullsize;
         }
