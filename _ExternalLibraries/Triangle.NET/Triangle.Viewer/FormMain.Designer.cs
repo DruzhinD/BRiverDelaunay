@@ -28,350 +28,357 @@
         /// </summary>
         private void InitializeComponent()
         {
-            splitContainer = new System.Windows.Forms.SplitContainer();
-            btnSmooth = new Controls.DarkButton();
-            flatTabControl1 = new Controls.DarkTabControl();
-            tabPage1 = new System.Windows.Forms.TabPage();
-            meshControlView = new Views.MeshControlView();
-            tabPage2 = new System.Windows.Forms.TabPage();
-            statisticView = new Views.StatisticView();
-            tabPage3 = new System.Windows.Forms.TabPage();
-            aboutView = new Views.AboutView();
-            menuStrip1 = new System.Windows.Forms.MenuStrip();
-            menuFile = new System.Windows.Forms.ToolStripMenuItem();
-            menuFileOpen = new System.Windows.Forms.ToolStripMenuItem();
-            menuFileSave = new System.Windows.Forms.ToolStripMenuItem();
-            toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
-            menuFileExport = new System.Windows.Forms.ToolStripMenuItem();
-            toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            menuFileQuit = new System.Windows.Forms.ToolStripMenuItem();
-            menuView = new System.Windows.Forms.ToolStripMenuItem();
-            menuViewVoronoi = new System.Windows.Forms.ToolStripMenuItem();
-            toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            menuViewLog = new System.Windows.Forms.ToolStripMenuItem();
-            menuTools = new System.Windows.Forms.ToolStripMenuItem();
-            menuToolsGen = new System.Windows.Forms.ToolStripMenuItem();
-            menuToolsCheck = new System.Windows.Forms.ToolStripMenuItem();
-            toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
-            menuToolsTopology = new System.Windows.Forms.ToolStripMenuItem();
-            toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
-            menuToolsRcm = new System.Windows.Forms.ToolStripMenuItem();
-            btnMesh = new Controls.DarkButton();
-            label1 = new System.Windows.Forms.Label();
-            ((System.ComponentModel.ISupportInitialize)splitContainer).BeginInit();
-            splitContainer.Panel1.SuspendLayout();
-            splitContainer.SuspendLayout();
-            flatTabControl1.SuspendLayout();
-            tabPage1.SuspendLayout();
-            tabPage2.SuspendLayout();
-            tabPage3.SuspendLayout();
-            menuStrip1.SuspendLayout();
-            SuspendLayout();
+            this.splitContainer = new System.Windows.Forms.SplitContainer();
+            this.btnSmooth = new MeshExplorer.Controls.DarkButton();
+            this.flatTabControl1 = new MeshExplorer.Controls.DarkTabControl();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.meshControlView = new MeshExplorer.Views.MeshControlView();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.statisticView = new MeshExplorer.Views.StatisticView();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.aboutView = new MeshExplorer.Views.AboutView();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.menuFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuFileOpen = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuFileSave = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.menuFileExport = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.menuFileQuit = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuView = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuViewVoronoi = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.menuViewLog = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuTools = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuToolsGen = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuToolsCheck = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
+            this.menuToolsTopology = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.menuToolsRcm = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnMesh = new MeshExplorer.Controls.DarkButton();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
+            this.splitContainer.Panel1.SuspendLayout();
+            this.splitContainer.SuspendLayout();
+            this.flatTabControl1.SuspendLayout();
+            this.tabPage1.SuspendLayout();
+            this.tabPage2.SuspendLayout();
+            this.tabPage3.SuspendLayout();
+            this.menuStrip1.SuspendLayout();
+            this.SuspendLayout();
             // 
             // splitContainer
             // 
-            splitContainer.BackColor = System.Drawing.Color.FromArgb(68, 68, 68);
-            splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            splitContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
-            splitContainer.IsSplitterFixed = true;
-            splitContainer.Location = new System.Drawing.Point(0, 0);
-            splitContainer.Name = "splitContainer";
+            this.splitContainer.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(68)))), ((int)(((byte)(68)))), ((int)(((byte)(68)))));
+            this.splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
+            this.splitContainer.IsSplitterFixed = true;
+            this.splitContainer.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer.Name = "splitContainer";
             // 
             // splitContainer.Panel1
             // 
-            splitContainer.Panel1.BackColor = System.Drawing.Color.FromArgb(76, 76, 76);
-            splitContainer.Panel1.Controls.Add(label1);
-            splitContainer.Panel1.Controls.Add(btnSmooth);
-            splitContainer.Panel1.Controls.Add(flatTabControl1);
-            splitContainer.Panel1.Controls.Add(menuStrip1);
-            splitContainer.Panel1.Controls.Add(btnMesh);
+            this.splitContainer.Panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(76)))), ((int)(((byte)(76)))), ((int)(((byte)(76)))));
+            this.splitContainer.Panel1.Controls.Add(this.btnSmooth);
+            this.splitContainer.Panel1.Controls.Add(this.flatTabControl1);
+            this.splitContainer.Panel1.Controls.Add(this.menuStrip1);
+            this.splitContainer.Panel1.Controls.Add(this.btnMesh);
             // 
             // splitContainer.Panel2
             // 
-            splitContainer.Panel2.BackColor = System.Drawing.Color.Black;
-            splitContainer.Size = new System.Drawing.Size(992, 623);
-            splitContainer.SplitterDistance = 280;
-            splitContainer.SplitterWidth = 1;
-            splitContainer.TabIndex = 0;
+            this.splitContainer.Panel2.BackColor = System.Drawing.Color.Black;
+            this.splitContainer.Size = new System.Drawing.Size(992, 623);
+            this.splitContainer.SplitterDistance = 280;
+            this.splitContainer.SplitterWidth = 1;
+            this.splitContainer.TabIndex = 0;
             // 
             // btnSmooth
             // 
-            btnSmooth.Enabled = false;
-            btnSmooth.Location = new System.Drawing.Point(146, 44);
-            btnSmooth.Name = "btnSmooth";
-            btnSmooth.Size = new System.Drawing.Size(130, 23);
-            btnSmooth.TabIndex = 12;
-            btnSmooth.Text = "Smooth";
-            btnSmooth.UseVisualStyleBackColor = true;
-            btnSmooth.Click += btnSmooth_Click;
+            this.btnSmooth.Enabled = false;
+            this.btnSmooth.Location = new System.Drawing.Point(146, 44);
+            this.btnSmooth.Name = "btnSmooth";
+            this.btnSmooth.Size = new System.Drawing.Size(130, 23);
+            this.btnSmooth.TabIndex = 12;
+            this.btnSmooth.Text = "Smooth";
+            this.btnSmooth.UseVisualStyleBackColor = true;
+            this.btnSmooth.Click += new System.EventHandler(this.btnSmooth_Click);
             // 
             // flatTabControl1
             // 
-            flatTabControl1.Alignment = System.Windows.Forms.TabAlignment.Bottom;
-            flatTabControl1.Controls.Add(tabPage1);
-            flatTabControl1.Controls.Add(tabPage2);
-            flatTabControl1.Controls.Add(tabPage3);
-            flatTabControl1.Location = new System.Drawing.Point(0, 73);
-            flatTabControl1.Name = "flatTabControl1";
-            flatTabControl1.SelectedIndex = 0;
-            flatTabControl1.Size = new System.Drawing.Size(280, 538);
-            flatTabControl1.TabIndex = 1;
+            this.flatTabControl1.Alignment = System.Windows.Forms.TabAlignment.Bottom;
+            this.flatTabControl1.Controls.Add(this.tabPage1);
+            this.flatTabControl1.Controls.Add(this.tabPage2);
+            this.flatTabControl1.Controls.Add(this.tabPage3);
+            this.flatTabControl1.Location = new System.Drawing.Point(0, 73);
+            this.flatTabControl1.Name = "flatTabControl1";
+            this.flatTabControl1.SelectedIndex = 0;
+            this.flatTabControl1.Size = new System.Drawing.Size(280, 538);
+            this.flatTabControl1.TabIndex = 1;
             // 
             // tabPage1
             // 
-            tabPage1.BackColor = System.Drawing.Color.DimGray;
-            tabPage1.Controls.Add(meshControlView);
-            tabPage1.ForeColor = System.Drawing.Color.DarkGray;
-            tabPage1.Location = new System.Drawing.Point(4, 4);
-            tabPage1.Name = "tabPage1";
-            tabPage1.Size = new System.Drawing.Size(272, 512);
-            tabPage1.TabIndex = 0;
-            tabPage1.Text = "Mesh Control";
+            this.tabPage1.BackColor = System.Drawing.Color.DimGray;
+            this.tabPage1.Controls.Add(this.meshControlView);
+            this.tabPage1.ForeColor = System.Drawing.Color.DarkGray;
+            this.tabPage1.Location = new System.Drawing.Point(4, 4);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Size = new System.Drawing.Size(272, 509);
+            this.tabPage1.TabIndex = 0;
+            this.tabPage1.Text = "Mesh Control";
             // 
             // meshControlView
             // 
-            meshControlView.BackColor = System.Drawing.Color.DimGray;
-            meshControlView.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
-            meshControlView.ForeColor = System.Drawing.Color.DarkGray;
-            meshControlView.Location = new System.Drawing.Point(0, 0);
-            meshControlView.Name = "meshControlView";
-            meshControlView.Size = new System.Drawing.Size(272, 509);
-            meshControlView.TabIndex = 0;
+            this.meshControlView.BackColor = System.Drawing.Color.DimGray;
+            this.meshControlView.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.meshControlView.ForeColor = System.Drawing.Color.DarkGray;
+            this.meshControlView.Location = new System.Drawing.Point(0, 0);
+            this.meshControlView.Name = "meshControlView";
+            this.meshControlView.Size = new System.Drawing.Size(272, 509);
+            this.meshControlView.TabIndex = 0;
             // 
             // tabPage2
             // 
-            tabPage2.BackColor = System.Drawing.Color.DimGray;
-            tabPage2.Controls.Add(statisticView);
-            tabPage2.ForeColor = System.Drawing.Color.White;
-            tabPage2.Location = new System.Drawing.Point(4, 4);
-            tabPage2.Name = "tabPage2";
-            tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            tabPage2.Size = new System.Drawing.Size(272, 509);
-            tabPage2.TabIndex = 1;
-            tabPage2.Text = "Statistic";
+            this.tabPage2.BackColor = System.Drawing.Color.DimGray;
+            this.tabPage2.Controls.Add(this.statisticView);
+            this.tabPage2.ForeColor = System.Drawing.Color.White;
+            this.tabPage2.Location = new System.Drawing.Point(4, 4);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(272, 509);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "Statistic";
             // 
             // statisticView
             // 
-            statisticView.BackColor = System.Drawing.Color.DimGray;
-            statisticView.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
-            statisticView.ForeColor = System.Drawing.Color.DarkGray;
-            statisticView.Location = new System.Drawing.Point(0, 0);
-            statisticView.Name = "statisticView";
-            statisticView.Size = new System.Drawing.Size(272, 509);
-            statisticView.TabIndex = 0;
+            this.statisticView.BackColor = System.Drawing.Color.DimGray;
+            this.statisticView.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.statisticView.ForeColor = System.Drawing.Color.DarkGray;
+            this.statisticView.Location = new System.Drawing.Point(0, 0);
+            this.statisticView.Name = "statisticView";
+            this.statisticView.Size = new System.Drawing.Size(272, 509);
+            this.statisticView.TabIndex = 0;
             // 
             // tabPage3
             // 
-            tabPage3.BackColor = System.Drawing.Color.DimGray;
-            tabPage3.Controls.Add(aboutView);
-            tabPage3.Location = new System.Drawing.Point(4, 4);
-            tabPage3.Name = "tabPage3";
-            tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            tabPage3.Size = new System.Drawing.Size(272, 509);
-            tabPage3.TabIndex = 2;
-            tabPage3.Text = "About";
+            this.tabPage3.BackColor = System.Drawing.Color.DimGray;
+            this.tabPage3.Controls.Add(this.aboutView);
+            this.tabPage3.Location = new System.Drawing.Point(4, 4);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage3.Size = new System.Drawing.Size(272, 509);
+            this.tabPage3.TabIndex = 2;
+            this.tabPage3.Text = "About";
             // 
             // aboutView
             // 
-            aboutView.BackColor = System.Drawing.Color.DimGray;
-            aboutView.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
-            aboutView.ForeColor = System.Drawing.Color.DarkGray;
-            aboutView.Location = new System.Drawing.Point(0, 0);
-            aboutView.Name = "aboutView";
-            aboutView.Size = new System.Drawing.Size(272, 509);
-            aboutView.TabIndex = 0;
+            this.aboutView.BackColor = System.Drawing.Color.DimGray;
+            this.aboutView.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.aboutView.ForeColor = System.Drawing.Color.DarkGray;
+            this.aboutView.Location = new System.Drawing.Point(0, 0);
+            this.aboutView.Name = "aboutView";
+            this.aboutView.Size = new System.Drawing.Size(272, 509);
+            this.aboutView.TabIndex = 0;
             // 
             // menuStrip1
             // 
-            menuStrip1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            menuStrip1.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
-            menuStrip1.GripMargin = new System.Windows.Forms.Padding(0);
-            menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { menuFile, menuView, menuTools });
-            menuStrip1.Location = new System.Drawing.Point(0, 0);
-            menuStrip1.Name = "menuStrip1";
-            menuStrip1.Padding = new System.Windows.Forms.Padding(0);
-            menuStrip1.Size = new System.Drawing.Size(280, 24);
-            menuStrip1.TabIndex = 0;
-            menuStrip1.Text = "menuStrip1";
+            this.menuStrip1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.menuStrip1.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(0);
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuFile,
+            this.menuView,
+            this.menuTools});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Padding = new System.Windows.Forms.Padding(0);
+            this.menuStrip1.Size = new System.Drawing.Size(280, 24);
+            this.menuStrip1.TabIndex = 0;
+            this.menuStrip1.Text = "menuStrip1";
             // 
             // menuFile
             // 
-            menuFile.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            menuFile.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            menuFile.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { menuFileOpen, menuFileSave, toolStripSeparator3, menuFileExport, toolStripSeparator2, menuFileQuit });
-            menuFile.Name = "menuFile";
-            menuFile.Size = new System.Drawing.Size(37, 24);
-            menuFile.Text = "File";
+            this.menuFile.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.menuFile.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.menuFile.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuFileOpen,
+            this.menuFileSave,
+            this.toolStripSeparator3,
+            this.menuFileExport,
+            this.toolStripSeparator2,
+            this.menuFileQuit});
+            this.menuFile.Name = "menuFile";
+            this.menuFile.Size = new System.Drawing.Size(37, 24);
+            this.menuFile.Text = "File";
             // 
             // menuFileOpen
             // 
-            menuFileOpen.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            menuFileOpen.Name = "menuFileOpen";
-            menuFileOpen.Size = new System.Drawing.Size(141, 22);
-            menuFileOpen.Text = "Open";
-            menuFileOpen.Click += menuFileOpen_Click;
+            this.menuFileOpen.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.menuFileOpen.Name = "menuFileOpen";
+            this.menuFileOpen.Size = new System.Drawing.Size(141, 22);
+            this.menuFileOpen.Text = "Open";
+            this.menuFileOpen.Click += new System.EventHandler(this.menuFileOpen_Click);
             // 
             // menuFileSave
             // 
-            menuFileSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            menuFileSave.Enabled = false;
-            menuFileSave.Name = "menuFileSave";
-            menuFileSave.Size = new System.Drawing.Size(141, 22);
-            menuFileSave.Text = "Save";
-            menuFileSave.Click += menuFileSave_Click;
+            this.menuFileSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.menuFileSave.Enabled = false;
+            this.menuFileSave.Name = "menuFileSave";
+            this.menuFileSave.Size = new System.Drawing.Size(141, 22);
+            this.menuFileSave.Text = "Save";
+            this.menuFileSave.Click += new System.EventHandler(this.menuFileSave_Click);
             // 
             // toolStripSeparator3
             // 
-            toolStripSeparator3.Name = "toolStripSeparator3";
-            toolStripSeparator3.Size = new System.Drawing.Size(138, 6);
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(138, 6);
             // 
             // menuFileExport
             // 
-            menuFileExport.Enabled = false;
-            menuFileExport.Name = "menuFileExport";
-            menuFileExport.Size = new System.Drawing.Size(141, 22);
-            menuFileExport.Text = "Export Image";
-            menuFileExport.Click += menuFileExport_Click;
+            this.menuFileExport.Enabled = false;
+            this.menuFileExport.Name = "menuFileExport";
+            this.menuFileExport.Size = new System.Drawing.Size(141, 22);
+            this.menuFileExport.Text = "Export Image";
+            this.menuFileExport.Click += new System.EventHandler(this.menuFileExport_Click);
             // 
             // toolStripSeparator2
             // 
-            toolStripSeparator2.Name = "toolStripSeparator2";
-            toolStripSeparator2.Size = new System.Drawing.Size(138, 6);
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(138, 6);
             // 
             // menuFileQuit
             // 
-            menuFileQuit.Name = "menuFileQuit";
-            menuFileQuit.Size = new System.Drawing.Size(141, 22);
-            menuFileQuit.Text = "Quit";
-            menuFileQuit.Click += menuFileQuit_Click;
+            this.menuFileQuit.Name = "menuFileQuit";
+            this.menuFileQuit.Size = new System.Drawing.Size(141, 22);
+            this.menuFileQuit.Text = "Quit";
+            this.menuFileQuit.Click += new System.EventHandler(this.menuFileQuit_Click);
             // 
             // menuView
             // 
-            menuView.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { menuViewVoronoi, toolStripSeparator1, menuViewLog });
-            menuView.Name = "menuView";
-            menuView.Size = new System.Drawing.Size(44, 24);
-            menuView.Text = "View";
+            this.menuView.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuViewVoronoi,
+            this.toolStripSeparator1,
+            this.menuViewLog});
+            this.menuView.Name = "menuView";
+            this.menuView.Size = new System.Drawing.Size(44, 24);
+            this.menuView.Text = "View";
             // 
             // menuViewVoronoi
             // 
-            menuViewVoronoi.Enabled = false;
-            menuViewVoronoi.Name = "menuViewVoronoi";
-            menuViewVoronoi.Size = new System.Drawing.Size(161, 22);
-            menuViewVoronoi.Text = "Voronoi Diagram";
-            menuViewVoronoi.Click += menuViewVoronoi_Click;
+            this.menuViewVoronoi.Enabled = false;
+            this.menuViewVoronoi.Name = "menuViewVoronoi";
+            this.menuViewVoronoi.Size = new System.Drawing.Size(162, 22);
+            this.menuViewVoronoi.Text = "Voronoi Diagram";
+            this.menuViewVoronoi.Click += new System.EventHandler(this.menuViewVoronoi_Click);
             // 
             // toolStripSeparator1
             // 
-            toolStripSeparator1.Name = "toolStripSeparator1";
-            toolStripSeparator1.Size = new System.Drawing.Size(158, 6);
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(159, 6);
             // 
             // menuViewLog
             // 
-            menuViewLog.Name = "menuViewLog";
-            menuViewLog.Size = new System.Drawing.Size(161, 22);
-            menuViewLog.Text = "Show Log";
-            menuViewLog.Click += menuViewLog_Click;
+            this.menuViewLog.Name = "menuViewLog";
+            this.menuViewLog.Size = new System.Drawing.Size(162, 22);
+            this.menuViewLog.Text = "Show Log";
+            this.menuViewLog.Click += new System.EventHandler(this.menuViewLog_Click);
             // 
             // menuTools
             // 
-            menuTools.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { menuToolsGen, menuToolsCheck, toolStripSeparator5, menuToolsTopology, toolStripSeparator4, menuToolsRcm });
-            menuTools.Name = "menuTools";
-            menuTools.Size = new System.Drawing.Size(46, 24);
-            menuTools.Text = "Tools";
+            this.menuTools.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuToolsGen,
+            this.menuToolsCheck,
+            this.toolStripSeparator5,
+            this.menuToolsTopology,
+            this.toolStripSeparator4,
+            this.menuToolsRcm});
+            this.menuTools.Name = "menuTools";
+            this.menuTools.Size = new System.Drawing.Size(46, 24);
+            this.menuTools.Text = "Tools";
             // 
             // menuToolsGen
             // 
-            menuToolsGen.Name = "menuToolsGen";
-            menuToolsGen.Size = new System.Drawing.Size(195, 22);
-            menuToolsGen.Text = "Input Generator";
-            menuToolsGen.Click += menuToolsGenerator_Click;
+            this.menuToolsGen.Name = "menuToolsGen";
+            this.menuToolsGen.Size = new System.Drawing.Size(195, 22);
+            this.menuToolsGen.Text = "Input Generator";
+            this.menuToolsGen.Click += new System.EventHandler(this.menuToolsGenerator_Click);
             // 
             // menuToolsCheck
             // 
-            menuToolsCheck.Enabled = false;
-            menuToolsCheck.Name = "menuToolsCheck";
-            menuToolsCheck.Size = new System.Drawing.Size(195, 22);
-            menuToolsCheck.Text = "Check Mesh";
-            menuToolsCheck.Click += menuToolsCheck_Click;
+            this.menuToolsCheck.Enabled = false;
+            this.menuToolsCheck.Name = "menuToolsCheck";
+            this.menuToolsCheck.Size = new System.Drawing.Size(195, 22);
+            this.menuToolsCheck.Text = "Check Mesh";
+            this.menuToolsCheck.Click += new System.EventHandler(this.menuToolsCheck_Click);
             // 
             // toolStripSeparator5
             // 
-            toolStripSeparator5.Name = "toolStripSeparator5";
-            toolStripSeparator5.Size = new System.Drawing.Size(192, 6);
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(192, 6);
             // 
             // menuToolsTopology
             // 
-            menuToolsTopology.Name = "menuToolsTopology";
-            menuToolsTopology.Size = new System.Drawing.Size(195, 22);
-            menuToolsTopology.Text = "Topology Explorer";
-            menuToolsTopology.Click += menuToolsTopology_Click;
+            this.menuToolsTopology.Name = "menuToolsTopology";
+            this.menuToolsTopology.Size = new System.Drawing.Size(195, 22);
+            this.menuToolsTopology.Text = "Topology Explorer";
+            this.menuToolsTopology.Click += new System.EventHandler(this.menuToolsTopology_Click);
             // 
             // toolStripSeparator4
             // 
-            toolStripSeparator4.Name = "toolStripSeparator4";
-            toolStripSeparator4.Size = new System.Drawing.Size(192, 6);
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(192, 6);
             // 
             // menuToolsRcm
             // 
-            menuToolsRcm.Enabled = false;
-            menuToolsRcm.Name = "menuToolsRcm";
-            menuToolsRcm.Size = new System.Drawing.Size(195, 22);
-            menuToolsRcm.Text = "Renumber nodes (RCM)";
-            menuToolsRcm.Click += menuToolsRcm_Click;
+            this.menuToolsRcm.Enabled = false;
+            this.menuToolsRcm.Name = "menuToolsRcm";
+            this.menuToolsRcm.Size = new System.Drawing.Size(195, 22);
+            this.menuToolsRcm.Text = "Renumber nodes (RCM)";
+            this.menuToolsRcm.Click += new System.EventHandler(this.menuToolsRcm_Click);
             // 
             // btnMesh
             // 
-            btnMesh.Enabled = false;
-            btnMesh.Location = new System.Drawing.Point(4, 44);
-            btnMesh.Name = "btnMesh";
-            btnMesh.Size = new System.Drawing.Size(130, 23);
-            btnMesh.TabIndex = 12;
-            btnMesh.Text = "Triangulate";
-            btnMesh.UseVisualStyleBackColor = true;
-            btnMesh.Click += btnMesh_Click;
-            // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.BackColor = System.Drawing.Color.WhiteSmoke;
-            label1.Location = new System.Drawing.Point(173, 28);
-            label1.Name = "label1";
-            label1.Size = new System.Drawing.Size(38, 13);
-            label1.TabIndex = 0;
-            label1.Text = "label1";
+            this.btnMesh.Enabled = false;
+            this.btnMesh.Location = new System.Drawing.Point(4, 44);
+            this.btnMesh.Name = "btnMesh";
+            this.btnMesh.Size = new System.Drawing.Size(130, 23);
+            this.btnMesh.TabIndex = 12;
+            this.btnMesh.Text = "Triangulate";
+            this.btnMesh.UseVisualStyleBackColor = true;
+            this.btnMesh.Click += new System.EventHandler(this.btnMesh_Click);
             // 
             // FormMain
             // 
-            AllowDrop = true;
-            AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            BackColor = System.Drawing.Color.FromArgb(76, 76, 76);
-            ClientSize = new System.Drawing.Size(992, 623);
-            Controls.Add(splitContainer);
-            Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
-            KeyPreview = true;
-            MainMenuStrip = menuStrip1;
-            MinimumSize = new System.Drawing.Size(1000, 650);
-            Name = "FormMain";
-            Text = "Triangle.NET - Mesh Explorer";
-            Load += Form1_Load;
-            ResizeBegin += ResizeBeginHandler;
-            ResizeEnd += ResizeEndHandler;
-            DragDrop += frmDragDrop;
-            DragOver += frmDragOver;
-            KeyUp += Form1_KeyUp;
-            Resize += ResizeHandler;
-            splitContainer.Panel1.ResumeLayout(false);
-            splitContainer.Panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)splitContainer).EndInit();
-            splitContainer.ResumeLayout(false);
-            flatTabControl1.ResumeLayout(false);
-            tabPage1.ResumeLayout(false);
-            tabPage2.ResumeLayout(false);
-            tabPage3.ResumeLayout(false);
-            menuStrip1.ResumeLayout(false);
-            menuStrip1.PerformLayout();
-            ResumeLayout(false);
+            this.AllowDrop = true;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(76)))), ((int)(((byte)(76)))), ((int)(((byte)(76)))));
+            this.ClientSize = new System.Drawing.Size(992, 623);
+            this.Controls.Add(this.splitContainer);
+            this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.KeyPreview = true;
+            this.MainMenuStrip = this.menuStrip1;
+            this.MinimumSize = new System.Drawing.Size(1000, 650);
+            this.Name = "FormMain";
+            this.Text = "Triangle.NET - Mesh Explorer";
+            this.Load += new System.EventHandler(this.Form1_Load);
+            this.ResizeBegin += new System.EventHandler(this.ResizeBeginHandler);
+            this.ResizeEnd += new System.EventHandler(this.ResizeEndHandler);
+            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.frmDragDrop);
+            this.DragOver += new System.Windows.Forms.DragEventHandler(this.frmDragOver);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyUp);
+            this.Resize += new System.EventHandler(this.ResizeHandler);
+            this.splitContainer.Panel1.ResumeLayout(false);
+            this.splitContainer.Panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
+            this.splitContainer.ResumeLayout(false);
+            this.flatTabControl1.ResumeLayout(false);
+            this.tabPage1.ResumeLayout(false);
+            this.tabPage2.ResumeLayout(false);
+            this.tabPage3.ResumeLayout(false);
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
+            this.ResumeLayout(false);
+
         }
 
         #endregion
@@ -405,7 +412,7 @@
         private Views.AboutView aboutView;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
         private System.Windows.Forms.ToolStripMenuItem menuToolsTopology;
-        private System.Windows.Forms.Label label1;
+
     }
 }
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -17,16 +16,11 @@ using TriangleNet.Voronoi;
 namespace MeshExplorer
 {
     public partial class FormMain : Form
-
     {
-        
-        //контекст привязки данных
-        FormDataContext formDataContext;
-
         Settings settings;
 
-        //Mesh mesh;
-        //IPolygon input; //заменен на this.formDataContext.Input
+        Mesh mesh;
+        IPolygon input;
         VoronoiBase voronoi;
 
         FormLog frmLog;
@@ -37,12 +31,8 @@ namespace MeshExplorer
         public FormMain()
         {
             InitializeComponent();
-            //this.tabPage1.BindingContext = new Binding()
+
             ToolStripManager.Renderer = new DarkToolStripRenderer();
-            
-            formDataContext = new FormDataContext();
-            this.DataContext = formDataContext;
-            this.label1.DataBindings.Add(new Binding("Text", this.DataContext, "AmountPoints"));
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -142,9 +132,9 @@ namespace MeshExplorer
 
         void frmGenerator_InputGenerated(object sender, EventArgs e)
         {
-            this.formDataContext.Input = sender as IPolygon;
+            this.input = sender as IPolygon;
 
-            if (formDataContext.Input != null)
+            if (input != null)
             {
                 settings.CurrentFile = "tmp-" + DateTime.Now.ToString("HH-mm-ss");
                 HandleNewInput();
@@ -251,8 +241,8 @@ namespace MeshExplorer
 
         private void HandleNewInput()
         {
-            // Reset formDataContext.Mesh
-            formDataContext.Mesh = null;
+            // Reset mesh
+            mesh = null;
             voronoi = null;
 
             // Reset state
@@ -265,7 +255,7 @@ namespace MeshExplorer
             btnSmooth.Enabled = false;
 
             // Update Statistic view
-            statisticView.HandleNewInput(formDataContext.Input);
+            statisticView.HandleNewInput(input);
 
             // Clear voronoi
             menuViewVoronoi.Checked = false;
@@ -277,8 +267,8 @@ namespace MeshExplorer
             menuToolsCheck.Enabled = false;
             menuToolsRcm.Enabled = false;
 
-            // Render formDataContext.Input
-            renderManager.Set(formDataContext.Input);
+            // Render input
+            renderManager.Set(input);
 
             // Update window caption
             this.Text = "Triangle.NET - Mesh Explorer - " + settings.CurrentFile;
@@ -288,14 +278,14 @@ namespace MeshExplorer
         {
             voronoi = null;
 
-            // Render formDataContext.Mesh
-            renderManager.Set(formDataContext.Mesh, true);
+            // Render mesh
+            renderManager.Set(mesh, true);
 
             // Update window caption
             this.Text = "Triangle.NET - Mesh Explorer - " + settings.CurrentFile;
 
             // Update Statistic view
-            statisticView.HandleMeshImport(formDataContext.Input, formDataContext.Mesh);
+            statisticView.HandleMeshImport(input, mesh);
 
             // Set refine mode
             btnMesh.Enabled = true;
@@ -308,11 +298,11 @@ namespace MeshExplorer
 
         private void HandleMeshUpdate()
         {
-            // Render formDataContext.Mesh
-            renderManager.Set(formDataContext.Mesh, false);
+            // Render mesh
+            renderManager.Set(mesh, false);
 
             // Update Statistic view
-            statisticView.HandleMeshUpdate(formDataContext.Mesh);
+            statisticView.HandleMeshUpdate(mesh);
 
             HandleMeshChange();
         }
@@ -320,7 +310,7 @@ namespace MeshExplorer
         private void HandleMeshChange()
         {
             // Update Statistic view
-            statisticView.HandleMeshChange(formDataContext.Mesh);
+            statisticView.HandleMeshChange(mesh);
 
             // TODO: Should the Voronoi diagram automatically update?
             voronoi = null;
@@ -383,24 +373,24 @@ namespace MeshExplorer
             {
                 if (MeshDataExists(filename))
                 {
-                    if (filename.EndsWith(".ele") || DarkMessageBox.Show("Import formDataContext.Mesh", Settings.ImportString,
-                        "Do you want to import the formDataContext.Mesh?", MessageBoxButtons.YesNo) == DialogResult.OK)
+                    if (filename.EndsWith(".ele") || DarkMessageBox.Show("Import mesh", Settings.ImportString,
+                        "Do you want to import the mesh?", MessageBoxButtons.YesNo) == DialogResult.OK)
                     {
-                        formDataContext.Input = null;
+                        input = null;
 
                         try
                         {
-                            formDataContext.Mesh = (Mesh)FileProcessor.Import(filename);
+                            mesh = (Mesh)FileProcessor.Import(filename);
                         }
                         catch (Exception e)
                         {
-                            DarkMessageBox.Show("Import formDataContext.Mesh error", e.Message, MessageBoxButtons.OK);
+                            DarkMessageBox.Show("Import mesh error", e.Message, MessageBoxButtons.OK);
                             return false;
                         }
 
-                        if (formDataContext.Mesh != null)
+                        if (mesh != null)
                         {
-                            statisticView.UpdateStatistic(formDataContext.Mesh);
+                            statisticView.UpdateStatistic(mesh);
 
                             // Update settings
                             settings.CurrentFile = Path.GetFileName(filename);
@@ -414,10 +404,10 @@ namespace MeshExplorer
                     }
                 }
 
-                formDataContext.Input = FileProcessor.Read(filename);
+                input = FileProcessor.Read(filename);
             }
 
-            if (formDataContext.Input != null)
+            if (input != null)
             {
                 // Update settings
                 settings.CurrentFile = Path.GetFileName(filename);
@@ -440,15 +430,15 @@ namespace MeshExplorer
 
             if (sfd.ShowDialog() == DialogResult.OK)
             {
-                FileProcessor.Write(formDataContext.Mesh, sfd.FileName);
+                FileProcessor.Write(mesh, sfd.FileName);
             }
         }
 
         private void Reload()
         {
-            if (formDataContext.Input != null)
+            if (input != null)
             {
-                formDataContext.Mesh = null;
+                mesh = null;
                 settings.RefineMode = false;
                 settings.ExceptionThrown = false;
 
@@ -458,7 +448,7 @@ namespace MeshExplorer
 
         private void TriangulateOrRefine()
         {
-            if ((formDataContext.Input == null && !settings.RefineMode) || settings.ExceptionThrown)
+            if ((input == null && !settings.RefineMode) || settings.ExceptionThrown)
             {
                 return;
             }
@@ -470,7 +460,7 @@ namespace MeshExplorer
                 if (meshControlView.ParamQualityChecked)
                 {
                     btnMesh.Text = "Refine";
-                    btnSmooth.Enabled = formDataContext.Mesh.IsPolygon;
+                    btnSmooth.Enabled = mesh.IsPolygon;
                 }
             }
             else if (meshControlView.ParamQualityChecked)
@@ -481,7 +471,7 @@ namespace MeshExplorer
 
         private void Triangulate()
         {
-            if (formDataContext.Input == null) return;
+            if (input == null) return;
 
             var options = new ConstraintOptions();
             var quality = new QualityOptions();
@@ -507,9 +497,9 @@ namespace MeshExplorer
                 //double area = slMaxArea.Value * 0.01;
                 //if (area > 0 && area < 1)
                 //{
-                //    var size = formDataContext.Input.Bounds;
+                //    var size = input.Bounds;
                 //    double min = Math.Min(size.Width, size.Height);
-                //    formDataContext.Mesh.SetOption(Options.MaxArea, area * min);
+                //    mesh.SetOption(Options.MaxArea, area * min);
                 //}
             }
 
@@ -522,14 +512,14 @@ namespace MeshExplorer
             {
                 if (meshControlView.ParamSweeplineChecked)
                 {
-                    formDataContext.Mesh = (Mesh)formDataContext.Input.Triangulate(options, quality, new SweepLine());
+                    mesh = (Mesh)input.Triangulate(options, quality, new SweepLine());
                 }
                 else
                 {
-                    formDataContext.Mesh = (Mesh)formDataContext.Input.Triangulate(options, quality);
+                    mesh = (Mesh)input.Triangulate(options, quality);
                 }
 
-                statisticView.UpdateStatistic(formDataContext.Mesh);
+                statisticView.UpdateStatistic(mesh);
 
                 HandleMeshUpdate();
 
@@ -549,7 +539,7 @@ namespace MeshExplorer
 
         private void Refine()
         {
-            if (formDataContext.Mesh == null) return;
+            if (mesh == null) return;
 
             double area = meshControlView.ParamMaxAreaValue;
 
@@ -571,9 +561,9 @@ namespace MeshExplorer
 
             try
             {
-                formDataContext.Mesh.Refine(quality, meshControlView.ParamConformDelChecked);
+                mesh.Refine(quality, meshControlView.ParamConformDelChecked);
 
-                statisticView.UpdateStatistic(formDataContext.Mesh);
+                statisticView.UpdateStatistic(mesh);
 
                 HandleMeshUpdate();
             }
@@ -588,12 +578,12 @@ namespace MeshExplorer
 
         private void Renumber()
         {
-            if (formDataContext.Mesh == null || settings.ExceptionThrown) return;
+            if (mesh == null || settings.ExceptionThrown) return;
 
             bool tmp = Log.Verbose;
             Log.Verbose = true;
 
-            formDataContext.Mesh.Renumber(NodeNumbering.CuthillMcKee);
+            mesh.Renumber(NodeNumbering.CuthillMcKee);
             ShowLog();
 
             Log.Verbose = tmp;
@@ -601,9 +591,9 @@ namespace MeshExplorer
 
         private void Smooth()
         {
-            if (formDataContext.Mesh == null || settings.ExceptionThrown) return;
+            if (mesh == null || settings.ExceptionThrown) return;
 
-            if (!formDataContext.Mesh.IsPolygon)
+            if (!mesh.IsPolygon)
             {
                 return;
             }
@@ -612,9 +602,9 @@ namespace MeshExplorer
 
             try
             {
-                smoother.Smooth(this.formDataContext.Mesh);
+                smoother.Smooth(this.mesh);
 
-                statisticView.UpdateStatistic(formDataContext.Mesh);
+                statisticView.UpdateStatistic(mesh);
 
                 HandleMeshUpdate();
             }
@@ -629,16 +619,16 @@ namespace MeshExplorer
 
         private bool CreateVoronoi()
         {
-            if (formDataContext.Mesh == null)
+            if (mesh == null)
             {
                 return false;
             }
 
-            if (formDataContext.Mesh.IsPolygon)
+            if (mesh.IsPolygon)
             {
                 try
                 {
-                    this.voronoi = new BoundedVoronoi(formDataContext.Mesh);
+                    this.voronoi = new BoundedVoronoi(mesh);
                 }
                 catch (Exception ex)
                 {
@@ -656,7 +646,7 @@ namespace MeshExplorer
             }
             else
             {
-                this.voronoi = new StandardVoronoi(formDataContext.Mesh);
+                this.voronoi = new StandardVoronoi(mesh);
             }
 
             // HACK: List<Vertex> -> ICollection<Point> ? Nope, no way.
@@ -700,7 +690,7 @@ namespace MeshExplorer
 
         private void menuFileSave_Click(object sender, EventArgs ev)
         {
-            if (formDataContext.Mesh != null)
+            if (mesh != null)
             {
                 Save();
             }
@@ -708,7 +698,7 @@ namespace MeshExplorer
 
         private void menuFileExport_Click(object sender, EventArgs e)
         {
-            if (formDataContext.Mesh != null)
+            if (mesh != null)
             {
                 FormExport export = new FormExport();
 
@@ -731,7 +721,7 @@ namespace MeshExplorer
 
                     var writer = new ImageWriter();
 
-                    writer.Export(this.formDataContext.Mesh, export.ImageName, format, size, compress);
+                    writer.Export(this.mesh, export.ImageName, format, size, compress);
                 }
             }
         }
@@ -781,14 +771,14 @@ namespace MeshExplorer
 
         private void menuToolsCheck_Click(object sender, EventArgs e)
         {
-            if (formDataContext.Mesh != null)
+            if (mesh != null)
             {
                 bool save = Log.Verbose;
 
                 Log.Verbose = true;
 
-                bool isConsistent = MeshValidator.IsConsistent(formDataContext.Mesh);
-                bool isDelaunay = MeshValidator.IsDelaunay(formDataContext.Mesh);
+                bool isConsistent = MeshValidator.IsConsistent(mesh);
+                bool isDelaunay = MeshValidator.IsDelaunay(mesh);
 
                 Log.Verbose = save;
 
