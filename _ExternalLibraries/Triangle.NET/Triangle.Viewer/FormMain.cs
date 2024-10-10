@@ -3,6 +3,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using MeshExplorer.Controls;
+using MeshExplorer.Generators;
 using MeshExplorer.IO;
 using TriangleNet;
 using TriangleNet.Geometry;
@@ -834,7 +835,9 @@ namespace MeshExplorer
         /// <param name="e"></param>
         private void addToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            RandomPoints generator = new RandomPoints();
+            generator.UpdatePolygon(this.input);
+            HandleNewInput();
         }
     }
 }

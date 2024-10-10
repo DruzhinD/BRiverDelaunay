@@ -6,6 +6,7 @@
 
 namespace MeshExplorer.Generators
 {
+    using System.Collections.Generic;
     using TriangleNet.Geometry;
 
     /// <summary>
@@ -50,6 +51,25 @@ namespace MeshExplorer.Generators
             }
 
             return input;
+        }
+
+        public override void UpdatePolygon(IPolygon geometry)
+        {
+            //base.UpdatePolygon(geometry);
+            int lastPointId = geometry.Points[geometry.Points.Count - 1].ID;
+            int width = Util.Random.Next(10, 1000 + geometry.Points.Count);
+            int height = Util.Random.Next(10, 5000 + geometry.Points.Count);
+            int amountGeneratePoints = 1000;
+            for (int i = lastPointId + 1; i < lastPointId + amountGeneratePoints; i++)
+            {
+
+                Vertex point = new Vertex(Util.Random.NextDouble() * width,
+                        Util.Random.NextDouble() * height);
+                point.ID = i;
+                geometry.Add(point);
+            }
+            
+
         }
     }
 }

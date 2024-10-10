@@ -154,5 +154,13 @@ namespace MeshExplorer.Generators
         {
             return this.Name;
         }
+
+        /// <summary>
+        /// Добавление новых вершин на полигон
+        /// </summary>
+        public virtual void UpdatePolygon(IPolygon geometry)
+        {
+
+        }
     }
 }
