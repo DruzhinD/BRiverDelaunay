@@ -66,20 +66,19 @@ namespace TriangleNet.Smoothing
         }
 
         /// <summary>
-        /// Smooth mesh with a maximum given number of rounds of Voronoi
-        /// iteration.
+        /// Гладкая сетка с максимальным заданным числом циклов Вороного
         /// </summary>
-        /// <param name="mesh">The mesh.</param>
-        /// <param name="limit">The maximum number of iterations. If
-        /// non-positive, no iteration is applied at all.</param>
-        /// <param name="tol">The desired tolerance on the result. At each
-        /// iteration, the maximum movement by any side is considered, both for
-        /// the previous and the current solutions. If their relative difference
-        /// is not greater than the tolerance, the current solution is
-        /// considered good enough already.</param>
-        /// <returns>The number of actual iterations performed. It is 0 if a
-        /// non-positive limit is passed. Otherwise, it is always a value
-        /// between 1 and the limit (inclusive).
+        /// <param name="mesh">Сетка.</param>
+        /// <param name="limit">Максимальное количество итераций. Если
+        /// результат не положительный, итерация вообще не применяется</param>
+        /// <param name="tol">Желаемый допуск для результата. При каждом
+        /// на каждой итерации учитывается максимальное перемещение в любую сторону как для
+        /// предыдущего, так и для текущего решений. Если их относительная разница
+        /// не превышает допустимого значения, текущее решение
+        /// уже считается достаточно хорошим.</param>
+        /// <returns>Количество фактически выполненных итераций. Оно равно 0, если
+        /// пройден неположительный предел. В противном случае это всегда значение
+        /// между 1 и пределом (включительно).
         /// </returns>
         public int Smooth(IMesh mesh, int limit = 10, double tol = .01)
         {
@@ -91,15 +90,20 @@ namespace TriangleNet.Smoothing
             var mesher = new GenericMesher(config);
             var predicates = config.Predicates();
 
+            //Сглаживатель должен учитывать поведение разделения сегментов сетки.
             // The smoother should respect the mesh segment splitting behavior.
             options.SegmentSplitting = smoothedMesh.behavior.NoBisect;
 
+            //Максимальные расстояния, удаленные от любого сайта на предыдущей или текущей итерациях.
             // The maximum distances moved from any site at the previous and
             // current iterations.
             double
                 prevMax = double.PositiveInfinity,
                 currMax = 1d;
 
+            //Выполните несколько циклов сглаживания (алгоритм Ллойда). Критериями остановки
+            // являются максимальное количество итераций и сходимость
+            // критерий.
             // Take a few smoothing rounds (Lloyd's algorithm). The stop
             // criteria are the maximum number of iterations and the convergence
             // criterion.
@@ -109,6 +113,9 @@ namespace TriangleNet.Smoothing
                 prevMax = currMax;
                 currMax = Step(smoothedMesh, factory, predicates);
 
+                // На самом деле, мы хотим перестроить только в том случае, если сетка больше не используется.
+                // Делоне. Вместо этого правильным выбором могло бы быть переворачивание краев 
+                // повторной триангуляции...
                 // Actually, we only want to rebuild, if the mesh is no longer
                 // Delaunay. Flipping edges could be the right choice instead 
                 // of re-triangulating...
@@ -130,8 +137,16 @@ namespace TriangleNet.Smoothing
 
             double x, y, maxDistanceMoved = 0;
 
+            Face notNullFace; //последний Face != null
+
             foreach (var face in voronoi.Faces)
             {
+                //появляется face = null, который отсутствует в списке voronoi
+                if (face != null)
+                    notNullFace = face;
+                else
+                    continue; //пока просто пропустим ошибку - костыль
+
                 if (face.generator.label == 0)
                 {
 #if SMOOTHER_DENSITY
@@ -164,6 +179,7 @@ namespace TriangleNet.Smoothing
             double ai, atmp = 0, xtmp = 0, ytmp = 0;
 
             var edge = face.Edge;
+            //edge == null (Pem.poly не все точки входят в полигон)
             var first = edge.Next.ID;
 
             Point p, q;

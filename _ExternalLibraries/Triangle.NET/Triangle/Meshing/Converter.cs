@@ -48,6 +48,7 @@ namespace TriangleNet.Meshing
         /// </summary>
         public Mesh ToMesh(Polygon polygon, ITriangle[] triangles, Configuration config = null)
         {
+            //default - значение по умолчанию
             Otri tri = default(Otri);
             Osub subseg = default(Osub);
 

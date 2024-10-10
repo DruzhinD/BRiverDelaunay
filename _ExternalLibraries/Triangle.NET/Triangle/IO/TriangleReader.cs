@@ -24,6 +24,10 @@ namespace TriangleNet.IO
 
         #region Helper methods
 
+        /// <summary>
+        /// Проверка на возможность считать строку из файла
+        /// </summary>
+        /// <param name="token">заголовок файла, т.е. данные, которые хранятся в 1 строке</param>
         private bool TryReadLine(StreamReader reader, out string[] token)
         {
             token = null;
@@ -115,18 +119,22 @@ namespace TriangleNet.IO
         }
 
         /// <summary>
-        /// Reads a mesh from .node, .poly or .ele files.
+        /// Reads a mesh from .node, .poly or .ele files. <br/>
+        /// Читает сетку из файла. <br/>
+        /// Данные сохраняет в geometry, и списке треугольников (triangles)
         /// </summary>
         public void Read(string filename, out Polygon geometry, out List<ITriangle> triangles)
         {
             triangles = null;
 
+            //чтение вершин из файла poly/node
             Read(filename, out geometry);
 
             string path = Path.ChangeExtension(filename, ".ele");
 
             if (File.Exists(path) && geometry != null)
             {
+                //чтение сетки из файла .ele
                 triangles = ReadEleFile(path);
             }
         }
@@ -534,16 +542,20 @@ namespace TriangleNet.IO
                     throw new Exception("Can't read input file (elements).");
                 }
 
+                //количество треугольников в сетке
                 intriangles = int.Parse(line[0]);
 
                 // We ignore index 1 (number of nodes per triangle)
+                //игнорируем id=1 (line[1]), т.к. он содержит количество вершин треугольника
                 attributes = 0;
                 if (line.Length > 2)
                 {
+                    //количество атрибутов
                     attributes = int.Parse(line[2]);
                     validRegion = true;
                 }
 
+                //логируем, что нет поддержки атрибутов)))
                 if (attributes > 1)
                 {
                     Log.Instance.Warning("Triangle attributes not supported.",
@@ -555,6 +567,7 @@ namespace TriangleNet.IO
                 InputTriangle tri;
 
                 // Read triangles.
+                //непосредственно чтение треугольников из файла
                 for (int i = 0; i < intriangles; i++)
                 {
                     if (!TryReadLine(reader, out line))
@@ -574,6 +587,7 @@ namespace TriangleNet.IO
                         int.Parse(line[3]) - startIndex);
 
                     // Read triangle region
+                    //считываем область треугольника
                     if (attributes > 0 && validRegion)
                     {
                         int region = 0;

@@ -11,7 +11,8 @@ namespace TriangleNet.Topology
     using TriangleNet.Geometry;
 
     /// <summary>
-    /// An oriented triangle.
+    /// An oriented triangle. <br/>
+    /// Ориентированный треугольник
     /// </summary>
     /// <remarks>
     /// Includes a pointer to a triangle and orientation.  The orientation denotes an edge

@@ -86,7 +86,8 @@ namespace TriangleNet.IO
         #region Mesh read/write
 
         /// <summary>
-        /// Read a file containing a mesh.
+        /// Read a file containing a mesh. <br/>
+        /// Чтение файла, содержащего сетку (mesh)
         /// </summary>
         /// <param name="filename">The path of the file to read.</param>
         /// <returns>An instance of the <see cref="IMesh" /> interface.</returns>

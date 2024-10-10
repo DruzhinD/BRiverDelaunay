@@ -10,7 +10,9 @@ namespace TriangleNet.IO
     using TriangleNet.Geometry;
 
     /// <summary>
-    /// Simple triangle class for input.
+    /// Simple triangle class for input. <br/>
+    /// Просто запись (record), содержащая данные о каждом треугольнике, <br/>
+    /// обычно считываемом из файла (например - .ele)
     /// </summary>
     public class InputTriangle : ITriangle
     {

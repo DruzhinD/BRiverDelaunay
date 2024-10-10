@@ -12,7 +12,8 @@ namespace TriangleNet.IO
     public interface IFileFormat
     {
         /// <summary>
-        /// Test whether the given file is supported.
+        /// Test whether the given file is supported. <br/>
+        /// Проверка на поддерживаемый формат файла
         /// </summary>
         /// <param name="file">The file to read.</param>
         /// <returns>Returns true if the file can be read.</returns>

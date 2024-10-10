@@ -328,8 +328,10 @@ namespace MeshExplorer
 
         #region Commands
 
+        //импорт данных из файла
         private void OpenWithDialog()
         {
+            //класс диалогового окна с выбором файла
             OpenFileDialog ofd = new OpenFileDialog();
 
             ofd.Filter = settings.OfdFilter;
@@ -339,6 +341,7 @@ namespace MeshExplorer
 
             if (ofd.ShowDialog() == DialogResult.OK)
             {
+                //здесь читает данные
                 if (Open(ofd.FileName))
                 {
                     // Update folder settings
@@ -348,6 +351,14 @@ namespace MeshExplorer
             }
         }
 
+        /// <summary>
+        /// проверка на существование данных сетки <br/>
+        /// Данные о сетке хранятся в .ele. <br/>
+        /// Если в каталоге импортированного файла существует файл с расширением .ele, <br/>
+        /// то данные о точках берутся из исходного файла, а сетка из файла с таким же названием, но расширением .ele
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns></returns>
         private bool MeshDataExists(string filename)
         {
             string ext = Path.GetExtension(filename);
@@ -363,8 +374,12 @@ namespace MeshExplorer
             return ext == ".ele";
         }
 
+        /// <summary>
+        /// проверяет, поддерживается ли формат файла в системе
+        /// </summary>
         private bool Open(string filename)
         {
+            //формат файла не поддерживается
             if (!FileProcessor.IsSupported(filename))
             {
                 // TODO: show message.
@@ -404,6 +419,7 @@ namespace MeshExplorer
                     }
                 }
 
+                //чтение вершин из файла
                 input = FileProcessor.Read(filename);
             }
 
@@ -683,6 +699,9 @@ namespace MeshExplorer
 
         #region Menu Handler
 
+        /// <summary>
+        /// открывает окно импорта файла
+        /// </summary>
         private void menuFileOpen_Click(object sender, EventArgs e)
         {
             OpenWithDialog();
@@ -807,5 +826,15 @@ namespace MeshExplorer
         }
 
         #endregion
+
+        /// <summary>
+        /// дополнить текущую конфигурацию новыми данными
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void addToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
