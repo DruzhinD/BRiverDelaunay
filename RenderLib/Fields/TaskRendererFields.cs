@@ -337,14 +337,17 @@ namespace RenderLib
                 if (Elems == null) return;
                 TwoElement el;
                 PointF p0, p1, pc;
+                //здесь происходит нормализация координат
                 for (uint i = 0; i < Elems.Length; i++)
                 {
                     el = Elems[i];
                     p0 = new PointF((float)X[el.Vertex1], (float)Y[el.Vertex1]);
                     p1 = new PointF((float)X[el.Vertex2], (float)Y[el.Vertex2]);
                     pc = new PointF(0.5f * (p0.X + p1.X), 0.5f * (p0.Y + p1.Y));
+                    //конкретная нормализация
                     zoom.WorldToScreen(ref p0);
                     zoom.WorldToScreen(ref p1);
+                    //отрисовка каждой линии границы сетки
                     g.DrawLine(colorScheme.PenBoundaryLine, p0, p1);
 
                     if (renderOptions.showKnotNamber == true)
