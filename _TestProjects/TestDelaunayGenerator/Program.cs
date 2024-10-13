@@ -17,12 +17,14 @@ namespace TestDelaunayGenerator
         static void Main(string[] args)
         {
             Test test = new Test();
-            M:
+        M:
             Console.WriteLine("Выор тестовой области:");
             Console.WriteLine("1. Прямоугольник простой");
             Console.WriteLine("2. Прямоугольник большой");
             Console.WriteLine("3. Трапеция");
             Console.WriteLine("4. Круглое множество");
+            Console.WriteLine("5. Круглое множество с границей");
+            Console.WriteLine("6. Круглое множество с вогнутой границей");
             Console.WriteLine("Esc: выход");
             try
             {
@@ -37,6 +39,10 @@ namespace TestDelaunayGenerator
                     test.CreateRestArea(2);
                 if (consoleKeyInfo.Key == ConsoleKey.D4)
                     test.CreateRestArea(3);
+                if (consoleKeyInfo.Key == ConsoleKey.D5)
+                    test.CreateRestArea(4);
+                if (consoleKeyInfo.Key == ConsoleKey.D6)
+                    test.CreateRestArea(5);
                 test.Run();
                 Console.Clear();
                 goto M;
@@ -46,8 +52,8 @@ namespace TestDelaunayGenerator
                 Console.WriteLine(ee.Message);
                 goto M;
             }
-            
-            
+
+
         }
     }
 }
