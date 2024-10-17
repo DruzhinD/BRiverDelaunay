@@ -781,36 +781,33 @@ namespace DelaunayGenerator
         /// <summary>
         /// Точка принадлежит области
         /// </summary>
-        /// <param name="i"></param>
+        /// <param name="i">индекс точки в массиве</param>
         /// <returns></returns>
         private bool InArea(int i)
         {
+            //передаем конкретную точку
             return InArea((HPoint)Points[i]);
         }
-        private bool InArea(HPoint Points)
+        private bool InArea(HPoint Point)
         {
+            //количество пересечений с границей
             int crossCount = 0;
-            //метод-хелпер, помогающий отрисовать невыпуклый контур
-            //for (int k = 0; k < Boundary.Length; k++)
-            //{
-            //    if (CrossLine.IsCrossing(
-            //        (HPoint)Boundary[k],
-            //        (HPoint)Boundary[(k + 1) % Boundary.Length],
-            //         pc, Points) == true)
-            //    {
-            //        crossCount++;
-            //    }
-            //}
-            //return !(crossCount % 2 == 1);
-            return true;
+            //метод - хелпер, помогающий отрисовать невыпуклый контур
+            //в цикле подсчитывается количество пересечений с границей области
+            for (int k = 0; k < Boundary.Length; k++)
+            {
+                if (CrossLine.IsCrossing(
+                    (HPoint)Boundary[k],
+                    (HPoint)Boundary[(k + 1) % Boundary.Length],
+                     pc, Point) == true)
+                    crossCount+=1;
+            }
+            //входит в область % 2 == 1
+            return !(crossCount % 2 == 1);
         }
         /// <summary>
         /// Принадлежит ли треугольник не выпуклой области
         /// </summary>
-        /// <param name="i"></param>
-        /// <param name="j"></param>
-        /// <param name="k"></param>
-        /// <returns></returns>
         private bool CheckIn(int i, int j, int k)
         {
             if (Boundary == null) return true;

@@ -10,19 +10,19 @@ namespace GeometryLib.Locators
     using MemLogLib;
     using System.Runtime.CompilerServices;
     using System;
+    //using System.Numerics;
+
+    using GeometryLib.Vector;
 
     /// <summary>
     /// ОО: Работа с двумя линиями
     /// </summary>
     public class CrossLine
     {
+
         /// <summary>
         /// Проверить принадлежность точки иетервалу
         /// </summary>
-        /// <param name="Xa"></param>
-        /// <param name="Xb"></param>
-        /// <param name="X"></param>
-        /// <returns></returns>
         public static bool IsContains(double Xmin, double Xmax, double X)
         {
             return (X >= Xmin && X <= Xmax);
@@ -32,11 +32,6 @@ namespace GeometryLib.Locators
         /// <summary>
         /// Проверить существование точки пересечения
         /// </summary>
-        /// <param name="p1"></param>
-        /// <param name="p2"></param>
-        /// <param name="p3"></param>
-        /// <param name="p4"></param>
-        /// <returns></returns>
         public static bool IsIntersectingAlternative(IHPoint p1, IHPoint p2,
                                                      IHPoint p3, IHPoint p4)
         {
@@ -60,11 +55,6 @@ namespace GeometryLib.Locators
         /// <summary>
         /// Проверить существование точки пересечения
         /// </summary>
-        /// <param name="p0"></param>
-        /// <param name="p1"></param>
-        /// <param name="q0"></param>
-        /// <param name="q1"></param>
-        /// <returns></returns>
         public static bool IsIntersectingAlternative(IHPoint p0, IHPoint p1,
                                                      IHPoint q0, IHPoint q1, ref IHPoint res)
         {
@@ -88,11 +78,6 @@ namespace GeometryLib.Locators
         /// <summary>
         /// Проверить существование точки пересечения
         /// </summary>
-        /// <param name="p0"></param>
-        /// <param name="p1"></param>
-        /// <param name="q0"></param>
-        /// <param name="q1"></param>
-        /// <returns></returns>
         public static bool IsIntersecting(IHPoint p0, IHPoint p1, IHPoint q0, IHPoint q1, ref IHPoint res)
         {
             bool isIntersecting = false;
@@ -226,7 +211,8 @@ namespace GeometryLib.Locators
             }
 
             return isIntersecting;
-        }
+
+        } 
         /// <summary>
         /// Поиск точки x,y - пересечения отрезка x1,y1-x2,y2 с нормалью опущеной из точки x3 y3
         /// </summary>
@@ -262,6 +248,41 @@ namespace GeometryLib.Locators
                 p.X = 0; p.Y = 0;
             }
             return L;
+        }
+
+        /// <summary>
+        /// Проверить существование точки пересечения двух отрезков
+        /// </summary>
+        public static bool IsCrossing(HPoint v11, HPoint v12, HPoint v21, HPoint v22)
+        {
+            if (HPoint.Equals(v11, v22) ||
+                 HPoint.Equals(v11, v21) ||
+                 HPoint.Equals(v12, v22) ||
+                 HPoint.Equals(v12, v21))
+                return true;
+
+            Vector3 cut1 = new Vector3(v12 - v11);
+            Vector3 cut2 = new Vector3(v22 - v21);
+
+            Vector3 prod1 = Vector3.Cross(cut1, new Vector3(v21 - v11));
+            Vector3 prod2 = Vector3.Cross(cut1, new Vector3(v22 - v11));
+
+            // Отсекаем пограничные случаи
+            if (Math.Sign(prod1.Z) == Math.Sign(prod2.Z) ||
+               MEM.Equals(prod1.Z, 0) == true ||
+               MEM.Equals(prod1.Z, 0) == true)
+                return false;
+
+            prod1 = Vector3.Cross(cut2, new Vector3(v11 - v21));
+            prod2 = Vector3.Cross(cut2, new Vector3(v12 - v21));
+
+            // Отсекаем пограничные случаи
+            if (Math.Sign(prod1.Z) == Math.Sign(prod2.Z) ||
+                MEM.Equals(prod1.Z, 0) == true ||
+                MEM.Equals(prod1.Z, 0) == true)
+                return false;
+
+            return true;
         }
     }
 }
