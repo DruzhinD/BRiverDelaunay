@@ -21,6 +21,7 @@ namespace TestDelaunayGenerator
             double h = 1.0 / (N - 1);
             switch (idx)
             {
+                //Прямоугольник простой
                 case 0:
                     Boundary = null;
                     points = new IHPoint[5]
@@ -32,6 +33,7 @@ namespace TestDelaunayGenerator
                         new HPoint(0.5, 0.5)
                     };
                     break;
+                //Прямоугольник большой
                 case 1:
                     Boundary = null;
                     // массивы для псевдослучайного микро смещения координат узлов
@@ -54,8 +56,8 @@ namespace TestDelaunayGenerator
                         }
 
                     break;
+                //Трапеция
                 case 2:
-
                     points = new IHPoint[N * N];
                     for (int i = 0; i < N; i++)
                     {
@@ -74,6 +76,7 @@ namespace TestDelaunayGenerator
                             new HPoint(-0.1,-0.1)
                      };
                     break;
+                //Круглое множество
                 case 3:
                     {
                         Boundary = null;
@@ -85,6 +88,7 @@ namespace TestDelaunayGenerator
                             points[i] = new HPoint(samples[i].X, samples[i].Y);
                     }
                     break;
+                //Круглое множество с границей
                 case 4:
                     {
                         Boundary = null;
@@ -102,6 +106,7 @@ namespace TestDelaunayGenerator
                             points[i] = new HPoint(samples[i].X, samples[i].Y);
                     }
                     break;
+                //Круглое множество с вогнутой границей
                 case 5:
                     {
                         var width = 100;
