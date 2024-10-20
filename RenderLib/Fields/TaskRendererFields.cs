@@ -87,7 +87,7 @@ namespace RenderLib
                 // шкала для заливки
                 if (renderOptions.opGradScale == true)
                     GradientScale(g);
-                // сетка (элементы)
+                // сетка (элементы) //отрисовка треугольников
                 if (renderOptions.showMesh == true)
                     RenderTriangles(g);
                 // граница - элементы

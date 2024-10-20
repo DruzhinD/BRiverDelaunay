@@ -36,6 +36,17 @@ namespace TestDelaunayGenerator
                 //Прямоугольник большой
                 case 1:
                     Boundary = null;
+                    Boundary = new IHPoint[4]
+                    {
+                        new HPoint(0.2, 0.3),
+                        new HPoint(0.4, 0.6),
+                        new HPoint(0.7, 0.8),
+                        new HPoint(0.6, 0.8),
+                        //new HPoint(0.5 - 0.2, 0.5 - 0.2), //ЛН
+                        //new HPoint(0.5 - 0.2, 0.5 + 0.2), //ЛВ
+                        //new HPoint(0.5 + 0.2, 0.5 + 0.2), //ПВ
+                        //new HPoint(0.5 + 0.2, 0.5 - 0.2), //ПН
+                    };
                     // массивы для псевдослучайного микро смещения координат узлов
                     double[] dxx = {0.0000001, 0.0000005, 0.0000002, 0.0000006, 0.0000002,
                             0.0000007, 0.0000003, 0.0000001, 0.0000004, 0.0000009,
@@ -66,14 +77,21 @@ namespace TestDelaunayGenerator
                             points[i * N + j] = new HPoint(h * i, hx * j);
                     }
                     Boundary = null;
-                    Boundary = new IHPoint[6]
+                    //Boundary = new IHPoint[6]
+                    //{
+                    //        new HPoint(-0.1,-0.1),
+                    //        new HPoint(0.5,0.25),
+                    //        new HPoint(1.1,-0.1),
+                    //        new HPoint(1.1,0.7),
+                    //        new HPoint(-0.1,0.7),
+                    //        new HPoint(-0.1,-0.1)  
+                    // };
+                    Boundary = new IHPoint[4]
                     {
-                            new HPoint(-0.1,-0.1),
-                            new HPoint(0.5,0.25),
-                            new HPoint(1.1,-0.1),
-                            new HPoint(1.1,0.7),
-                            new HPoint(-0.1,0.7),
-                            new HPoint(-0.1,-0.1)
+                        new HPoint(0.1,0),
+                        new HPoint(0.3,0.25),
+                        new HPoint(0.6,0.25),
+                        new HPoint(0.7,0),
                      };
                     break;
                 //Круглое множество
@@ -132,7 +150,7 @@ namespace TestDelaunayGenerator
             //   DelaunayMeshGenerator delaunator = new DelaunayMeshGenerator();
             DMeshGenerator delaunator = new DMeshGenerator();
             delaunator.Generator(points, Boundary);
-            IMesh mesh = delaunator.CreateMesh();
+            IMesh mesh = delaunator.CreateMesh(true);
 
             IConvexHull ch = new ConvexHull();
             // ch.FindHull(points, )

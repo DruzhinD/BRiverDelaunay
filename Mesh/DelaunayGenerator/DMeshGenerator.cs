@@ -203,14 +203,15 @@ namespace DelaunayGenerator
             cx = points.Sum(x => x.X) / (points.Length);
             cy = points.Sum(x => x.Y) / (points.Length);
             pc = new HPoint(cx, cy);
-            // Если контур границы определен
+            // Если контур границы определен,
+            //то помечаем точки, которые будут входить в сетку
             if (Boundary != null)
             {
                 if (Boundary.Length > 2)
                 {
                     for (var i = 0; i < points.Length; i++)
                     {
-                        // Проверка принадлежности точки контуру границы
+                        // Проверяем, входит ли точка в сетку или же её необходимо исключить
                         mark[i] = InArea(i);
                     }
                 }
@@ -782,7 +783,7 @@ namespace DelaunayGenerator
         /// Точка принадлежит области
         /// </summary>
         /// <param name="i">индекс точки в массиве</param>
-        /// <returns></returns>
+        /// <returns>True - точка принадлежит области</returns>
         private bool InArea(int i)
         {
             //передаем конкретную точку
@@ -806,8 +807,11 @@ namespace DelaunayGenerator
             return !(crossCount % 2 == 1);
         }
         /// <summary>
-        /// Принадлежит ли треугольник не выпуклой области
+        /// Принадлежит ли треугольник невыпуклой области <br/>
+        /// помечает треугольники, которые принадлежат невыпуклой области <br/>
+        /// args: индексы вершин треугольника
         /// </summary>
+        /// <returns>True - точка принадлежит области</returns>
         private bool CheckIn(int i, int j, int k)
         {
             if (Boundary == null) return true;

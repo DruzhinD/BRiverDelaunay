@@ -195,6 +195,7 @@ namespace MeshLib
         public override void Print()
         {
             base.Print();
+            //треугольники
             Console.WriteLine("FE");
             for (int i = 0; i < AreaElems.Length; i++)
             {
@@ -205,6 +206,7 @@ namespace MeshLib
                 Console.WriteLine(" id {0}: {1} {2} {3}", ID, n0, n1, n2);
             }
             Console.WriteLine();
+            //граница (ребра)
             Console.WriteLine("BFE");
             for (int i = 0; i < BoundElems.Length; i++)
             {

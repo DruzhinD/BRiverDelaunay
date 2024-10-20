@@ -25,7 +25,7 @@ namespace RenderLib
         /// <summary>
         /// Отрисовка сетки
         /// </summary>
-        public bool showMesh = false;
+        public bool showMesh = true; //по умолчанию рисует сетку (было - false)
         /// <summary>
         /// Отрисовка координатных осей
         /// </summary>
@@ -150,7 +150,7 @@ namespace RenderLib
         /// <summary>
         /// Орисовка номеров конечных элементов
         /// </summary>
-        public bool showElementNamber = false;
+        public bool showElementNamber = false; //по умолчанию false
         /// <summary>
         /// Заливка для поля
         /// </summary>

@@ -43,7 +43,7 @@ namespace GeometryLib.Vector
             Z = z;
         }
         //вектор по точке
-        public Vector3(HPoint point) : this(point.X, point.Y, 1) { }
+        public Vector3(HPoint point) : this(point.X, point.Y, 0) { }
 
         public static Vector3 Zero => default(Vector3);
         /// <summary>

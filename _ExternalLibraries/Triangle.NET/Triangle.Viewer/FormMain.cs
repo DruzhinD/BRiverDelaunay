@@ -526,6 +526,7 @@ namespace MeshExplorer
 
             try
             {
+                //триангуляция по алгоритму свиплайн
                 if (meshControlView.ParamSweeplineChecked)
                 {
                     mesh = (Mesh)input.Triangulate(options, quality, new SweepLine());

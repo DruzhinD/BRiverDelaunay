@@ -21,9 +21,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterpolationLib", "_Extern
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Triangle.NET", "Triangle.NET", "{172AAD6F-CD9D-4D04-8739-D4588991BA34}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Triangle.Rendering", "_ExternalLibraries\Triangle.NET\Triangle.Rendering\Triangle.Rendering.csproj", "{41022E0E-BD0F-439E-BC3A-AABB1B43471B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triangle.Rendering", "_ExternalLibraries\Triangle.NET\Triangle.Rendering\Triangle.Rendering.csproj", "{41022E0E-BD0F-439E-BC3A-AABB1B43471B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Triangle", "_ExternalLibraries\Triangle.NET\Triangle\Triangle.csproj", "{AD37DA98-33B1-448E-9104-6E77B61E84F3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triangle", "_ExternalLibraries\Triangle.NET\Triangle\Triangle.csproj", "{AD37DA98-33B1-448E-9104-6E77B61E84F3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mesh Explorer", "_ExternalLibraries\Triangle.NET\TestApp\Mesh Explorer.csproj", "{336AAF8A-5316-4303-9E73-5E38BD0B28AF}"
 EndProject
@@ -82,7 +82,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решения", "Элементы решения", "{3A42A8E8-0851-4A71-AB0F-31AD5D276F7A}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
+		Решения.md = Решения.md
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triangle.Viewer", "_ExternalLibraries\Triangle.NET\Triangle.Viewer\Triangle.Viewer.csproj", "{5F9B08F8-27DE-4C5D-AE73-7D7D7E918FD2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -442,6 +445,18 @@ Global
 		{E20295B2-040F-406C-86B0-7C8F1C1A7FDF}.Release|x64.Build.0 = Release|Any CPU
 		{E20295B2-040F-406C-86B0-7C8F1C1A7FDF}.Release|x86.ActiveCfg = Release|Any CPU
 		{E20295B2-040F-406C-86B0-7C8F1C1A7FDF}.Release|x86.Build.0 = Release|Any CPU
+		{5F9B08F8-27DE-4C5D-AE73-7D7D7E918FD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F9B08F8-27DE-4C5D-AE73-7D7D7E918FD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F9B08F8-27DE-4C5D-AE73-7D7D7E918FD2}.Debug|x64.ActiveCfg = Debug|x64
+		{5F9B08F8-27DE-4C5D-AE73-7D7D7E918FD2}.Debug|x64.Build.0 = Debug|x64
+		{5F9B08F8-27DE-4C5D-AE73-7D7D7E918FD2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5F9B08F8-27DE-4C5D-AE73-7D7D7E918FD2}.Debug|x86.Build.0 = Debug|Any CPU
+		{5F9B08F8-27DE-4C5D-AE73-7D7D7E918FD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F9B08F8-27DE-4C5D-AE73-7D7D7E918FD2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F9B08F8-27DE-4C5D-AE73-7D7D7E918FD2}.Release|x64.ActiveCfg = Release|x64
+		{5F9B08F8-27DE-4C5D-AE73-7D7D7E918FD2}.Release|x64.Build.0 = Release|x64
+		{5F9B08F8-27DE-4C5D-AE73-7D7D7E918FD2}.Release|x86.ActiveCfg = Release|Any CPU
+		{5F9B08F8-27DE-4C5D-AE73-7D7D7E918FD2}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -476,6 +491,7 @@ Global
 		{A8C191DB-3C69-4847-B57A-1524D13C1A30} = {00470AB0-3B9C-4D1E-9BE9-2DE7B1686AAD}
 		{A1A7ADFB-F3E8-4361-9614-9BB96E54B8BA} = {E191458F-D24A-4C05-A691-3B56BFDAD642}
 		{E20295B2-040F-406C-86B0-7C8F1C1A7FDF} = {D0DEC19A-8F03-40AF-AE6D-DA6CC655DA7A}
+		{5F9B08F8-27DE-4C5D-AE73-7D7D7E918FD2} = {172AAD6F-CD9D-4D04-8739-D4588991BA34}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FBB374A4-DC2B-47B1-B215-B1CAC88798F2}
