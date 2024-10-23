@@ -167,29 +167,31 @@ namespace DelaunayGenerator
         /// <summary>
         /// Генерация
         /// </summary>
-        /// <param name="points"></param>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
-        /// <exception cref="Exception"></exception>
         public void Generator(IHPoint[] points, IHPoint[] Boundary = null)
         {
             if (points.Length < 3)
                 throw new ArgumentOutOfRangeException("Нужно как минимум 3 вершины");
+            //включаем границу в массив точек построения триангуляции
+            //Points = new IHPoint[points.Length + Boundary.Length];
+            //points.CopyTo(Points, 0);
+            //Boundary.CopyTo(Points, points.Length);
             Points = points;
+
             this.Boundary = Boundary;
-            hashSize = (int)Math.Ceiling(Math.Sqrt(points.Length));
-            var maxTriangles = 2 * points.Length - 5;
-            MEM.Alloc(points.Length, ref EdgeStack);
+            hashSize = (int)Math.Ceiling(Math.Sqrt(Points.Length));
+            var maxTriangles = 2 * Points.Length - 5;
+            MEM.Alloc(Points.Length, ref EdgeStack);
             MEM.Alloc(Points.Length, ref coordsX);
             MEM.Alloc(Points.Length, ref coordsY);
             MEM.Alloc(maxTriangles * 3, ref Triangles);
             MEM.Alloc(maxTriangles * 3, ref HalfEdges);
-            MEM.Alloc(points.Length, ref hullPrev);
-            MEM.Alloc(points.Length, ref hullNext);
-            MEM.Alloc(points.Length, ref hullTri);
-            MEM.Alloc(points.Length, ref ids);
-            MEM.Alloc(points.Length, ref dists);
-            MEM.Alloc(points.Length, ref mark);
-            MEM.Alloc(points.Length, ref hullHash);
+            MEM.Alloc(Points.Length, ref hullPrev);
+            MEM.Alloc(Points.Length, ref hullNext);
+            MEM.Alloc(Points.Length, ref hullTri);
+            MEM.Alloc(Points.Length, ref ids);
+            MEM.Alloc(Points.Length, ref dists);
+            MEM.Alloc(Points.Length, ref mark);
+            MEM.Alloc(Points.Length, ref hullHash);
 
             for (var i = 0; i < Points.Length; i++)
             {
@@ -200,29 +202,48 @@ namespace DelaunayGenerator
             }
 
             #region поиск начального треугольника
-            cx = points.Sum(x => x.X) / (points.Length);
-            cy = points.Sum(x => x.Y) / (points.Length);
+            //TODO: формировать главную (начальную) точку области построения
+            //после выборки точек, лежащих В границах области (сетки)
+            cx = Points.Sum(x => x.X) / (Points.Length);
+            cy = Points.Sum(x => x.Y) / (Points.Length);
             pc = new HPoint(cx, cy);
             // Если контур границы определен,
             //то помечаем точки, которые будут входить в сетку
-            if (Boundary != null)
+            if (Boundary != null && Boundary.Length > 2)
             {
-                if (Boundary.Length > 2)
+                for (var i = 0; i < Points.Length; i++)
                 {
-                    for (var i = 0; i < points.Length; i++)
-                    {
-                        // Проверяем, входит ли точка в сетку или же её необходимо исключить
-                        mark[i] = InArea(i);
-                    }
+                    // Проверяем, входит ли точка в сетку или же её необходимо исключить
+                    mark[i] = InArea(i);
                 }
             }
+
+            #region попытка отбросить ненужные точки на первом этапе (не используется)
+            //подразумевалось, что сперва мы находим точки, которые входят в область отрисовки,
+            //а после ищем центр полученной области.
+            //Однако, чтобы найти такие точки, нужно знать центр области)))
+            //количество точек, входящих в ограниченную область
+            //var InAreaPoints = new IHPoint[mark.Where(x => x == true).Count()];
+            ////заполняем точками, входящими в область
+            //int index = 0;
+            //for (int i = 0; i < mark.Length; i++)
+            //{
+            //    if (!(mark[i] == true)) continue;
+            //    InAreaPoints[index] = Points[i];
+            //    index++;
+            //}
+            //cx = InAreaPoints.Sum(x => x.X) / (InAreaPoints.Length);
+            //cy = InAreaPoints.Sum(x => x.Y) / (InAreaPoints.Length);
+            //pc = new HPoint(cx, cy);
+            #endregion
+
             // Начальное состояние адресации вершин
-            for (int i = 0; i < points.Length; i++)
+            for (int i = 0; i < Points.Length; i++)
                 ids[i] = i;
 
             var minDist = double.PositiveInfinity;
             // выбираем начальную точку ближе к центру
-            for (int i = 0; i < points.Length; i++)
+            for (int i = 0; i < Points.Length; i++)
             {
                 if (mark[i] == false) continue;
                 double d = Dist(i);
@@ -234,7 +255,7 @@ namespace DelaunayGenerator
             }
             minDist = double.PositiveInfinity;
             // найдите точку, ближайшую к начальной
-            for (int i = 0; i < points.Length; i++)
+            for (int i = 0; i < Points.Length; i++)
             {
                 if (i == i0) continue;
                 if (mark[i] == false) continue;
@@ -248,7 +269,7 @@ namespace DelaunayGenerator
             double minRadius = double.PositiveInfinity;
             // найдите третью точку, которая образует
             // наименьшую окружность с первыми двумя точками
-            for (int i = 0; i < points.Length; i++)
+            for (int i = 0; i < Points.Length; i++)
             {
                 if (i == i0 || i == i1) continue;
                 if (mark[i] == false) continue;
@@ -277,14 +298,14 @@ namespace DelaunayGenerator
             Circumcenter();
             // Расчет растояний от центра окружности 1
             // треугольника до точек триангуляции
-            for (var i = 0; i < points.Length; i++)
+            for (var i = 0; i < Points.Length; i++)
             {
                 if (mark[i] == false) continue;
                 dists[i] = Dist(i);
             }
             // быстрая сортировка точек по расстоянию от
             // центра окружности исходного треугольника
-            Quicksort(ids, dists, 0, points.Length - 1);
+            Quicksort(ids, dists, 0, Points.Length - 1);
 
             #region начальная оболочка из первого треугольника
             // стартовый условно нулевой узел входа в оболочку
