@@ -204,8 +204,13 @@ namespace DelaunayGenerator
             #region поиск начального треугольника
             //TODO: формировать главную (начальную) точку области построения
             //после выборки точек, лежащих В границах области (сетки)
-            cx = Points.Sum(x => x.X) / (Points.Length);
-            cy = Points.Sum(x => x.Y) / (Points.Length);
+            IHPoint[] centerBasePointsSet = null;
+            if (Boundary != null)
+                centerBasePointsSet = Boundary;
+            else
+                centerBasePointsSet = Points;
+            cx = centerBasePointsSet.Sum(x => x.X) / (centerBasePointsSet.Length);
+            cy = centerBasePointsSet.Sum(x => x.Y) / (centerBasePointsSet.Length);
             pc = new HPoint(cx, cy);
             // Если контур границы определен,
             //то помечаем точки, которые будут входить в сетку
