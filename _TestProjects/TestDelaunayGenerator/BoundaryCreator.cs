@@ -30,30 +30,20 @@ namespace TestDelaunayGenerator
         public BoundaryCreator(IHPoint[] boundary, ref IHPoint[] basePoints)
         {
             this.boundaryVertex = boundary;
-            Array.Sort(basePoints, new Comparator()); //сортируем точки
-            double minX = basePoints.Min(p => p.X);
-            double minY = basePoints.Min(p => p.Y);
-            double maxX = basePoints.Max(p => p.X);
-            double maxY = basePoints.Max(p => p.X);
+            basePoints = new SpecialSorter(basePoints, new Comparator()).GetSortedArray();
 
-            double mainRect = (maxX - minX) * (maxY - minY);
-            double pointSquare = mainRect / basePoints.Length;
-            avgDistance = Math.Sqrt(2*pointSquare);
-
-            //рассчет среднего расстояния между двумя точками из первых 10к точек
-            //TODO: переделать
-            //int amountDistance = 9999;
-            //количество расстояний
-            //int amountDistance = basePoints.Length - 1;
-            //if (basePoints.Length < amountDistance + 1)
-            //    amountDistance = basePoints.Length - 1;
-            //List<string> distances = new List<string>();
-            //for (int i = 0; i < amountDistance; i++)
-            //{
-            //    double param = this.GetDistance(basePoints[i], basePoints[i + 1]);
-            //    distances.Add($"{i};{i + 1}: \t{param}");
-            //    avgDistance += param / (basePoints.Length - 1);
-            //}
+            //рассчет среднего расстояния между двумя ближайшими точками
+            int amountDistance = basePoints.Length - 1;
+            if (basePoints.Length < amountDistance + 1)
+                amountDistance = basePoints.Length - 1;
+            List<string> distances = new List<string>();
+            for (int i = 0; i < amountDistance; i++)
+            {
+                double param = this.GetDistance(basePoints[i], basePoints[i + 1]);
+                distances.Add($"{i};{i + 1}: \t{param}");
+                avgDistance += param / (basePoints.Length - 1);
+            }
+            //distances.Select((s) => { if (double.Parse(s.Split('\t')[1]) > 0.5) return s; return null ; });
         }
 
         double GetDistance(IHPoint p1, IHPoint p2)
@@ -106,8 +96,6 @@ namespace TestDelaunayGenerator
 
     }
 
-
-
     /// <summary>
     /// Компаратор для сортировки точек. <br/>
     /// Требуется для избегания реализации интерфейса IComparable в IHPoint, <br/>
@@ -124,6 +112,53 @@ namespace TestDelaunayGenerator
                 return a.CompareTo(b);
             }
             return @this.X.CompareTo(other.X);
+        }
+    }
+
+
+    
+    public class SpecialSorter
+    {
+        private IHPoint[] sortingArray;
+        IComparer<IHPoint> comparer;
+
+        public SpecialSorter(IHPoint[] sortingArray, IComparer<IHPoint> comparer)
+        {
+            this.sortingArray = sortingArray;
+            this.comparer = comparer;
+        }
+
+        public IHPoint[] GetSortedArray()
+        {
+            //сортируем
+            Array.Sort(sortingArray, comparer);
+
+            double lastYValue = double.MinValue;
+            List<int> swappingIndexes = new List<int>();
+            //поиск индексов для свапа интервалов в массиве
+            for (int i = 0; i < sortingArray.Length; i++)
+            {
+                if (lastYValue > sortingArray[i].Y)
+                    swappingIndexes.Add(i);
+                lastYValue = sortingArray[i].Y;
+            }
+            //добавляем индекс последнего элемента
+            swappingIndexes.Add(sortingArray.Length - 1);
+            for (int i = 0; i < swappingIndexes.Count; i += 2)
+            {
+                if (swappingIndexes[i] == sortingArray.Length - 1)
+                    continue;
+                int arrayLeft = swappingIndexes[i];
+                int arrayRight = swappingIndexes[i + 1] - 1;
+                while(arrayRight >= arrayLeft)
+                {
+                    (sortingArray[arrayLeft], sortingArray[arrayRight]) = (sortingArray[arrayRight], sortingArray[arrayLeft]);
+                    arrayLeft++;
+                    arrayRight--;
+                }
+            }
+
+            return sortingArray;
         }
     }
 }
