@@ -31,16 +31,29 @@ namespace TestDelaunayGenerator
         {
             this.boundaryVertex = boundary;
             Array.Sort(basePoints, new Comparator()); //сортируем точки
+            double minX = basePoints.Min(p => p.X);
+            double minY = basePoints.Min(p => p.Y);
+            double maxX = basePoints.Max(p => p.X);
+            double maxY = basePoints.Max(p => p.X);
+
+            double mainRect = (maxX - minX) * (maxY - minY);
+            double pointSquare = mainRect / basePoints.Length;
+            avgDistance = Math.Sqrt(2*pointSquare);
 
             //рассчет среднего расстояния между двумя точками из первых 10к точек
             //TODO: переделать
             //int amountDistance = 9999;
             //количество расстояний
-            int amountDistance = basePoints.Length - 1;
-            if (basePoints.Length < amountDistance + 1)
-                amountDistance = basePoints.Length - 1;
-            for (int i = 0; i < amountDistance; i++)
-                avgDistance += this.GetDistance(basePoints[i], basePoints[i + 1]) / amountDistance;
+            //int amountDistance = basePoints.Length - 1;
+            //if (basePoints.Length < amountDistance + 1)
+            //    amountDistance = basePoints.Length - 1;
+            //List<string> distances = new List<string>();
+            //for (int i = 0; i < amountDistance; i++)
+            //{
+            //    double param = this.GetDistance(basePoints[i], basePoints[i + 1]);
+            //    distances.Add($"{i};{i + 1}: \t{param}");
+            //    avgDistance += param / (basePoints.Length - 1);
+            //}
         }
 
         double GetDistance(IHPoint p1, IHPoint p2)
@@ -64,9 +77,9 @@ namespace TestDelaunayGenerator
             {
                 points.Add(boundaryVertex[i]);
                 this.AddPointsBetweenVertexes(ref points, boundaryVertex[i], boundaryVertex[i + 1]);
-                points.Add(boundaryVertex[i+1]);
             }
 
+            points.Add(boundaryVertex[boundaryVertex.Length - 1]);
             //отдельно рассматриваем последнюю и первую вершины границы, которые образуют последнее ребро границы
             AddPointsBetweenVertexes(ref points, boundaryVertex[boundaryVertex.Length - 1], boundaryVertex[0]);
 
@@ -77,6 +90,7 @@ namespace TestDelaunayGenerator
         /// <summary>
         /// добавить новые точки между 2 вершинами
         /// </summary>
+        /// <param name="points">список, в который необходимо добавить точки</param>
         void AddPointsBetweenVertexes(ref List<IHPoint> points, IHPoint v1, IHPoint v2)
         {
             int amountNewPoints = (int)Math.Floor(GetDistance(v1, v2) / avgDistance);
@@ -86,7 +100,7 @@ namespace TestDelaunayGenerator
             double intervalY = (v2.Y - v1.Y) / amountNewPoints;
 
             //добавляем новые точки на ребра границы
-            for (int j = 1; j <= amountNewPoints; j++)
+            for (int j = 1; j < amountNewPoints; j++)
                 points.Add(new HPoint(v1.X + intervalX * j, v1.Y + intervalY * j));
         }
 
