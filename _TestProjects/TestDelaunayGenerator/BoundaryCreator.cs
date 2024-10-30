@@ -12,6 +12,12 @@ namespace TestDelaunayGenerator
     /// </summary>
     public class BoundaryCreator
     {
+        public IHPoint this[int index]
+        {
+            get => boundaryPoints[index];
+        }
+
+        public int Length => boundaryPoints.Length;
         /// <summary>
         /// вершины, образующие границу
         /// </summary>
@@ -36,7 +42,7 @@ namespace TestDelaunayGenerator
             int amountDistance = basePoints.Length - 1;
             if (basePoints.Length < amountDistance + 1)
                 amountDistance = basePoints.Length - 1;
-            List<string> distances = new List<string>();
+            List<string> distances = new List<string>(); //для отладки
             for (int i = 0; i < amountDistance; i++)
             {
                 double param = this.GetDistance(basePoints[i], basePoints[i + 1]);
