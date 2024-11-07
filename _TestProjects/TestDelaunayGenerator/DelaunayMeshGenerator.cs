@@ -217,10 +217,11 @@ namespace TestDelaunayGenerator
             pc = new HPoint(cx, cy);
             // Если контур границы определен,
             //то помечаем точки, которые будут входить в сетку
-            //if (this.Boundary != null && this.Boundary.Length > 2)
             if (this.boundarySet != null)
             {
-                for (var i = 0; i < Points.Length; i++)
+                //выполняем проверку точек вплоть до последней точки из НАЧАЛЬНОГО массива (Points),
+                //т.к. массив точек ДОПОЛНЕН массивом граничных точек
+                for (var i = 0; i < Points.Length - this.boundarySet.GetAllBoundaryPoints.Length; i++)
                 {
                     // Проверяем, входит ли точка в сетку или же её необходимо исключить
                     mark[i] = InArea(i);
@@ -846,7 +847,16 @@ namespace TestDelaunayGenerator
         /// <returns>True - точка принадлежит области</returns>
         private bool CheckIn(int i, int j, int k)
         {
+            //если граница не определена, то помечаем точку, как входящую в сетку
             if (boundarySet == null) return true;
+
+            //TODO: не лучшее решение при масштабировании проекта. Стоит переделать
+            //если все 3 индекса вершин являются индексами точек границы,
+            //то такой треугольник по умолчанию не должен отрисовываться
+            int indexMaxNotBoundaryPoint = Points.Length - boundarySet.GetAllBoundaryPoints.Length - 1;
+            if (i > indexMaxNotBoundaryPoint && j > indexMaxNotBoundaryPoint && k > indexMaxNotBoundaryPoint)
+                return false;
+
             //if (Boundary.Length < 3) return true;
             double ctx = (coordsX[i] + coordsX[j] + coordsX[k]) / 3;
             double cty = (coordsY[i] + coordsY[j] + coordsY[k]) / 3;
