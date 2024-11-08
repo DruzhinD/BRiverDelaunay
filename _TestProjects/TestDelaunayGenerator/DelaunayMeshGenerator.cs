@@ -141,6 +141,7 @@ namespace TestDelaunayGenerator
             int CountElems = Triangles.Length / 3;
             MEM.Alloc(CountElems, ref mesh.AreaElems);
             List<TriElement> tri = new List<TriElement>();
+            bool flag = true;
             for (int i = 0; i < CountElems; i++)
             {
                 int i0 = Triangles[3 * i];
@@ -148,8 +149,16 @@ namespace TestDelaunayGenerator
                 int i2 = Triangles[3 * i + 2];
                 if (CheckIn(i0, i1, i2) == true)
                 {
+                    
                     tri.Add(new TriElement((uint)i0, (uint)i1, (uint)i2));
                 }
+                else
+                {
+                    //не видит внутренннюю границу, поэтому считает, что не входит в триангуляцию
+                    //if (coordsX[i0] > 0.9)
+                    //    Console.WriteLine('\n' + Coords(i0) + Coords(i1) + Coords(i2));
+                }
+                string Coords(int index) => $"{index}: {coordsX[index]};{coordsY[index]}\t";
             }
             mesh.AreaElems = tri.ToArray();
             MEM.Alloc(Points.Length, ref mesh.CoordsX);
@@ -159,17 +168,43 @@ namespace TestDelaunayGenerator
                 mesh.CoordsX[i] = Points[i].X;
                 mesh.CoordsY[i] = Points[i].Y;
             }
-            MEM.Alloc(CountHullKnots, ref mesh.BoundElems);
-            MEM.Alloc(CountHullKnots, ref mesh.BoundElementsMark);
-            MEM.Alloc(CountHullKnots, ref mesh.BoundKnots);
-            MEM.Alloc(CountHullKnots, ref mesh.BoundKnotsMark);
-            for (int i = 0; i < CountHullKnots; i++)
+            if (this.boundarySet == null)
             {
-                mesh.BoundElems[i].Vertex1 = (uint)Hull[i];
-                mesh.BoundElems[i].Vertex2 = (uint)Hull[(i + 1) % CountHullKnots];
-                mesh.BoundElementsMark[i] = 0;
-                mesh.BoundKnots[i] = Hull[i];
-                mesh.BoundKnotsMark[i] = 0;
+                MEM.Alloc(CountHullKnots, ref mesh.BoundElems);
+                MEM.Alloc(CountHullKnots, ref mesh.BoundElementsMark);
+                MEM.Alloc(CountHullKnots, ref mesh.BoundKnots);
+                MEM.Alloc(CountHullKnots, ref mesh.BoundKnotsMark);
+                for (int i = 0; i < CountHullKnots; i++)
+                {
+                    mesh.BoundElems[i].Vertex1 = (uint)Hull[i];
+                    mesh.BoundElems[i].Vertex2 = (uint)Hull[(i + 1) % CountHullKnots];
+                    mesh.BoundElementsMark[i] = 0;
+                    mesh.BoundKnots[i] = Hull[i];
+                    mesh.BoundKnotsMark[i] = 0;
+                }
+            }
+            else
+            {
+                //получается хрень, скорее всего из-за того, что точки впоследствии сортируются
+                int dataLength = this.Points.Length - this.boundarySet.GetAllBoundaryPoints.Length;
+                MEM.Alloc(dataLength, ref mesh.BoundElems);
+                MEM.Alloc(dataLength, ref mesh.BoundElementsMark);
+                MEM.Alloc(dataLength, ref mesh.BoundKnots);
+                MEM.Alloc(dataLength, ref mesh.BoundKnotsMark);
+                int meshIndex = 0;
+                int indexPoint = dataLength;
+                foreach (BoundaryCreator boundary in boundarySet)
+                {
+                    for (int i = 0; i < boundary.BoundaryPoints.Length; i++)
+                    {
+                        int indexV1 = Array.IndexOf(this.Points, boundary.BoundaryPoints[i]);
+                        int indexV2 = Array.IndexOf(this.Points, boundary.BoundaryPoints[(i+1) % boundary.BoundaryPoints.Length]);
+                        mesh.BoundElems[meshIndex].Vertex1 = (uint)indexV1;
+                        mesh.BoundElems[meshIndex].Vertex2 = (uint)indexV2;
+                        mesh.BoundKnots[meshIndex] = indexV1;
+                        meshIndex++;
+                    }
+                }
             }
             if (DEGUG == true)
                 mesh.Print();
@@ -836,7 +871,7 @@ namespace TestDelaunayGenerator
                          Point) == true)
                         crossCount+=1;
                 }
-            //входит в область % 2 == 1
+            //входит в область % 2 == 1 (в данном случае инверсия, поэтому наоборот)
             return !(crossCount % 2 == 1);
         }
         /// <summary>

@@ -23,10 +23,16 @@ namespace TestDelaunayGenerator
         /// </summary>
         IHPoint[] boundaryVertex;
 
+        IHPoint[] boundaryPoints;
         /// <summary>
         /// точки, принадлежащие границе, включая вершины границы
         /// </summary>
-        IHPoint[] boundaryPoints;
+        public IHPoint[] BoundaryPoints { get
+            {
+                if (boundaryPoints == null)
+                    this.GetBoundaryPoints();
+                return boundaryPoints;
+            } }
 
         /// <summary>
         /// среднее расстояние между точками
