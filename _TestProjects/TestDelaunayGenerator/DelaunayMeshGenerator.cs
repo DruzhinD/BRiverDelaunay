@@ -155,11 +155,13 @@ namespace TestDelaunayGenerator
                 else
                 {
                     //не видит внутренннюю границу, поэтому считает, что не входит в триангуляцию
+                    //выпадающий треугольник и прямоугольника - программа "2"
                     //if (coordsX[i0] > 0.9)
                     //    Console.WriteLine('\n' + Coords(i0) + Coords(i1) + Coords(i2));
                 }
-                string Coords(int index) => $"{index}: {coordsX[index]};{coordsY[index]}\t";
             }
+            string Coords(int index) => $"{index}: {coordsX[index]};{coordsY[index]}\t";
+
             mesh.AreaElems = tri.ToArray();
             MEM.Alloc(Points.Length, ref mesh.CoordsX);
             MEM.Alloc(Points.Length, ref mesh.CoordsY);
@@ -168,31 +170,24 @@ namespace TestDelaunayGenerator
                 mesh.CoordsX[i] = Points[i].X;
                 mesh.CoordsY[i] = Points[i].Y;
             }
-            if (this.boundarySet == null)
-            {
-                MEM.Alloc(CountHullKnots, ref mesh.BoundElems);
-                MEM.Alloc(CountHullKnots, ref mesh.BoundElementsMark);
-                MEM.Alloc(CountHullKnots, ref mesh.BoundKnots);
-                MEM.Alloc(CountHullKnots, ref mesh.BoundKnotsMark);
-                for (int i = 0; i < CountHullKnots; i++)
-                {
-                    mesh.BoundElems[i].Vertex1 = (uint)Hull[i];
-                    mesh.BoundElems[i].Vertex2 = (uint)Hull[(i + 1) % CountHullKnots];
-                    mesh.BoundElementsMark[i] = 0;
-                    mesh.BoundKnots[i] = Hull[i];
-                    mesh.BoundKnotsMark[i] = 0;
-                }
-            }
+
+            #region формирование граничных точек и линий
+            //определение количества точек границы
+            int boundaryPointsAmount;
+            if (boundarySet != null)
+                boundaryPointsAmount = this.boundarySet.GetAllBoundaryPoints.Length + CountHullKnots;
             else
-            {
-                //получается хрень, скорее всего из-за того, что точки впоследствии сортируются
-                int dataLength = this.Points.Length - this.boundarySet.GetAllBoundaryPoints.Length;
-                MEM.Alloc(dataLength, ref mesh.BoundElems);
-                MEM.Alloc(dataLength, ref mesh.BoundElementsMark);
-                MEM.Alloc(dataLength, ref mesh.BoundKnots);
-                MEM.Alloc(dataLength, ref mesh.BoundKnotsMark);
-                int meshIndex = 0;
-                int indexPoint = dataLength;
+                boundaryPointsAmount = CountHullKnots;
+
+            //выделение памяти
+            MEM.Alloc(boundaryPointsAmount, ref mesh.BoundElems);
+            MEM.Alloc(boundaryPointsAmount, ref mesh.BoundElementsMark);
+            MEM.Alloc(boundaryPointsAmount, ref mesh.BoundKnots);
+            MEM.Alloc(boundaryPointsAmount, ref mesh.BoundKnotsMark);
+            int meshIndex = 0;
+                
+            //граничные точки и линии, сформированные на основе переданных точек границы (boundarySet)
+            if (boundarySet != null)
                 foreach (BoundaryCreator boundary in boundarySet)
                 {
                     for (int i = 0; i < boundary.BoundaryPoints.Length; i++)
@@ -205,7 +200,18 @@ namespace TestDelaunayGenerator
                         meshIndex++;
                     }
                 }
+            //граничные точки и линии, сформированные на основе всего множества точек сетки (естественным образом)
+            for (int i = 0; i < CountHullKnots; i++)
+            {
+                mesh.BoundElems[meshIndex].Vertex1 = (uint)Hull[i];
+                mesh.BoundElems[meshIndex].Vertex2 = (uint)Hull[(i + 1) % CountHullKnots];
+                mesh.BoundElementsMark[meshIndex] = 0;
+                mesh.BoundKnots[meshIndex] = Hull[i];
+                mesh.BoundKnotsMark[meshIndex] = 0;
+                meshIndex++;
             }
+            #endregion
+
             if (DEGUG == true)
                 mesh.Print();
             return mesh;
@@ -250,6 +256,7 @@ namespace TestDelaunayGenerator
             cx = Points.Sum(x => x.X) / (Points.Length);
             cy = Points.Sum(x => x.Y) / (Points.Length);
             pc = new HPoint(cx, cy);
+
             // Если контур границы определен,
             //то помечаем точки, которые будут входить в сетку
             if (this.boundarySet != null)
@@ -262,25 +269,6 @@ namespace TestDelaunayGenerator
                     mark[i] = InArea(i);
                 }
             }
-
-            #region попытка отбросить ненужные точки на первом этапе (не используется)
-            //подразумевалось, что сперва мы находим точки, которые входят в область отрисовки,
-            //а после ищем центр полученной области.
-            //Однако, чтобы найти такие точки, нужно знать центр области)))
-            //количество точек, входящих в ограниченную область
-            //var InAreaPoints = new IHPoint[mark.Where(x => x == true).Count()];
-            ////заполняем точками, входящими в область
-            //int index = 0;
-            //for (int i = 0; i < mark.Length; i++)
-            //{
-            //    if (!(mark[i] == true)) continue;
-            //    InAreaPoints[index] = Points[i];
-            //    index++;
-            //}
-            //cx = InAreaPoints.Sum(x => x.X) / (InAreaPoints.Length);
-            //cy = InAreaPoints.Sum(x => x.Y) / (InAreaPoints.Length);
-            //pc = new HPoint(cx, cy);
-            #endregion
 
             // Начальное состояние адресации вершин
             for (int i = 0; i < Points.Length; i++)

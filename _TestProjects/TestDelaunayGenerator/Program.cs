@@ -10,8 +10,8 @@ namespace TestDelaunayGenerator
         [STAThread]
         static void Main(string[] args)
         {
-            Test test = new Test();
         M:
+            Test test = new Test();
             Console.WriteLine("Выор тестовой области:");
             Console.WriteLine("1. Прямоугольник простой");
             Console.WriteLine("2. Прямоугольник большой");

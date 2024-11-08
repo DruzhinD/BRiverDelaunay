@@ -31,48 +31,49 @@ namespace TestDelaunayGenerator
                     Boundary = null;
                     boundary = new IHPoint[4]
                     {
-                        new HPoint(0.3, 0.3),
-                        new HPoint(0.3, 0.7),
-                        new HPoint(0.7, 0.7),
-                        new HPoint(0.7, 0.3),
+                        new HPoint(0.31111, 0.31111),
+                        new HPoint(0.31111, 0.71111),
+                        new HPoint(0.71111, 0.71111),
+                        new HPoint(0.71111, 0.31111),
                     };
                     points = new IHPoint[]
                     {
-                        //new HPoint(0, 0),
-                        //new HPoint(1, 0),
-                        //new HPoint(1, 1),
-                        //new HPoint(0, 1),
-                        //new HPoint(0.5, 0.5),
-                        //
-                        new HPoint(0.1, 0.1),
-                        new HPoint(0.1, 0.2),
-                        new HPoint(0.1, 0.3),
-                        new HPoint(0.1, 0.4),
-                        new HPoint(0.1, 0.5),
-                        new HPoint(0.1, 0.6),
-                        new HPoint(0.1, 0.7),
-                        new HPoint(0.1, 0.8),
-                        new HPoint(0.1, 0.9),
+                        new HPoint(0, 0),
+                        new HPoint(1, 0),
+                        new HPoint(1, 1),
+                        new HPoint(0, 1),
+                        new HPoint(0.5, 0.5),
+                        new HPoint(1.1, 0.5),
 
-                        new HPoint(0.2, 0.9),
-                        new HPoint(0.2, 0.7),
-                        new HPoint(0.2, 0.6),
-                        new HPoint(0.2, 0.5),
-                        new HPoint(0.2, 0.8),
-                        new HPoint(0.2, 0.4),
-                        new HPoint(0.2, 0.3),
-                        new HPoint(0.2, 0.2),
-                        new HPoint(0.2, 0.1),
+                        //new HPoint(0.1, 0.1),
+                        //new HPoint(0.1, 0.2),
+                        //new HPoint(0.1, 0.3),
+                        //new HPoint(0.1, 0.4),
+                        //new HPoint(0.1, 0.5),
+                        //new HPoint(0.1, 0.6),
+                        //new HPoint(0.1, 0.7),
+                        //new HPoint(0.1, 0.8),
+                        //new HPoint(0.1, 0.9),
 
-                        new HPoint(0.3, 0.9),
-                        new HPoint(0.3, 0.7),
-                        new HPoint(0.3, 0.6),
-                        new HPoint(0.3, 0.5),
-                        new HPoint(0.3, 0.8),
-                        new HPoint(0.3, 0.4),
-                        new HPoint(0.3, 0.3),
-                        new HPoint(0.3, 0.2),
-                        new HPoint(0.3, 0.1),
+                        //new HPoint(0.2, 0.9),
+                        //new HPoint(0.2, 0.7),
+                        //new HPoint(0.2, 0.6),
+                        //new HPoint(0.2, 0.5),
+                        //new HPoint(0.2, 0.8),
+                        //new HPoint(0.2, 0.4),
+                        //new HPoint(0.2, 0.3),
+                        //new HPoint(0.2, 0.2),
+                        //new HPoint(0.2, 0.1),
+
+                        //new HPoint(0.3, 0.9),
+                        //new HPoint(0.3, 0.7),
+                        //new HPoint(0.3, 0.6),
+                        //new HPoint(0.3, 0.5),
+                        //new HPoint(0.3, 0.8),
+                        //new HPoint(0.3, 0.4),
+                        //new HPoint(0.3, 0.3),
+                        //new HPoint(0.3, 0.2),
+                        //new HPoint(0.3, 0.1),
 
                         new HPoint(0.4, 0.9),
                         new HPoint(0.4, 0.7),
@@ -84,19 +85,21 @@ namespace TestDelaunayGenerator
                         new HPoint(0.4, 0.2),
                         new HPoint(0.4, 0.1),
 
-                        new HPoint(0.5, 0.9),
-                        new HPoint(0.5, 0.7),
-                        new HPoint(0.5, 0.6),
-                        new HPoint(0.5, 0.5),
-                        new HPoint(0.5, 0.8),
-                        new HPoint(0.5, 0.4),
-                        new HPoint(0.5, 0.3),
-                        new HPoint(0.5, 0.2),
-                        new HPoint(0.5, 0.1),
+                        //new HPoint(0.5, 0.9),
+                        //new HPoint(0.5, 0.7),
+                        //new HPoint(0.5, 0.6),
+                        //new HPoint(0.5, 0.5),
+                        //new HPoint(0.5, 0.8),
+                        //new HPoint(0.5, 0.4),
+                        //new HPoint(0.5, 0.3),
+                        //new HPoint(0.5, 0.2),
+                        //new HPoint(0.5, 0.1),
 
 
                     };
-                    Boundary = new BoundaryCreator(boundary, ref points).GetBoundaryPoints();
+                    //Boundary = new BoundaryCreator(boundary, ref points).GetBoundaryPoints();
+                    boundarySet = new BoundarySet<BoundaryCreator>(points);
+                    boundarySet.Add(boundary);
                     break;
                 //Прямоугольник большой
                 case 1:
@@ -137,6 +140,25 @@ namespace TestDelaunayGenerator
                         new HPoint(0.7, 0.3),
                     };
                     boundarySet.Add(boundary);
+                    //boundary = new IHPoint[]
+                    //{
+                    //    new HPoint(0.1, 0.1),
+                    //    new HPoint(0.1, 0.2),
+                    //    new HPoint(0.2, 0.2),
+                    //    new HPoint(0.2, 0.1),
+
+                    //};
+                    //boundarySet = new BoundarySet<BoundaryCreator>(points);
+                    //boundarySet.Add(boundary);
+                    //boundary = new IHPoint[]
+                    //{
+                    //    new HPoint(0.05, 0.05),
+                    //    new HPoint(0.05, 0.25),
+                    //    new HPoint(0.25, 0.25),
+                    //    new HPoint(0.25, 0.05),
+
+                    //};
+                    //boundarySet.Add(boundary);
 
                     //Boundary = new BoundaryCreator(boundary, ref points).GetBoundaryPoints();
                     break;
@@ -158,8 +180,8 @@ namespace TestDelaunayGenerator
                         new HPoint(0.9, 0.1),
                         new HPoint(0.7, 0.2),
                      };
-                    boundaryCreator = new BoundaryCreator(boundary, ref points);
-                    Boundary = boundaryCreator.GetBoundaryPoints();
+                    boundarySet = new BoundarySet<BoundaryCreator>(points);
+                    boundarySet.Add(boundary);
                     break;
                 //Круглое множество
                 case 3:
@@ -197,6 +219,12 @@ namespace TestDelaunayGenerator
                     {
                         var width = 100;
                         var height = 100;
+                        List<Vector2> samples = CircleDelaunayGenerator.SampleCircle(new Vector2(width / 2, height / 3), 220, 3);
+                        points = new IHPoint[samples.Count];
+                        for (int i = 0; i < samples.Count; i++)
+                            points[i] = new HPoint(samples[i].X, samples[i].Y);
+                        //Boundary = new BoundaryCreator(boundary, ref points).GetBoundaryPoints();
+                        boundarySet = new BoundarySet<BoundaryCreator>(points);
                         boundary = new IHPoint[4]
                         {
                             new HPoint(0,0),
@@ -204,11 +232,15 @@ namespace TestDelaunayGenerator
                             new HPoint(width,height),
                             new HPoint(width,0)
                         };
-                        List<Vector2> samples = CircleDelaunayGenerator.SampleCircle(new Vector2(width / 2, height / 3), 220, 3);
-                        points = new IHPoint[samples.Count];
-                        for (int i = 0; i < samples.Count; i++)
-                            points[i] = new HPoint(samples[i].X, samples[i].Y);
-                        Boundary = new BoundaryCreator(boundary, ref points).GetBoundaryPoints();
+                        boundarySet.Add(boundary);
+                        boundary = new IHPoint[]
+                        {
+                            new HPoint(-height, -width),
+                            new HPoint(-height, width*2),
+                            new HPoint(height*2, width*2),
+                            new HPoint(height*2, width),
+                        };
+                        boundarySet.Add(boundary);
                     }
                     break;
             }
