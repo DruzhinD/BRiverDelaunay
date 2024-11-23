@@ -10,7 +10,7 @@ namespace TestDelaunayGenerator
     /// <summary>
     /// Множество границ
     /// </summary>
-    public class BoundarySet<T> : List<T> where T : BoundaryCreator
+    public class BoundarySet<T> : List<T> where T : Boundary
     {
         private IHPoint[] _allBounaries;
         /// <summary>
@@ -23,9 +23,9 @@ namespace TestDelaunayGenerator
                 if (_allBounaries != null)
                     return _allBounaries;
                 List<IHPoint> boundaryPoints = new List<IHPoint>();
-                foreach (BoundaryCreator boundary in this)
+                foreach (Boundary boundary in this)
                 {
-                    boundaryPoints.AddRange(boundary.GetBoundaryPoints());
+                    boundaryPoints.AddRange(boundary.BoundaryPoints);
                 }
                 _allBounaries = boundaryPoints.ToArray();
                 return _allBounaries;
@@ -36,12 +36,13 @@ namespace TestDelaunayGenerator
 
         public BoundarySet(IHPoint[] basePoints)
         {
-            this._basePoints = basePoints;
+            this._basePoints = new SpecialSorter(basePoints, new Comparator()).GetSortedArray();
+
         }
 
         public void Add(IHPoint[] vertexes)
         {
-            BoundaryCreator boundary = new BoundaryCreator(vertexes, ref _basePoints);
+            Boundary boundary = Boundary.Generate(this._basePoints, vertexes, true);
             this.Add(boundary as T);
         }
     }

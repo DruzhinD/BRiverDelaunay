@@ -15,7 +15,7 @@ namespace TestDelaunayGenerator
     {
         IHPoint[] points = null;
         IHPoint[] Boundary = null;
-        BoundarySet<BoundaryCreator> boundarySet = null;
+        BoundarySet<Boundary> boundarySet = null;
         public Test() { }
         public void CreateRestArea(int idx)
         {
@@ -23,7 +23,7 @@ namespace TestDelaunayGenerator
             double h = 1.0 / (N - 1);
             //в него нужно помещать ВЕРШИНЫ границы области
             IHPoint[] boundary;
-            BoundaryCreator boundaryCreator;
+            Boundary boundaryCreator;
             switch (idx)
             {
                 //Прямоугольник простой
@@ -136,7 +136,7 @@ namespace TestDelaunayGenerator
                         new HPoint(0.9, 0.1),
 
                     };
-                    boundarySet = new BoundarySet<BoundaryCreator>(points);
+                    boundarySet = new BoundarySet<Boundary>(points);
                     boundarySet.Add(boundary);
                     boundary = new IHPoint[]
                     {
@@ -172,7 +172,7 @@ namespace TestDelaunayGenerator
                         new HPoint(0.9, 0.1),
                         new HPoint(0.7, 0.2),
                      };
-                    boundarySet = new BoundarySet<BoundaryCreator>(points);
+                    boundarySet = new BoundarySet<Boundary>(points);
                     boundarySet.Add(boundary);
                     break;
                 //Круглое множество с вогнутой границей
@@ -185,7 +185,7 @@ namespace TestDelaunayGenerator
                         for (int i = 0; i < samples.Count; i++)
                             points[i] = new HPoint(samples[i].X, samples[i].Y);
                         //Boundary = new BoundaryCreator(boundary, ref points).GetBoundaryPoints();
-                        boundarySet = new BoundarySet<BoundaryCreator>(points);
+                        boundarySet = new BoundarySet<Boundary>(points);
                         int offset = 40;
                         boundary = new IHPoint[4]
                         {

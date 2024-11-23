@@ -124,7 +124,7 @@ namespace TestDelaunayGenerator
         /// <summary>
         /// Содержит группы массивов координат входных точек 
         /// </summary>
-        public BoundarySet<BoundaryCreator> boundarySet;
+        public BoundarySet<Boundary> boundarySet;
         /// <summary>
         /// включить множество границ в область построения
         /// </summary>
@@ -185,7 +185,7 @@ namespace TestDelaunayGenerator
                 
             //граничные точки и линии, сформированные на основе переданных точек границы (boundarySet)
             if (boundarySet != null)
-                foreach (BoundaryCreator boundary in boundarySet)
+                foreach (Boundary boundary in boundarySet)
                 {
                     for (int i = 0; i < boundary.BoundaryPoints.Length; i++)
                     {
@@ -216,7 +216,7 @@ namespace TestDelaunayGenerator
         /// <summary>
         /// Генерация
         /// </summary>
-        public void Generator(IHPoint[] points, BoundarySet<BoundaryCreator> boundSet = null)
+        public void Generator(IHPoint[] points, BoundarySet<Boundary> boundSet = null)
         {
             if (points.Length < 3)
                 throw new ArgumentOutOfRangeException("Нужно как минимум 3 вершины");
@@ -851,7 +851,7 @@ namespace TestDelaunayGenerator
             int crossCount = 0;
             //метод - хелпер, помогающий отрисовать невыпуклый контур
             //в цикле подсчитывается количество пересечений с границей области
-            foreach (BoundaryCreator boundary in boundarySet)
+            foreach (Boundary boundary in boundarySet)
                 for (int k = 0; k < boundary.Length; k++)
                 {
                     if (CrossLine.IsCrossing(
