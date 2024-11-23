@@ -28,18 +28,21 @@
         /// </summary>
         private void InitializeComponent()
         {
-            RenderLib.ColorSchemeFields colorSchemeFields1 = new RenderLib.ColorSchemeFields();
+            RenderLib.ColorSchemeFields colorSchemeFields2 = new RenderLib.ColorSchemeFields();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GDI_Control));
-            RenderLib.RenderOptionsFields renderOptionsFields1 = new RenderLib.RenderOptionsFields();
+            RenderLib.RenderOptionsFields renderOptionsFields2 = new RenderLib.RenderOptionsFields();
             this.panel2 = new System.Windows.Forms.Panel();
             this.btCurve = new System.Windows.Forms.Button();
             this.btShow = new System.Windows.Forms.Button();
             this.tbc_Task = new System.Windows.Forms.TabControl();
             this.tabPage6 = new System.Windows.Forms.TabPage();
             this.panel4 = new System.Windows.Forms.Panel();
+            this.cb_GradScaleLimit = new System.Windows.Forms.CheckBox();
             this.cb_GradScale = new System.Windows.Forms.CheckBox();
             this.cb_opValuesKnot = new System.Windows.Forms.CheckBox();
             this.panel5 = new System.Windows.Forms.Panel();
+            this.tbMax = new System.Windows.Forms.TextBox();
+            this.tbMin = new System.Windows.Forms.TextBox();
             this.tb_opIsoLineSelectValue = new System.Windows.Forms.TextBox();
             this.nUD_CountIsoLine = new System.Windows.Forms.NumericUpDown();
             this.label5 = new System.Windows.Forms.Label();
@@ -157,6 +160,7 @@
             this.button6 = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
+            this.renderControl1 = new RenderLib.CPRenderControlFields();
             this.panel3 = new System.Windows.Forms.Panel();
             this.cb_showBoudaryElems = new System.Windows.Forms.CheckBox();
             this.cb_showBoudaryKnots = new System.Windows.Forms.CheckBox();
@@ -191,10 +195,7 @@
             this.toolStripStatusLabel10 = new System.Windows.Forms.ToolStripStatusLabel();
             this.tss_TaskName = new System.Windows.Forms.ToolStripStatusLabel();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            this.tbMin = new System.Windows.Forms.TextBox();
-            this.tbMax = new System.Windows.Forms.TextBox();
-            this.cb_GradScaleLimit = new System.Windows.Forms.CheckBox();
-            this.renderControl1 = new RenderLib.CPRenderControlFields();
+            this.buttonSmooth = new System.Windows.Forms.Button();
             this.panel2.SuspendLayout();
             this.tbc_Task.SuspendLayout();
             this.tabPage6.SuspendLayout();
@@ -235,6 +236,7 @@
             // 
             this.panel2.BackColor = System.Drawing.SystemColors.ScrollBar;
             this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panel2.Controls.Add(this.buttonSmooth);
             this.panel2.Controls.Add(this.btCurve);
             this.panel2.Controls.Add(this.btShow);
             this.panel2.Controls.Add(this.tbc_Task);
@@ -314,6 +316,18 @@
             this.panel4.Size = new System.Drawing.Size(262, 205);
             this.panel4.TabIndex = 11;
             // 
+            // cb_GradScaleLimit
+            // 
+            this.cb_GradScaleLimit.AutoSize = true;
+            this.cb_GradScaleLimit.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.cb_GradScaleLimit.Location = new System.Drawing.Point(177, 24);
+            this.cb_GradScaleLimit.Name = "cb_GradScaleLimit";
+            this.cb_GradScaleLimit.Size = new System.Drawing.Size(77, 24);
+            this.cb_GradScaleLimit.TabIndex = 6;
+            this.cb_GradScaleLimit.Text = "Выбор";
+            this.cb_GradScaleLimit.UseVisualStyleBackColor = true;
+            this.cb_GradScaleLimit.CheckedChanged += new System.EventHandler(this.cb_GradScaleLimit_CheckedChanged);
+            // 
             // cb_GradScale
             // 
             this.cb_GradScale.AutoSize = true;
@@ -356,6 +370,26 @@
             this.panel5.Name = "panel5";
             this.panel5.Size = new System.Drawing.Size(249, 127);
             this.panel5.TabIndex = 4;
+            // 
+            // tbMax
+            // 
+            this.tbMax.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbMax.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.tbMax.Location = new System.Drawing.Point(194, 86);
+            this.tbMax.Name = "tbMax";
+            this.tbMax.Size = new System.Drawing.Size(48, 23);
+            this.tbMax.TabIndex = 98;
+            this.tbMax.Text = "1";
+            // 
+            // tbMin
+            // 
+            this.tbMin.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbMin.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.tbMin.Location = new System.Drawing.Point(194, 60);
+            this.tbMin.Name = "tbMin";
+            this.tbMin.Size = new System.Drawing.Size(48, 23);
+            this.tbMin.TabIndex = 97;
+            this.tbMin.Text = "1";
             // 
             // tb_opIsoLineSelectValue
             // 
@@ -1769,6 +1803,27 @@
             this.label9.TabIndex = 93;
             this.label9.Text = "Кисти для заливок";
             // 
+            // renderControl1
+            // 
+            this.renderControl1.BackColor = System.Drawing.Color.White;
+            colorSchemeFields2.Background = System.Drawing.Color.White;
+            colorSchemeFields2.FontKnot = new System.Drawing.Font("Arial", 8F);
+            colorSchemeFields2.FontReper = new System.Drawing.Font("Arial", 8F);
+            colorSchemeFields2.FontValue = null;
+            colorSchemeFields2.formatTextReper = ((uint)(2u));
+            this.renderControl1.colorScheme = colorSchemeFields2;
+            this.renderControl1.IndexTask = 0;
+            this.renderControl1.Location = new System.Drawing.Point(209, 3);
+            this.renderControl1.Name = "renderControl1";
+            this.renderControl1.Points = new System.Drawing.PointF[] {
+        ((System.Drawing.PointF)(resources.GetObject("renderControl1.Points"))),
+        ((System.Drawing.PointF)(resources.GetObject("renderControl1.Points1")))};
+            this.renderControl1.renderOptions = renderOptionsFields2;
+            this.renderControl1.Size = new System.Drawing.Size(32, 22);
+            this.renderControl1.TabIndex = 0;
+            this.renderControl1.Text = "renderControl1";
+            this.renderControl1.Visible = false;
+            // 
             // panel3
             // 
             this.panel3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -2025,58 +2080,15 @@
             this.tss_TaskName.Size = new System.Drawing.Size(17, 21);
             this.tss_TaskName.Text = "_";
             // 
-            // tbMin
+            // buttonSmooth
             // 
-            this.tbMin.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbMin.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.tbMin.Location = new System.Drawing.Point(194, 60);
-            this.tbMin.Name = "tbMin";
-            this.tbMin.Size = new System.Drawing.Size(48, 23);
-            this.tbMin.TabIndex = 97;
-            this.tbMin.Text = "1";
-            // 
-            // tbMax
-            // 
-            this.tbMax.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbMax.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.tbMax.Location = new System.Drawing.Point(194, 86);
-            this.tbMax.Name = "tbMax";
-            this.tbMax.Size = new System.Drawing.Size(48, 23);
-            this.tbMax.TabIndex = 98;
-            this.tbMax.Text = "1";
-            // 
-            // cb_GradScaleLimit
-            // 
-            this.cb_GradScaleLimit.AutoSize = true;
-            this.cb_GradScaleLimit.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.cb_GradScaleLimit.Location = new System.Drawing.Point(177, 24);
-            this.cb_GradScaleLimit.Name = "cb_GradScaleLimit";
-            this.cb_GradScaleLimit.Size = new System.Drawing.Size(77, 24);
-            this.cb_GradScaleLimit.TabIndex = 6;
-            this.cb_GradScaleLimit.Text = "Выбор";
-            this.cb_GradScaleLimit.UseVisualStyleBackColor = true;
-            this.cb_GradScaleLimit.CheckedChanged += new System.EventHandler(this.cb_GradScaleLimit_CheckedChanged);
-            // 
-            // renderControl1
-            // 
-            this.renderControl1.BackColor = System.Drawing.Color.White;
-            colorSchemeFields1.Background = System.Drawing.Color.White;
-            colorSchemeFields1.FontKnot = new System.Drawing.Font("Arial", 8F);
-            colorSchemeFields1.FontReper = new System.Drawing.Font("Arial", 8F);
-            colorSchemeFields1.FontValue = null;
-            colorSchemeFields1.formatTextReper = ((uint)(2u));
-            this.renderControl1.colorScheme = colorSchemeFields1;
-            this.renderControl1.IndexTask = 0;
-            this.renderControl1.Location = new System.Drawing.Point(209, 3);
-            this.renderControl1.Name = "renderControl1";
-            this.renderControl1.Points = new System.Drawing.PointF[] {
-        ((System.Drawing.PointF)(resources.GetObject("renderControl1.Points"))),
-        ((System.Drawing.PointF)(resources.GetObject("renderControl1.Points1")))};
-            this.renderControl1.renderOptions = renderOptionsFields1;
-            this.renderControl1.Size = new System.Drawing.Size(32, 22);
-            this.renderControl1.TabIndex = 0;
-            this.renderControl1.Text = "renderControl1";
-            this.renderControl1.Visible = false;
+            this.buttonSmooth.Location = new System.Drawing.Point(130, 478);
+            this.buttonSmooth.Name = "buttonSmooth";
+            this.buttonSmooth.Size = new System.Drawing.Size(109, 25);
+            this.buttonSmooth.TabIndex = 93;
+            this.buttonSmooth.Text = "Smooth";
+            this.buttonSmooth.UseVisualStyleBackColor = true;
+            this.buttonSmooth.Click += new System.EventHandler(this.buttonSmooth_Click);
             // 
             // GDI_Control
             // 
@@ -2312,5 +2324,6 @@
         private System.Windows.Forms.CheckBox cb_GradScaleLimit;
         private System.Windows.Forms.TextBox tbMax;
         private System.Windows.Forms.TextBox tbMin;
+        private System.Windows.Forms.Button buttonSmooth;
     }
 }

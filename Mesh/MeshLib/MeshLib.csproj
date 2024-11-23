@@ -106,6 +106,8 @@
     <Compile Include="SaveData\SavePoint.cs" />
     <Compile Include="BoundaryConditions\BoundaryConditionsVar.cs" />
     <Compile Include="BoundaryConditions\BoundCondition1D.cs" />
+    <Compile Include="smoothing\ISmoother.cs" />
+    <Compile Include="smoothing\SimpleSmoother.cs" />
     <Compile Include="TODO\IMeshTask.cs" />
     <Compile Include="IO\FiltrFileReadLine.cs" />
     <Compile Include="IO\FileMeshProcessor.cs" />

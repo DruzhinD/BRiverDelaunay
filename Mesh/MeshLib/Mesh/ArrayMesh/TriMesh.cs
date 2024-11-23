@@ -20,11 +20,13 @@ namespace MeshLib
     public class TriMesh : ArrayMesh
     {
         /// <summary>
-        /// Вектор конечных элементов в области
+        /// Вектор конечных элементов в области <br/>
+        /// По сути хранит индексы вершин треугольника
         /// </summary>
         public TriElement[] AreaElems;
         /// <summary>
-        /// Вектор конечных элементов на границе
+        /// Вектор конечных элементов на границе <br/>
+        /// Ребра, образующие границу
         /// </summary>
         public TwoElement[] BoundElems;
         public TriMesh():base() { }

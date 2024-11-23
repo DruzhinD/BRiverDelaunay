@@ -255,24 +255,29 @@ namespace GeometryLib.Locators
         /// </summary>
         public static bool IsCrossing(HPoint v11, HPoint v12, HPoint v21, HPoint v22)
         {
+            //один отрезок является началом другого => пересечение есть
             if (HPoint.Equals(v11, v22) ||
                  HPoint.Equals(v11, v21) ||
                  HPoint.Equals(v12, v22) ||
                  HPoint.Equals(v12, v21))
                 return true;
 
+            //отрезки
             Vector3 cut1 = new Vector3(v12 - v11);
             Vector3 cut2 = new Vector3(v22 - v21);
 
+            //векторное произведение
             Vector3 prod1 = Vector3.Cross(cut1, new Vector3(v21 - v11));
             Vector3 prod2 = Vector3.Cross(cut1, new Vector3(v22 - v11));
 
             // Отсекаем пограничные случаи
+            //коллинеарные|параллельные вектора => не пересекаются
             if (Math.Sign(prod1.Z) == Math.Sign(prod2.Z) ||
                MEM.Equals(prod1.Z, 0) == true ||
                MEM.Equals(prod1.Z, 0) == true)
                 return false;
 
+            //векторное произведение
             prod1 = Vector3.Cross(cut2, new Vector3(v11 - v21));
             prod2 = Vector3.Cross(cut2, new Vector3(v12 - v21));
 

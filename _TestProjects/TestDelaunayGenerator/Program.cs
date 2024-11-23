@@ -16,9 +16,8 @@ namespace TestDelaunayGenerator
             Console.WriteLine("1. Прямоугольник простой");
             Console.WriteLine("2. Прямоугольник большой");
             Console.WriteLine("3. Трапеция");
-            Console.WriteLine("4. Круглое множество");
-            Console.WriteLine("5. Круглое множество с границей");
-            Console.WriteLine("6. Круглое множество с вогнутой границей");
+            Console.WriteLine("4. Круглое множество с вогнутой границей");
+            Console.WriteLine("5. Случайная генерация");
             Console.WriteLine("Esc: выход");
             try
             {

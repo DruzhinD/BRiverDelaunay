@@ -297,5 +297,12 @@ namespace MeshLib
                     break;
             }
         }
+
+        //TODO: удалить, используется для тестирование функции smooth
+        public void Smooth()
+        {
+            Smoothing.ISmoother smoother = new Smoothing.SimpleSmoother();
+            smoother.Smooth((IMesh)this.cload);
+        }
     }
 }

@@ -96,7 +96,7 @@ namespace TestDelaunayGenerator
         void AddPointsBetweenVertexes(ref List<IHPoint> points, IHPoint v1, IHPoint v2)
         {
             //int amountNewPoints = (int)Math.Floor(GetDistance(v1, v2) / avgDistance);
-            int amountNewPoints = 100;
+            int amountNewPoints = 70;
             //интервалы смещения по координатно вдоль ребра границы
             double intervalX = (v2.X - v1.X) / amountNewPoints;
             double intervalY = (v2.Y - v1.Y) / amountNewPoints;

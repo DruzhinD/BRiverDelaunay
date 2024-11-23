@@ -111,6 +111,12 @@ namespace TestDelaunayGenerator
         /// Количество узлов в оболочке
         /// </summary>
         private int CountHullKnots;
+
+        /// <summary>
+        /// Внешняя точка, не входящая в сетку
+        /// </summary>
+        IHPoint externalPoint;
+
         /// <summary>
         /// ОО: Делоне генератор выпуклой триангуляции
         /// </summary>
@@ -141,7 +147,6 @@ namespace TestDelaunayGenerator
             int CountElems = Triangles.Length / 3;
             MEM.Alloc(CountElems, ref mesh.AreaElems);
             List<TriElement> tri = new List<TriElement>();
-            bool flag = true;
             for (int i = 0; i < CountElems; i++)
             {
                 int i0 = Triangles[3 * i];
@@ -149,19 +154,11 @@ namespace TestDelaunayGenerator
                 int i2 = Triangles[3 * i + 2];
                 if (CheckIn(i0, i1, i2) == true)
                 {
-                    
                     tri.Add(new TriElement((uint)i0, (uint)i1, (uint)i2));
                 }
-                else
-                {
-                    //не видит внутренннюю границу, поэтому считает, что не входит в триангуляцию
-                    //выпадающий треугольник и прямоугольника - программа "2"
-                    //if (coordsX[i0] > 0.9)
-                    //    Console.WriteLine('\n' + Coords(i0) + Coords(i1) + Coords(i2));
-                }
             }
-            string Coords(int index) => $"{index}: {coordsX[index]};{coordsY[index]}\t";
 
+            //сохраняем все треугольники сетки в объект сетки
             mesh.AreaElems = tri.ToArray();
             MEM.Alloc(Points.Length, ref mesh.CoordsX);
             MEM.Alloc(Points.Length, ref mesh.CoordsY);
@@ -256,6 +253,9 @@ namespace TestDelaunayGenerator
             cx = Points.Sum(x => x.X) / (Points.Length);
             cy = Points.Sum(x => x.Y) / (Points.Length);
             pc = new HPoint(cx, cy);
+
+            externalPoint = new HPoint(Points.Max(x => x.X), cy); //TODO: исправить формирование внешней точки
+
 
             // Если контур границы определен,
             //то помечаем точки, которые будут входить в сетку
@@ -845,6 +845,8 @@ namespace TestDelaunayGenerator
         }
         private bool InArea(HPoint Point)
         {
+            //TODO: формировать по крайней точке внешней границе
+            //HPoint externalPoint = new HPoint(int.MaxValue, int.MaxValue); 
             //количество пересечений с границей
             int crossCount = 0;
             //метод - хелпер, помогающий отрисовать невыпуклый контур
@@ -855,12 +857,13 @@ namespace TestDelaunayGenerator
                     if (CrossLine.IsCrossing(
                         (HPoint)boundary[k],
                         (HPoint)boundary[(k + 1) % boundary.Length],
-                         pc,
+                         (HPoint)externalPoint,
                          Point) == true)
                         crossCount+=1;
                 }
             //входит в область % 2 == 1 (в данном случае инверсия, поэтому наоборот)
-            return !(crossCount % 2 == 1);
+            //return !(crossCount % 2 == 1);
+            return (crossCount % 2 == 1);
         }
         /// <summary>
         /// Принадлежит ли треугольник невыпуклой области <br/>

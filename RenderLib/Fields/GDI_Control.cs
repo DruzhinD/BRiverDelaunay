@@ -1013,5 +1013,11 @@ namespace RenderLib
                 trackBarMax.Enabled = true;
             }
         }
+
+
+        private void buttonSmooth_Click(object sender, EventArgs e)
+        {
+            sp.Smooth();
+        }
     }
 }
