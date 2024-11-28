@@ -248,8 +248,6 @@ namespace TestDelaunayGenerator
             }
 
             #region поиск начального треугольника
-            //TODO: формировать главную (начальную) точку области построения
-            //после выборки точек, лежащих В границах области (сетки)
             cx = Points.Sum(x => x.X) / (Points.Length);
             cy = Points.Sum(x => x.Y) / (Points.Length);
             pc = new HPoint(cx, cy);
@@ -845,8 +843,6 @@ namespace TestDelaunayGenerator
         }
         private bool InArea(HPoint Point)
         {
-            //TODO: формировать по крайней точке внешней границе
-            //HPoint externalPoint = new HPoint(int.MaxValue, int.MaxValue); 
             //количество пересечений с границей
             int crossCount = 0;
             //метод - хелпер, помогающий отрисовать невыпуклый контур

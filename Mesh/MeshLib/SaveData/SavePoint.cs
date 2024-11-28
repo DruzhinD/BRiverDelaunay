@@ -14,6 +14,8 @@ namespace MeshLib
 
     using CommonLib;
     using GeometryLib;
+    using System.Diagnostics;
+
     /// <summary>
     /// ОО: Точка сохранения задачи для визуализации ее полей
     /// </summary>
@@ -301,8 +303,12 @@ namespace MeshLib
         //TODO: удалить, используется для тестирование функции smooth
         public void Smooth()
         {
-            Smoothing.ISmoother smoother = new Smoothing.SimpleSmoother();
+            //Smoothing.ISmoother smoother = new Smoothing.SimpleSmoother();
+            var timer = Stopwatch.StartNew();
             smoother.Smooth((IMesh)this.cload);
+            timer.Stop();
+            Console.WriteLine(timer.Elapsed.TotalSeconds);
         }
+        Smoothing.ISmoother smoother = new Smoothing.SimpleSmoother();
     }
 }
