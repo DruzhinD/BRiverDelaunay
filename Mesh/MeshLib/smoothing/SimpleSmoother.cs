@@ -48,9 +48,10 @@ namespace MeshLib.Smoothing
 
             //TODO: избавиться от промежуточного хранения новых значений
             Dictionary<(int, int), double> newValues = new Dictionary<(int, int), double>();
+            Dictionary<(int, int), double> newValuesSin = new Dictionary<(int, int), double>();
             foreach (KeyValuePair<(int, int), double> angleInfo in meshCosinusTable)
             {
-                
+
                 //angleInfo = meshCosinusTable.ElementAt(i); //слишком долгий поиск
                 int boundFlag = Array.IndexOf<int>(mesh.BoundKnots, (int)IndexGlobalVertex(angleInfo.Key.Item1, angleInfo.Key.Item2));
                 //TODO: раздвоить границу для косинусов (для тупых и острых углов)
@@ -61,29 +62,36 @@ namespace MeshLib.Smoothing
                     //индекс вершины в mesh
                     uint vertexIndex = IndexGlobalVertex(angleInfo.Key.Item1, angleInfo.Key.Item2);
 
-                    //список ключей, ассоциированных с вершиной
-                    var tableKeys = AssociatedTriangles(vertexIndex);
+                    //список id треугольников, в которые входит текущая вершина
+                    var trinagleIds = AssociatedTriangles(vertexIndex);
+                    IsConvex(trinagleIds, vertexIndex);
                     //перемещаем вершину
                     //IHPoint newCoords = NewVertexCoords(vertexIndex);
-                    IHPoint newCoords = InterpolateCoords(tableKeys.Select(x => x.Item1), vertexIndex);
+                    IHPoint newCoords = InterpolateCoords(trinagleIds, vertexIndex);
 
                     mesh.CoordsX[vertexIndex] = newCoords.X;
                     mesh.CoordsY[vertexIndex] = newCoords.Y;
 
                     //правим косинусы
-                    foreach (var key in tableKeys)
+                    foreach (var triangleId in trinagleIds)
+                    {
+                        for (int j = 0; j < 3; j++)
                         {
-                            List<int> vertexesIndexInTriangle = new List<int>() { 0, 1, 2 };
-                            vertexesIndexInTriangle.Remove(key.Item2);
-                            double cos = Cosinus(
-                                IndexGlobalVertex(key.Item1, vertexesIndexInTriangle[0]),
-                                IndexGlobalVertex(key.Item1, key.Item2),
-                                IndexGlobalVertex(key.Item1, vertexesIndexInTriangle[1]));
+                            var (v1, v2, v3) = (
+                                IndexGlobalVertex(triangleId, j % 3),
+                                IndexGlobalVertex(triangleId, (j + 1) % 3),
+                                IndexGlobalVertex(triangleId, (j + 2) % 3)
+                            );
 
+                            double cos = Cosinus(v1, v2, v3);
+                            double sin = Sinus(v1, v2, v3);
+
+                            (int, int) key = (triangleId, (j + 1) % 3);
                             //TODO: избавить от этого блока / найти альтернативу
                             try
                             {
                                 newValues[key] = cos;
+                                newValuesSin[key] = sin;
 
                             }
                             //после изменения AssociatedTriangles не выбрасывается
@@ -92,6 +100,7 @@ namespace MeshLib.Smoothing
                                 newValues.Add(key, cos);
                             }
                         }
+                    }
                 }
             }
 
@@ -143,22 +152,22 @@ namespace MeshLib.Smoothing
         /// </summary>
         /// <param name="indexV">Глобальный индекс вершины, содержащейся в сетке</param>
         /// <returns></returns>
-        IEnumerable<(int, int)> AssociatedTriangles(uint indexV)
+        IEnumerable<int> AssociatedTriangles(uint indexV)
         {
             //id треугольников, в которые входит вершина
             IEnumerable<int> triagnleIds = meshCosinusTable.Keys
                 .Where(x => IndexGlobalVertex(x.Item1, x.Item2) == indexV)
                 .Select(x => x.Item1);
-            //поиск всех ключей, связанных с треугольниками выше
-            //TODO оптимизировать. Можно просто возвращать ключи N,0; N,1; N,2 т.к. необходимо пересчитать все углы этих треугольников
-            var keys = new List<(int, int)>();
+            ////поиск всех ключей, связанных с треугольниками выше
+            ////TODO оптимизировать. Можно просто возвращать ключи N,0; N,1; N,2 т.к. необходимо пересчитать все углы этих треугольников
+            //var keys = new List<(int, int)>();
 
-            foreach (int triagnleId in triagnleIds)
-                for (int j = 0; j < 3; j++)
-                    keys.Add((triagnleId, j));
-            //IEnumerable<(int, int)> keys = meshCosinusTable.Keys
-            //    .Where(x => triagnleIds.Contains(x.Item1));
-            return keys;
+            //foreach (int triagnleId in triagnleIds)
+            //    for (int j = 0; j < 3; j++)
+            //        keys.Add((triagnleId, j));
+            ////IEnumerable<(int, int)> keys = meshCosinusTable.Keys
+            ////    .Where(x => triagnleIds.Contains(x.Item1));
+            return triagnleIds;
         }
 
         /// <summary>
@@ -248,9 +257,47 @@ namespace MeshLib.Smoothing
         /// </summary>
         /// <param name="triangleIds">список идентификаторов треугольника</param>
         /// <returns>true - область выпуклая, иначе false</returns>
-        bool IsConvex(IEnumerable<int> triangleIds)
+        //TODO херня, не работает
+        bool IsConvex(IEnumerable<int> triangleIds, uint centerId)
         {
-            //var sin = 
+            List<TriElement> triangles = triangleIds.Select(x => mesh.AreaElems[x]).ToList();
+            List<uint> vertexes = new List<uint>();
+
+            TriElement nextTriangle = triangles[0];
+
+            while (triangles.Count > 1)
+            {
+                //if (i >= triangles.Count) break;
+                var externalV = nextTriangle.Vertexes.ToList();
+                externalV.Remove(centerId);
+                vertexes.Add(externalV[0]);
+                externalV.RemoveAt(0);
+                triangles.Remove(nextTriangle);
+                for (int j = 0; j < triangles.Count; j++)
+                {
+                    //if (j == triangles.IndexOf(nextTriangle)) continue;
+
+                    var internalV = triangles[j].Vertexes.ToList();
+                    internalV.Remove(centerId);
+                    for (int k = 0; k < internalV.Count; k++)
+                    {
+                        if (externalV[0] == internalV[k])
+                        {
+                            //vertexes.Add(internalV[k]);
+                            //var exTriangle = nextTriangle;
+                            triangles.Remove(nextTriangle);
+                            nextTriangle = triangles[j];
+                            //triangles.Remove(exTriangle);
+                            j = triangles.Count;
+                            //vertexes.Insert(vertexes.Count-1,externalV[0]);
+                            break;
+                        }
+                    }
+                }
+
+                //i++;
+            }
+
             return true;
         }
     }

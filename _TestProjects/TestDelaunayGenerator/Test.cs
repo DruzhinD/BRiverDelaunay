@@ -34,7 +34,7 @@ namespace TestDelaunayGenerator
                         new HPoint(0, 1),
                         new HPoint(1, 1),
                         new HPoint(1, 0),
-                        //new HPoint(0.5, 0.85),
+                        new HPoint(0.5, 0.95),
                         new HPoint(0.5, 0.05),
 
                     };

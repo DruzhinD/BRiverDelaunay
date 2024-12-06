@@ -59,7 +59,8 @@ namespace CommonLib
         /// </summary>
         public uint Vertex3;
         /// <summary>
-        /// Итератор
+        /// Итератор <br/>
+        /// Порядок вершин задан в порядке по часовой стрелке
         /// </summary>
         /// <param name="i"></param>
         public uint this[int i]
@@ -115,5 +116,7 @@ namespace CommonLib
             elementValue[1] = Values[knots.Vertex2];
             elementValue[2] = Values[knots.Vertex3];
         }
+
+        public uint[] Vertexes => new uint[] {Vertex1, Vertex2, Vertex3 };
     }
 }
