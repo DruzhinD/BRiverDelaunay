@@ -15,6 +15,7 @@ namespace TestDelaunayGenerator
     using MemLogLib;
     using GeometryLib.Locators;
     using System.Collections.Generic;
+    using GeometryLib.Vector;
 
     /// <summary>
     /// ОО: Делоне генератор выпуклой триангуляции
@@ -124,13 +125,13 @@ namespace TestDelaunayGenerator
         /// <summary>
         /// Содержит группы массивов координат входных точек 
         /// </summary>
-        public BoundarySet<Boundary> boundarySet;
+        public BoundarySet boundarySet;
         /// <summary>
         /// включить множество границ в область построения
         /// </summary>
         void IncludeBoundary()
         {
-            IHPoint[] boundary = boundarySet.GetAllBoundaryPoints;
+            IHPoint[] boundary = boundarySet.AllBoundaryPoints;
             int exPointsLength = this.Points.Length;
             Array.Resize(ref this.Points, Points.Length + boundary.Length);
             boundary.CopyTo(this.Points, exPointsLength);
@@ -172,7 +173,7 @@ namespace TestDelaunayGenerator
             //определение количества точек границы
             int boundaryPointsAmount;
             if (boundarySet != null)
-                boundaryPointsAmount = this.boundarySet.GetAllBoundaryPoints.Length + CountHullKnots;
+                boundaryPointsAmount = this.boundarySet.AllBoundaryPoints.Length + CountHullKnots;
             else
                 boundaryPointsAmount = CountHullKnots;
 
@@ -182,7 +183,7 @@ namespace TestDelaunayGenerator
             MEM.Alloc(boundaryPointsAmount, ref mesh.BoundKnots);
             MEM.Alloc(boundaryPointsAmount, ref mesh.BoundKnotsMark);
             int meshIndex = 0;
-                
+
             //граничные точки и линии, сформированные на основе переданных точек границы (boundarySet)
             if (boundarySet != null)
                 foreach (Boundary boundary in boundarySet)
@@ -190,7 +191,7 @@ namespace TestDelaunayGenerator
                     for (int i = 0; i < boundary.BoundaryPoints.Length; i++)
                     {
                         int indexV1 = Array.IndexOf(this.Points, boundary.BoundaryPoints[i]);
-                        int indexV2 = Array.IndexOf(this.Points, boundary.BoundaryPoints[(i+1) % boundary.BoundaryPoints.Length]);
+                        int indexV2 = Array.IndexOf(this.Points, boundary.BoundaryPoints[(i + 1) % boundary.BoundaryPoints.Length]);
                         mesh.BoundElems[meshIndex].Vertex1 = (uint)indexV1;
                         mesh.BoundElems[meshIndex].Vertex2 = (uint)indexV2;
                         mesh.BoundKnots[meshIndex] = indexV1;
@@ -216,7 +217,7 @@ namespace TestDelaunayGenerator
         /// <summary>
         /// Генерация
         /// </summary>
-        public void Generator(IHPoint[] points, BoundarySet<Boundary> boundSet = null)
+        public void Generator(IHPoint[] points, BoundarySet boundSet = null)
         {
             if (points.Length < 3)
                 throw new ArgumentOutOfRangeException("Нужно как минимум 3 вершины");
@@ -244,7 +245,7 @@ namespace TestDelaunayGenerator
                 var p = Points[i];
                 coordsX[i] = p.X;
                 coordsY[i] = p.Y;
-                mark[i] = true; 
+                mark[i] = true;
             }
 
             #region поиск начального треугольника
@@ -252,7 +253,8 @@ namespace TestDelaunayGenerator
             cy = Points.Sum(x => x.Y) / (Points.Length);
             pc = new HPoint(cx, cy);
 
-            externalPoint = new HPoint(Points.Max(x => x.X), cy); //TODO: исправить формирование внешней точки
+            var maxX = Points.Max(x => x.X);
+            externalPoint = new HPoint(maxX * 1.1, cy); //TODO: исправить формирование внешней точки
 
 
             // Если контур границы определен,
@@ -261,7 +263,7 @@ namespace TestDelaunayGenerator
             {
                 //выполняем проверку точек вплоть до последней точки из НАЧАЛЬНОГО массива (Points),
                 //т.к. массив точек ДОПОЛНЕН массивом граничных точек
-                for (var i = 0; i < Points.Length - this.boundarySet.GetAllBoundaryPoints.Length; i++)
+                for (var i = 0; i < Points.Length - this.boundarySet.AllBoundaryPoints.Length; i++)
                 {
                     // Проверяем, входит ли точка в сетку или же её необходимо исключить
                     mark[i] = InArea(i);
@@ -848,18 +850,35 @@ namespace TestDelaunayGenerator
             //метод - хелпер, помогающий отрисовать невыпуклый контур
             //в цикле подсчитывается количество пересечений с границей области
             foreach (Boundary boundary in boundarySet)
-                for (int k = 0; k < boundary.Length; k++)
+                for (int k = 0; k < boundary.BoundaryVertex.Length; k++)
                 {
                     if (CrossLine.IsCrossing(
-                        (HPoint)boundary[k],
-                        (HPoint)boundary[(k + 1) % boundary.Length],
+                        (HPoint)boundary.BoundaryVertex[k],
+                        (HPoint)boundary.BoundaryVertex[(k + 1) % boundary.BoundaryVertex.Length],
                          (HPoint)externalPoint,
                          Point) == true)
-                        crossCount+=1;
+                        crossCount += 1;
                 }
             //входит в область % 2 == 1 (в данном случае инверсия, поэтому наоборот)
             //return !(crossCount % 2 == 1);
             return (crossCount % 2 == 1);
+        }
+
+        bool InArea(HPoint p1, HPoint p2)
+        {
+            foreach (Boundary boundary in boundarySet)
+                for (int k = 0; k < boundary.Length; k++)
+                {
+                    if (CrossLine.AreLinesIntersecting(
+                        (HPoint)boundary[k],
+                        (HPoint)boundary[(k + 1) % boundary.Length],
+                         p1,
+                         p2,
+                         false) == true)
+                        return true;
+                }
+            return false;
+
         }
         /// <summary>
         /// Принадлежит ли треугольник невыпуклой области <br/>
@@ -869,21 +888,54 @@ namespace TestDelaunayGenerator
         /// <returns>True - точка принадлежит области</returns>
         private bool CheckIn(int i, int j, int k)
         {
+            //i == 10121 || i == 10119 || i == 1462 //good
+            //i == 10138 || i == 10137 || i == 10102
             //если граница не определена, то помечаем точку, как входящую в сетку
             if (boundarySet == null) return true;
+
+            int indexMaxNotBoundaryPoint = Points.Length - boundarySet.AllBoundaryPoints.Length - 1;
+            if (i > indexMaxNotBoundaryPoint && j > indexMaxNotBoundaryPoint && k > indexMaxNotBoundaryPoint)
+            {
+                double ctx = (coordsX[i] + coordsX[j] + coordsX[k]) / 3;
+                double cty = (coordsY[i] + coordsY[j] + coordsY[k]) / 3;
+                HPoint ctri = new HPoint(ctx, cty);
+                return InArea(ctri);
+            }
+
+            int[] pointIds = new int[]
+            {
+                i, j, k
+            };
+            for (int d = 0; d < pointIds.Length; d++)
+            {
+                int pId = pointIds[d];
+                int next = pointIds[(d + 1) % pointIds.Length];
+                HPoint p1 = new HPoint(coordsX[pId], coordsY[pId]);
+                HPoint p2 = new HPoint(coordsX[next], coordsY[next]);
+                if (InArea(p1, p2))
+                    return false;
+                //return !InArea(p1, p2);
+            }
+            return true;
+            //if (Boundary.Length < 3) return true;
+            //double ctx = (coordsX[i] + coordsX[j] + coordsX[k]) / 3;
+            //double cty = (coordsY[i] + coordsY[j] + coordsY[k]) / 3;
+            //HPoint ctri = new HPoint(ctx, cty);
+            //bool inArea = InArea(ctri);
 
             //TODO: не лучшее решение при масштабировании проекта. Стоит переделать
             //если все 3 индекса вершин являются индексами точек границы,
             //то такой треугольник по умолчанию не должен отрисовываться
-            int indexMaxNotBoundaryPoint = Points.Length - boundarySet.GetAllBoundaryPoints.Length - 1;
-            if (i > indexMaxNotBoundaryPoint && j > indexMaxNotBoundaryPoint && k > indexMaxNotBoundaryPoint)
-                return false;
-
-            //if (Boundary.Length < 3) return true;
-            double ctx = (coordsX[i] + coordsX[j] + coordsX[k]) / 3;
-            double cty = (coordsY[i] + coordsY[j] + coordsY[k]) / 3;
-            HPoint ctri = new HPoint(ctx, cty);
-            return InArea(ctri);
+            //int indexMaxNotBoundaryPoint = Points.Length - boundarySet.AllBoundaryPoints.Length - 1;
+            //if (inArea && i > indexMaxNotBoundaryPoint && j > indexMaxNotBoundaryPoint && k > indexMaxNotBoundaryPoint)
+            //{
+            //    int boundI = boundarySet.BoundaryIndex(Points[i]);
+            //    int boundJ = boundarySet.BoundaryIndex(Points[j]);
+            //    int boundK = boundarySet.BoundaryIndex(Points[k]);
+            //    if (boundI !=  boundJ || boundI != boundK || boundJ != boundK)
+            //        return false;
+            //}
+            //return inArea;
         }
 
         #endregion CreationLogic

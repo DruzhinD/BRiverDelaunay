@@ -7,7 +7,7 @@ namespace TestDelaunayGenerator
     public class SpecialSorter
     {
         private IHPoint[] sortingArray;
-        IComparer<IHPoint> comparer;
+        IComparer<IHPoint> comparer; //в целом не нужен, т.к. HPoint реализует IComparable
 
         public SpecialSorter(IHPoint[] sortingArray, IComparer<IHPoint> comparer)
         {
@@ -15,10 +15,18 @@ namespace TestDelaunayGenerator
             this.comparer = comparer;
         }
 
+        public SpecialSorter(IHPoint[] sortingArray)
+        {
+            this.sortingArray = sortingArray;
+        }
+
         public IHPoint[] GetSortedArray()
         {
             //сортируем
-            Array.Sort(sortingArray, comparer);
+            if (comparer != null)
+                Array.Sort(sortingArray, comparer);
+            else
+                Array.Sort(sortingArray);
 
             double lastYValue = double.MinValue;
             List<int> swappingIndexes = new List<int>();

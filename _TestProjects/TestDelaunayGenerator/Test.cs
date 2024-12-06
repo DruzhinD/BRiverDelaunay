@@ -7,6 +7,7 @@ using MeshLib;
 using RenderLib;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace TestDelaunayGenerator
@@ -14,103 +15,40 @@ namespace TestDelaunayGenerator
     public class Test
     {
         IHPoint[] points = null;
-        IHPoint[] Boundary = null;
-        BoundarySet<Boundary> boundarySet = null;
+        BoundarySet boundarySet = null;
         public Test() { }
         public void CreateRestArea(int idx)
         {
-            const int N = 300;
+            Console.WriteLine();
+            const int N = 100;
             double h = 1.0 / (N - 1);
             //в него нужно помещать ВЕРШИНЫ границы области
             IHPoint[] boundary;
-            Boundary boundaryCreator;
             switch (idx)
             {
                 //Прямоугольник простой
                 case 0:
-                    Boundary = null;
-                    boundary = new IHPoint[4]
-                    {
-                        new HPoint(0.31111, 0.31111),
-                        new HPoint(0.31111, 0.71111),
-                        new HPoint(0.71111, 0.71111),
-                        new HPoint(0.71111, 0.31111),
-                    };
                     points = new IHPoint[]
                     {
-                        //new HPoint(0, 0),
-                        //new HPoint(1, 0),
-                        //new HPoint(1, 1),
-                        //new HPoint(0, 1),
-                        //new HPoint(0.5, 0.5),
-                        //new HPoint(1.1, 0.5),
-
-                        //new HPoint(0.1, 0.1),
-                        //new HPoint(0.1, 0.2),
-                        //new HPoint(0.1, 0.3),
-                        //new HPoint(0.1, 0.4),
-                        //new HPoint(0.1, 0.5),
-                        //new HPoint(0.1, 0.6),
-                        //new HPoint(0.1, 0.7),
-                        //new HPoint(0.1, 0.8),
-                        //new HPoint(0.1, 0.9),
-
-                        //new HPoint(0.2, 0.9),
-                        //new HPoint(0.2, 0.7),
-                        //new HPoint(0.2, 0.6),
-                        //new HPoint(0.2, 0.5),
-                        //new HPoint(0.2, 0.8),
-                        //new HPoint(0.2, 0.4),
-                        //new HPoint(0.2, 0.3),
-                        //new HPoint(0.2, 0.2),
-                        //new HPoint(0.2, 0.1),
-
-                        //new HPoint(0.3, 0.9),
-                        //new HPoint(0.3, 0.7),
-                        //new HPoint(0.3, 0.6),
-                        //new HPoint(0.3, 0.5),
-                        //new HPoint(0.3, 0.8),
-                        //new HPoint(0.3, 0.4),
-                        //new HPoint(0.3, 0.3),
-                        //new HPoint(0.3, 0.2),
-                        //new HPoint(0.3, 0.1),
-
-                        //new HPoint(0.4, 0.9),
-                        //new HPoint(0.4, 0.7),
-                        //new HPoint(0.4, 0.6),
-                        //new HPoint(0.4, 0.5),
-                        //new HPoint(0.4, 0.8),
-                        //new HPoint(0.4, 0.4),
-                        //new HPoint(0.4, 0.3),
-                        //new HPoint(0.4, 0.2),
-                        //new HPoint(0.4, 0.1),
-
-                        //new HPoint(0.5, 0.9),
-                        //new HPoint(0.5, 0.7),
-                        //new HPoint(0.5, 0.6),
-                        //new HPoint(0.5, 0.5),
-                        //new HPoint(0.5, 0.8),
-                        //new HPoint(0.5, 0.4),
-                        //new HPoint(0.5, 0.3),
-                        //new HPoint(0.5, 0.2),
-                        //new HPoint(0.5, 0.1),
-
-                        new HPoint(0.6, 0.55),
-                        //new HPoint(0.6, 0.58),
-                        new HPoint(0.8, 0.7),
-                        new HPoint(0.6, 0.4),
-                        new HPoint(0.6, 0.7),
-                        new HPoint(0.1, 0.1),
-
+                        new HPoint(0, 0),
+                        new HPoint(0, 1),
+                        new HPoint(1, 1),
+                        new HPoint(1, 0),
+                        //new HPoint(0.5, 0.85),
+                        new HPoint(0.5, 0.05),
 
                     };
-                    //Boundary = new BoundaryCreator(boundary, ref points).GetBoundaryPoints();
-                    //boundarySet = new BoundarySet<BoundaryCreator>(points);
-                    //boundarySet.Add(boundary);
+                    //boundary = new IHPoint[4]
+                    //{
+                    //    new HPoint(0.31111, 0.31111),
+                    //    new HPoint(0.31111, 0.71111),
+                    //    new HPoint(0.71111, 0.71111),
+                    //    new HPoint(0.71111, 0.31111),
+                    //};
                     break;
                 //Прямоугольник большой
                 case 1:
-                    
+
                     // массивы для псевдослучайного микро смещения координат узлов
                     double[] dxx = {0.0000001, 0.0000005, 0.0000002, 0.0000006, 0.0000002,
                             0.0000007, 0.0000003, 0.0000001, 0.0000004, 0.0000009,
@@ -129,6 +67,12 @@ namespace TestDelaunayGenerator
                             idd++;
                             idd = idd % dxx.Length;
                         }
+                    var watch = Stopwatch.StartNew();
+
+                    boundarySet = new BoundarySet(points);
+                    string msg = $" Рассчет среднего расстояния между точками ({this.points.Length})шт {watch.Elapsed.TotalSeconds} сек";
+                    Console.WriteLine(msg);
+
                     boundary = new IHPoint[]
                     {
                         new HPoint(0.1, 0.1),
@@ -137,7 +81,6 @@ namespace TestDelaunayGenerator
                         new HPoint(0.9, 0.1),
 
                     };
-                    boundarySet = new BoundarySet<Boundary>(points);
                     boundarySet.Add(boundary);
                     boundary = new IHPoint[]
                     {
@@ -155,6 +98,33 @@ namespace TestDelaunayGenerator
                         new HPoint(1.0-0.01, 0.0+0.01),
                     };
                     boundarySet.Add(boundary);
+
+                    //boundarySet = new BoundarySet(points);
+                    //boundary = new IHPoint[]
+                    //{
+
+                    //    new HPoint(0.0+0.01, 0.0+0.01),
+                    //    new HPoint(0.0+0.01, 1.0-0.01),
+                    //    new HPoint(1.0-0.01, 1.0-0.01),
+                    //    new HPoint(1.0-0.01, 0.0+0.01),
+                    //};
+                    //boundarySet.Add(boundary);
+                    ////boundary = new IHPoint[]
+                    ////{
+                    ////    new HPoint(0.15, 0.6),
+                    ////    new HPoint(0.2, 0.1),
+                    ////    new HPoint(0.1, 0.1),
+                    ////};
+                    ////boundarySet.Add(boundary);
+                    //boundary = new IHPoint[]
+                    //{
+                    //    new HPoint(0.1, 0.1),
+                    //    new HPoint(0.1, 0.3),
+                    //    new HPoint(0.105, 0.15),
+                    //    new HPoint(0.11, 0.3),
+                    //    new HPoint(0.11, 0.1),
+                    //};
+                    //boundarySet.Add(boundary);
                     break;
                 //Трапеция
                 case 2:
@@ -173,7 +143,7 @@ namespace TestDelaunayGenerator
                         new HPoint(0.9, 0.1),
                         new HPoint(0.7, 0.2),
                      };
-                    boundarySet = new BoundarySet<Boundary>(points);
+                    boundarySet = new BoundarySet(points);
                     boundarySet.Add(boundary);
                     break;
                 //Круглое множество с вогнутой границей
@@ -181,12 +151,12 @@ namespace TestDelaunayGenerator
                     {
                         var width = 100;
                         var height = 100;
-                        List<Vector2> samples = CircleDelaunayGenerator.SampleCircle(new Vector2(width / 2, height / 3), 220, 3);
+                        List<Vector2> samples = CircleDelaunayGenerator.SampleCircle(new Vector2(width / 2, height / 3), 220, 2.5f);
                         points = new IHPoint[samples.Count];
                         for (int i = 0; i < samples.Count; i++)
                             points[i] = new HPoint(samples[i].X, samples[i].Y);
                         //Boundary = new BoundaryCreator(boundary, ref points).GetBoundaryPoints();
-                        boundarySet = new BoundarySet<Boundary>(points);
+                        boundarySet = new BoundarySet(points);
                         int offset = 40;
                         boundary = new IHPoint[4]
                         {
@@ -217,6 +187,16 @@ namespace TestDelaunayGenerator
                             points.Add(new HPoint(rnd.Next(40, 60) * rnd.NextDouble(), rnd.Next(40, 60) * rnd.NextDouble()));
                         }
                         this.points = points.ToArray();
+                        boundarySet = new BoundarySet(this.points);
+                        var (width, height, offset) = (40, 40, 10);
+                        boundary = new IHPoint[]
+                        {
+                            new HPoint(40, 10),
+                            new HPoint(40, 40),
+                            new HPoint(10, 40),
+                            new HPoint(10, 10),
+                        };
+                        boundarySet.Add(boundary);
                         break;
                     }
             }
@@ -225,8 +205,16 @@ namespace TestDelaunayGenerator
         {
             DelaunayMeshGenerator delaunator = new DelaunayMeshGenerator();
 
+            var watch = Stopwatch.StartNew();
             delaunator.Generator(points, boundarySet);
+            string msg = $"Рассчет триангуляции {this.points.Length} {watch.Elapsed.TotalSeconds} сек.";
+            Console.WriteLine(msg);
+
+            watch = Stopwatch.StartNew();
             IMesh mesh = delaunator.CreateMesh();
+            msg = $"Генерация сетки (TriMesh) {this.points.Length} {watch.Elapsed.TotalSeconds} сек.";
+            Console.WriteLine(msg);
+
             IConvexHull ch = new ConvexHull();
             ShowMesh(mesh);
         }
