@@ -365,3 +365,5 @@ FodyWeavers.xsd
 # My data files
 *.tsk
 *.sp
+/_TestProjects/TestDelaunayGenerator/DDLogger.cs
+/MemLogLib/Diagnostic/DDLogger.cs

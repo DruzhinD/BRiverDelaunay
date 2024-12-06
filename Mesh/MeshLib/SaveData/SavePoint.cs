@@ -307,8 +307,9 @@ namespace MeshLib
             var timer = Stopwatch.StartNew();
             smoother.Smooth((IMesh)this.cload);
             timer.Stop();
-            Console.WriteLine(timer.Elapsed.TotalSeconds);
+            string msg = $"Сглаживание (#{smoother.Iteration}) {this.cload.CountKnots} узлов {timer.Elapsed.TotalSeconds} сек.";
+            Console.WriteLine(msg);
         }
-        Smoothing.ISmoother smoother = new Smoothing.SimpleSmoother();
+        Smoothing.SimpleSmoother smoother = new Smoothing.SimpleSmoother();
     }
 }
