@@ -914,28 +914,8 @@ namespace TestDelaunayGenerator
                 HPoint p2 = new HPoint(coordsX[next], coordsY[next]);
                 if (InArea(p1, p2))
                     return false;
-                //return !InArea(p1, p2);
             }
             return true;
-            //if (Boundary.Length < 3) return true;
-            //double ctx = (coordsX[i] + coordsX[j] + coordsX[k]) / 3;
-            //double cty = (coordsY[i] + coordsY[j] + coordsY[k]) / 3;
-            //HPoint ctri = new HPoint(ctx, cty);
-            //bool inArea = InArea(ctri);
-
-            //TODO: не лучшее решение при масштабировании проекта. Стоит переделать
-            //если все 3 индекса вершин являются индексами точек границы,
-            //то такой треугольник по умолчанию не должен отрисовываться
-            //int indexMaxNotBoundaryPoint = Points.Length - boundarySet.AllBoundaryPoints.Length - 1;
-            //if (inArea && i > indexMaxNotBoundaryPoint && j > indexMaxNotBoundaryPoint && k > indexMaxNotBoundaryPoint)
-            //{
-            //    int boundI = boundarySet.BoundaryIndex(Points[i]);
-            //    int boundJ = boundarySet.BoundaryIndex(Points[j]);
-            //    int boundK = boundarySet.BoundaryIndex(Points[k]);
-            //    if (boundI !=  boundJ || boundI != boundK || boundJ != boundK)
-            //        return false;
-            //}
-            //return inArea;
         }
 
         #endregion CreationLogic

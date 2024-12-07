@@ -1,6 +1,7 @@
 ﻿using CommonLib.Geometry;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace TestDelaunayGenerator
@@ -39,8 +40,12 @@ namespace TestDelaunayGenerator
 
         public BoundarySet(IHPoint[] basePoints)
         {
-            this._basePoints = new SpecialSorter(basePoints).GetSortedArray();
+            //this._basePoints = new SpecialSorter(basePoints).GetSortedArray();
+            this._basePoints = basePoints;
+            var watch = Stopwatch.StartNew();
             avg = CalculateAverageDistance(2);
+            string msg = $" Рассчет среднего расстояния между точками ({this._basePoints.Length})шт {watch.Elapsed.TotalSeconds} сек";
+            Console.WriteLine(msg);
         }
 
         double avg = 0;

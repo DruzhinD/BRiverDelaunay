@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using CommonLib;
 using CommonLib.Geometry;
 using GeometryLib.Vector;
@@ -48,7 +49,6 @@ namespace MeshLib.Smoothing
 
             //TODO: избавиться от промежуточного хранения новых значений
             Dictionary<(int, int), double> newValues = new Dictionary<(int, int), double>();
-            Dictionary<(int, int), double> newValuesSin = new Dictionary<(int, int), double>();
             foreach (KeyValuePair<(int, int), double> angleInfo in meshCosinusTable)
             {
 
@@ -64,7 +64,8 @@ namespace MeshLib.Smoothing
 
                     //список id треугольников, в которые входит текущая вершина
                     var trinagleIds = AssociatedTriangles(vertexIndex);
-                    IsConvex(trinagleIds, vertexIndex);
+                    if (!IsConvex(trinagleIds, vertexIndex))
+                        continue;
                     //перемещаем вершину
                     //IHPoint newCoords = NewVertexCoords(vertexIndex);
                     IHPoint newCoords = InterpolateCoords(trinagleIds, vertexIndex);
@@ -84,14 +85,12 @@ namespace MeshLib.Smoothing
                             );
 
                             double cos = Cosinus(v1, v2, v3);
-                            double sin = Sinus(v1, v2, v3);
 
                             (int, int) key = (triangleId, (j + 1) % 3);
                             //TODO: избавить от этого блока / найти альтернативу
                             try
                             {
                                 newValues[key] = cos;
-                                newValuesSin[key] = sin;
 
                             }
                             //после изменения AssociatedTriangles не выбрасывается
@@ -116,6 +115,13 @@ namespace MeshLib.Smoothing
         uint IndexGlobalVertex(int triangleId, int internalVertexId) => mesh.AreaElems[triangleId][internalVertexId];
 
         /// <summary>
+        /// Значение координаты через индекс точки
+        /// </summary>
+        /// <param name="vertexId">глобальный индекс вершины</param>
+        /// <returns>координаты вершины</returns>
+        IHPoint CoordByIndex(uint vertexId) => new HPoint(mesh.CoordsX[vertexId], mesh.CoordsY[vertexId]);
+
+        /// <summary>
         /// Расчет косинуса угла
         /// </summary>
         /// <returns></returns>
@@ -126,25 +132,6 @@ namespace MeshLib.Smoothing
 
             double cos = (vector1.X * vector2.X + vector1.Y * vector2.Y) / (vector1.Length() * vector2.Length()); //math.abs не уместен
             return cos;
-        }
-
-        double Sinus(uint previous, uint center, uint next)
-        {
-            //Vector2 vector1 = new Vector2(mesh.CoordsX[center] - mesh.CoordsX[previous], mesh.CoordsY[center] - mesh.CoordsY[previous]);
-            //Vector2 vector2 = new Vector2(mesh.CoordsX[center] - mesh.CoordsX[next], mesh.CoordsY[center] - mesh.CoordsY[next]);
-
-            //var crossRes = vector1.X * vector2.Y - vector1.Y * vector2.X;
-
-            // Векторы AB и AC
-            Vector2 vectorAB = new Vector2(mesh.CoordsX[previous] - mesh.CoordsX[center], mesh.CoordsY[previous] - mesh.CoordsY[center]);
-            Vector2 vectorAC = new Vector2(mesh.CoordsX[next] - mesh.CoordsX[center], mesh.CoordsY[next] - mesh.CoordsY[center]);
-
-            // Векторное произведение AB и AC
-            double crossProduct = vectorAB.X * vectorAC.Y - vectorAB.Y * vectorAC.X;// double crossProduct = abx * acy - aby * acx;
-
-            // Синус угла
-            double sine = crossProduct / (vectorAB.Length() * vectorAC.Length());
-            return sine;
         }
 
         /// <summary>
@@ -158,15 +145,6 @@ namespace MeshLib.Smoothing
             IEnumerable<int> triagnleIds = meshCosinusTable.Keys
                 .Where(x => IndexGlobalVertex(x.Item1, x.Item2) == indexV)
                 .Select(x => x.Item1);
-            ////поиск всех ключей, связанных с треугольниками выше
-            ////TODO оптимизировать. Можно просто возвращать ключи N,0; N,1; N,2 т.к. необходимо пересчитать все углы этих треугольников
-            //var keys = new List<(int, int)>();
-
-            //foreach (int triagnleId in triagnleIds)
-            //    for (int j = 0; j < 3; j++)
-            //        keys.Add((triagnleId, j));
-            ////IEnumerable<(int, int)> keys = meshCosinusTable.Keys
-            ////    .Where(x => triagnleIds.Contains(x.Item1));
             return triagnleIds;
         }
 
@@ -256,49 +234,84 @@ namespace MeshLib.Smoothing
         /// Проверка на выпуклость заданной области
         /// </summary>
         /// <param name="triangleIds">список идентификаторов треугольника</param>
+        /// <param name="center">индекс вершины в <see cref="TriMesh"/>, вокруг которой сформирована область</param>
         /// <returns>true - область выпуклая, иначе false</returns>
-        //TODO херня, не работает
-        bool IsConvex(IEnumerable<int> triangleIds, uint centerId)
+        bool IsConvex(IEnumerable<int> triangleIds, uint center)
         {
             List<TriElement> triangles = triangleIds.Select(x => mesh.AreaElems[x]).ToList();
-            List<uint> vertexes = new List<uint>();
+            List<uint> vertexes = new List<uint>(); //вершины, образующие область
 
-            TriElement nextTriangle = triangles[0];
+            //далее получаем вершины, образующие область, вокруг центра center
 
-            while (triangles.Count > 1)
+            var currentTriangle = triangles[0];
+            //вершина для записи в список и удаления
+            uint vertexToAdd;
+            if (currentTriangle.Vertex1 != center)
+                vertexToAdd = currentTriangle.Vertex1;
+            else
+                vertexToAdd = currentTriangle.Vertex2;
+            while (triangles.Count > 0)
             {
-                //if (i >= triangles.Count) break;
-                var externalV = nextTriangle.Vertexes.ToList();
-                externalV.Remove(centerId);
-                vertexes.Add(externalV[0]);
-                externalV.RemoveAt(0);
-                triangles.Remove(nextTriangle);
+                triangles.Remove(currentTriangle);
+                var curTrVert = currentTriangle.Vertexes.ToList();
+                vertexes.Add(vertexToAdd); //добавляем вершину в список
+                                           //удаляем лишние вершины
+                curTrVert.Remove(center);
+                curTrVert.Remove(vertexToAdd);
+
+                uint checkVertex = curTrVert[0]; //общая вершина для следующих треугольников
+
                 for (int j = 0; j < triangles.Count; j++)
                 {
-                    //if (j == triangles.IndexOf(nextTriangle)) continue;
+                    var nextTr = triangles[j]; //следующий треугольник
+                    var nextTrVert = nextTr.Vertexes.ToList(); //вершины, образующие треугольник
+                    nextTrVert.Remove(center); //удаляем центр области, общий для всех треугольников
 
-                    var internalV = triangles[j].Vertexes.ToList();
-                    internalV.Remove(centerId);
-                    for (int k = 0; k < internalV.Count; k++)
+                    //ищем общую точку
+                    for (int k = 0; k < nextTrVert.Count; k++)
                     {
-                        if (externalV[0] == internalV[k])
+                        if (checkVertex == nextTrVert[k])
                         {
-                            //vertexes.Add(internalV[k]);
-                            //var exTriangle = nextTriangle;
-                            triangles.Remove(nextTriangle);
-                            nextTriangle = triangles[j];
-                            //triangles.Remove(exTriangle);
+                            currentTriangle = nextTr;
+                            vertexToAdd = nextTrVert[k];
+                            //прерываем циклы
                             j = triangles.Count;
-                            //vertexes.Insert(vertexes.Count-1,externalV[0]);
                             break;
                         }
                     }
                 }
-
-                //i++;
             }
 
+            //рассчет векторных произведений
+            List<double> crosses = new List<double>();
+            for (int i = 0; i < vertexes.Count; i++)
+            {
+                var (v1, v2, v3) = (vertexes[i % vertexes.Count], vertexes[(i + 1) % vertexes.Count], vertexes[(i + 2) % vertexes.Count]);
+                double cross = VectorCross(v1, v2, v3);
+                crosses.Add(cross);
+            }
+
+            //проверяем знаки векторных произведений на равенство
+            //область выпуклая, если все векторные произведения имеют один знак
+            for (int i = 0; i < crosses.Count; i++)
+                if (Math.Sign(crosses[i % crosses.Count]) != Math.Sign(crosses[(i + 1) % crosses.Count]))
+                    return false;
+
             return true;
+        }
+
+
+        /// <summary>
+        /// Векторное произведение двумерных векторов
+        /// </summary>
+        /// <param name="v1">вершина 1 вектора</param>
+        /// <param name="v2">общая вершина</param>
+        /// <param name="v3">вершина 2 вектора</param>
+        double VectorCross(uint v1, uint v2, uint v3)
+        {
+            var (coordV1, coordV2, coordV3) = (CoordByIndex(v1), CoordByIndex(v2), CoordByIndex(v3));
+            double cross = (coordV2.X - coordV1.X) * (coordV3.Y - coordV1.Y) - (coordV2.Y - coordV1.Y) * (coordV3.X - coordV1.X);
+            return cross;
         }
     }
 }

@@ -70,8 +70,6 @@ namespace TestDelaunayGenerator
                     var watch = Stopwatch.StartNew();
 
                     boundarySet = new BoundarySet(points);
-                    string msg = $" Рассчет среднего расстояния между точками ({this.points.Length})шт {watch.Elapsed.TotalSeconds} сек";
-                    Console.WriteLine(msg);
 
                     boundary = new IHPoint[]
                     {
@@ -187,16 +185,16 @@ namespace TestDelaunayGenerator
                             points.Add(new HPoint(rnd.Next(40, 60) * rnd.NextDouble(), rnd.Next(40, 60) * rnd.NextDouble()));
                         }
                         this.points = points.ToArray();
-                        boundarySet = new BoundarySet(this.points);
-                        var (width, height, offset) = (40, 40, 10);
-                        boundary = new IHPoint[]
-                        {
-                            new HPoint(40, 10),
-                            new HPoint(40, 40),
-                            new HPoint(10, 40),
-                            new HPoint(10, 10),
-                        };
-                        boundarySet.Add(boundary);
+                        //boundarySet = new BoundarySet(this.points);
+                        //var (width, height, offset) = (40, 40, 10);
+                        //boundary = new IHPoint[]
+                        //{
+                        //    new HPoint(40, 10),
+                        //    new HPoint(40, 40),
+                        //    new HPoint(10, 40),
+                        //    new HPoint(10, 10),
+                        //};
+                        //boundarySet.Add(boundary);
                         break;
                     }
             }
