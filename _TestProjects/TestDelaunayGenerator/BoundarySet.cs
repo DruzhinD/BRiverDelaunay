@@ -38,14 +38,25 @@ namespace TestDelaunayGenerator
         /// </summary>
         readonly IHPoint[] _basePoints;
 
-        public BoundarySet(IHPoint[] basePoints)
+        /// <summary>
+        /// Контейнер для границ области триангуляции
+        /// </summary>
+        /// <param name="basePoints">точки области триангуляции</param>
+        /// <param name="useAvgPointAlgorithm">true - ребра границ будут поделены на отрезки,
+        /// равные среднему расстоянию между точками в области построения <br/>
+        /// false - количество отрезков на каждом ребре границы будет фиксированно
+        /// </param>
+        public BoundarySet(IHPoint[] basePoints, bool useAvgPointAlgorithm = false)
         {
             //this._basePoints = new SpecialSorter(basePoints).GetSortedArray();
             this._basePoints = basePoints;
-            var watch = Stopwatch.StartNew();
-            avg = CalculateAverageDistance(2);
-            string msg = $" Рассчет среднего расстояния между точками ({this._basePoints.Length})шт {watch.Elapsed.TotalSeconds} сек";
-            Console.WriteLine(msg);
+            if (useAvgPointAlgorithm)
+            {
+                var watch = Stopwatch.StartNew();
+                avg = CalculateAverageDistance(1);
+                string msg = $" Рассчет среднего расстояния между точками ({this._basePoints.Length})шт {watch.Elapsed.TotalSeconds} сек";
+                Console.WriteLine(msg);
+            }
         }
 
         double avg = 0;

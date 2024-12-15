@@ -47,11 +47,12 @@ namespace MeshLib.Smoothing
             }
             InitMeshCosinusTable(rebuild);
 
+            int keyId = 0;
             //TODO: избавиться от промежуточного хранения новых значений
             Dictionary<(int, int), double> newValues = new Dictionary<(int, int), double>();
             foreach (KeyValuePair<(int, int), double> angleInfo in meshCosinusTable)
             {
-
+                keyId++;
                 //angleInfo = meshCosinusTable.ElementAt(i); //слишком долгий поиск
                 int boundFlag = Array.IndexOf<int>(mesh.BoundKnots, (int)IndexGlobalVertex(angleInfo.Key.Item1, angleInfo.Key.Item2));
                 //TODO: раздвоить границу для косинусов (для тупых и острых углов)
@@ -106,6 +107,7 @@ namespace MeshLib.Smoothing
             foreach (var pair in newValues)
                 meshCosinusTable[pair.Key] = pair.Value;
             Console.WriteLine($"Смещенные точки (кол-во): {counter}");
+            Console.WriteLine($"количество ключей: {keyId}");
         }
 
         /// <summary>
@@ -255,7 +257,7 @@ namespace MeshLib.Smoothing
                 triangles.Remove(currentTriangle);
                 var curTrVert = currentTriangle.Vertexes.ToList();
                 vertexes.Add(vertexToAdd); //добавляем вершину в список
-                                           //удаляем лишние вершины
+                //удаляем лишние вершины
                 curTrVert.Remove(center);
                 curTrVert.Remove(vertexToAdd);
 
