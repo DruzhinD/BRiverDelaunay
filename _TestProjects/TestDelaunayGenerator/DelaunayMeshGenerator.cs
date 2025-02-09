@@ -165,6 +165,7 @@ namespace TestDelaunayGenerator
                 }
             }
 
+            //TODO зачем выделять память снова?
             //сохраняем все треугольники сетки в объект сетки
             mesh.AreaElems = tri.ToArray();
             MEM.Alloc(Points.Length, ref mesh.CoordsX);
@@ -237,30 +238,8 @@ namespace TestDelaunayGenerator
 
             hashSize = (int)Math.Ceiling(Math.Sqrt(Points.Length)); //размер хэш-пространства
             //выделение памяти
-            int maxTriangles = 2 * Points.Length - 5;
-            MEM.Alloc(Points.Length, ref EdgeStack);
-            MEM.Alloc(Points.Length, ref coordsX);
-            MEM.Alloc(Points.Length, ref coordsY);
-            MEM.Alloc(maxTriangles * 3, ref Triangles);
-            MEM.Alloc(maxTriangles * 3, ref HalfEdges);
-            MEM.Alloc(Points.Length, ref hullPrev);
-            MEM.Alloc(Points.Length, ref hullNext);
-            MEM.Alloc(Points.Length, ref hullTri);
-            MEM.Alloc(Points.Length, ref ids);
-            MEM.Alloc(Points.Length, ref dists);
-            MEM.Alloc(Points.Length, ref mark);
-            MEM.Alloc(Points.Length, ref hullHash);
+            MEM.Alloc(Points.Length, ref mark, value:true);
 
-            //заполняем массивы хранящие значения X, Y и метку отрисовки точки
-            for (var i = 0; i < Points.Length; i++)
-            {
-                var p = Points[i];
-                coordsX[i] = p.X;
-                coordsY[i] = p.Y;
-                mark[i] = true;
-            }
-
-            #region поиск начального треугольника
             //TODO выяснить резонно ли искать центр тяжести области
             //находим центр тяжести области
             cx = Points.Sum(x => x.X) / (Points.Length);
@@ -283,12 +262,39 @@ namespace TestDelaunayGenerator
                     // Проверяем, входит ли точка в сетку или же её необходимо исключить
                     mark[i] = InArea(i);
                 }
+                //очищаем массив от неиспользуемых точек, обрезаем до нужного размера
+                FilterPointArray();
+            }
+
+            //выделяем память
+            int maxTriangles = 2 * Points.Length - 5;
+            MEM.Alloc(Points.Length, ref EdgeStack);
+            MEM.Alloc(Points.Length, ref coordsX);
+            MEM.Alloc(Points.Length, ref coordsY);
+            MEM.Alloc(maxTriangles * 3, ref Triangles);
+            MEM.Alloc(maxTriangles * 3, ref HalfEdges);
+            MEM.Alloc(Points.Length, ref hullPrev);
+            MEM.Alloc(Points.Length, ref hullNext);
+            MEM.Alloc(Points.Length, ref hullTri);
+            MEM.Alloc(Points.Length, ref ids);
+            MEM.Alloc(Points.Length, ref dists);
+            //MEM.Alloc(Points.Length, ref mark, true);
+            MEM.Alloc(Points.Length, ref hullHash);
+
+            //заполняем массивы хранящие значения X, Y и метку отрисовки точки
+            for (var i = 0; i < Points.Length; i++)
+            {
+                var p = Points[i];
+                coordsX[i] = p.X;
+                coordsY[i] = p.Y;
+                mark[i] = true;
             }
 
             // Начальное состояние адресации вершин
             for (int i = 0; i < Points.Length; i++)
                 ids[i] = i;
 
+            #region поиск начального треугольника
             double minRadius = double.PositiveInfinity;
             var minDist = double.PositiveInfinity;
             #region Попытка упростить формирование начальной оболочки. Пока случаются проблемы
@@ -565,6 +571,38 @@ namespace TestDelaunayGenerator
             // ребра диаграмы Вронского
             HalfEdges = HalfEdges.Take(trianglesLen).ToArray();
         }
+
+        /// <summary>
+        /// Фильтрует исходное множество точек, оставляя только те,
+        /// что входят в область построения. <br/>
+        /// Обрезает массив точек и связанные с ним до необходимого размера
+        /// </summary>
+        void FilterPointArray()
+        {
+            //количество точек области, входящих в область триангуляции
+            int markedPointsAmount = mark.Count(x => x is true);
+            
+            //следующий индекс для перезаписи в массиве
+            int curNewPointIndex = 0;
+            //сужаем исходный массив до размера, необходимого лишь множеству точек из области построения
+            for (int i = 0; i < mark.Length; i++)
+            {
+                if (mark[i])
+                {
+                    Points[curNewPointIndex] = //новое положение точки
+                        Points[i]; //старое положение точки
+                    curNewPointIndex++;
+                }
+            }
+
+            //обрезаем исходный массив точек до необходимого размера
+            Array.Resize(ref Points, markedPointsAmount);
+            
+            //TODO mark не нужен, ибо в нем все элементы True
+            //перезаполняем mark
+            MEM.Alloc<bool>(Points.Length, ref mark, value: true);
+        }
+
         #region CreationLogic
         /// <summary>
         /// знак верктоного произведения построенного на касательных к двум граням
@@ -914,6 +952,15 @@ namespace TestDelaunayGenerator
                          Point) == true)
                         crossCount += 1;
                 }
+            //for (int k = 0; k < boundary.Length; k++)
+            //{
+            //    if (CrossLine.IsCrossing(
+            //        (HPoint)boundary[k],
+            //        (HPoint)boundary[(k + 1) % boundary.Length],
+            //         (HPoint)externalPoint,
+            //         Point) == true)
+            //        crossCount += 1;
+            //}
             //входит в область % 2 == 1 (в данном случае инверсия, поэтому наоборот)
             //return !(crossCount % 2 == 1);
             return (crossCount % 2 == 1);
