@@ -42,7 +42,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Diagnostic\SimpleLogger.cs" />
     <Compile Include="MEMLogDelegate.cs" />
     <Compile Include="Diagnostic\Diagnostician.cs" />
     <Compile Include="Diagnostic\ILogger.cs" />

@@ -15,7 +15,7 @@ namespace MeshLib
     using CommonLib;
     using GeometryLib;
     using System.Diagnostics;
-    using MemLogLib.Diagnostic;
+    using Serilog;
 
     /// <summary>
     /// ОО: Точка сохранения задачи для визуализации ее полей
@@ -309,8 +309,7 @@ namespace MeshLib
             smoother.Smooth((IMesh)this.cload);
             timer.Stop();
             string msg = $"Сглаживание (#{smoother.Iteration}) {this.cload.CountKnots} узлов {timer.Elapsed.TotalSeconds} сек.";
-            //Console.WriteLine(msg);
-            SimpleLogger.GetInstance().Log(msg);
+            Log.Information(msg);
         }
         Smoothing.SimpleSmoother smoother = new Smoothing.SimpleSmoother();
     }

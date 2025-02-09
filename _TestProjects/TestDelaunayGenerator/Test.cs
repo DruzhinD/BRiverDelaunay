@@ -1,27 +1,25 @@
 ﻿using CommonLib;
 using CommonLib.Geometry;
-//using DelaunayGenerator;
 using GeometryLib.Aalgorithms;
 using GeometryLib.Vector;
-using MemLogLib.Diagnostic;
 using MeshLib;
 using RenderLib;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Forms;
+using Serilog;
 
 namespace TestDelaunayGenerator
 {
     public class Test
     {
+        string areaType = "none"; //тип отрисовываемой области
         IHPoint[] points = null;
         BoundarySet boundarySet = null;
         public Test() { }
         public void CreateRestArea(int idx)
         {
-            Console.WriteLine();
-            SimpleLogger.GetInstance("Framework 4.8", true);
             const int N = 100;
             double h = 1.0 / (N - 1);
             //в него нужно помещать ВЕРШИНЫ границы области
@@ -30,6 +28,7 @@ namespace TestDelaunayGenerator
             {
                 //Прямоугольник простой
                 case 0:
+                    areaType = "Прямоугольник простой";
                     points = new IHPoint[]
                     {
                         new HPoint(0, 0),
@@ -43,7 +42,7 @@ namespace TestDelaunayGenerator
                     break;
                 //Прямоугольник большой
                 case 1:
-
+                    areaType = "Прямоугольник большой";
                     // массивы для псевдослучайного микро смещения координат узлов
                     double[] dxx = {0.0000001, 0.0000005, 0.0000002, 0.0000006, 0.0000002,
                             0.0000007, 0.0000003, 0.0000001, 0.0000004, 0.0000009,
@@ -95,6 +94,7 @@ namespace TestDelaunayGenerator
                     break;
                 //Трапеция
                 case 2:
+                    areaType = "Трапеция";
                     points = new IHPoint[N * N];
                     for (int i = 0; i < N; i++)
                     {
@@ -123,6 +123,7 @@ namespace TestDelaunayGenerator
                     break;
                 //Круглое множество с вогнутой границей
                 case 3:
+                    areaType = "Круглое множество";
                     {
                         var width = 100;
                         var height = 100;
@@ -152,6 +153,7 @@ namespace TestDelaunayGenerator
                     break;
                 case 4:
                     {
+                        areaType = "Случайная генерация";
                         Random rnd = new Random();
                         this.points = new IHPoint[100 * 100];
                         for (int i = 0; i < this.points.Length; i++)
@@ -163,21 +165,21 @@ namespace TestDelaunayGenerator
                     }
             }
         }
-        public void Run()
+        public void Run(int areaId)
         {
+            CreateRestArea(areaId);
+            Log.Information($"Выбрана область с {areaId} id | тип: {areaType}");
             DelaunayMeshGenerator delaunator = new DelaunayMeshGenerator();
 
             var watch = Stopwatch.StartNew();
             delaunator.Generator(points, boundarySet);
-            string msg = $"Рассчет триангуляции {this.points.Length} {watch.Elapsed.TotalSeconds} сек.";
-            //Console.WriteLine(msg);
-            SimpleLogger.GetInstance().Log(msg);
+            Log.Information($"Рассчет триангуляции {this.points.Length}шт {watch.Elapsed.TotalSeconds} сек.");
+            bool border = boundarySet != null;
+            Log.Information($"Граница:{border} | Начальное количество точек:{points.Length}шт | Колво после генерации:{delaunator.Points.Length}шт");
 
             watch = Stopwatch.StartNew();
             IMesh mesh = delaunator.CreateMesh();
-            msg = $"Генерация сетки (TriMesh) {this.points.Length} {watch.Elapsed.TotalSeconds} сек.";
-            //Console.WriteLine(msg);
-            SimpleLogger.GetInstance().Log(msg);
+            Log.Information($"Генерация сетки (TriMesh) {delaunator.Points.Length}/{this.points.Length}шт {watch.Elapsed.TotalSeconds} сек.");
 
             IConvexHull ch = new ConvexHull();
             ShowMesh(mesh);

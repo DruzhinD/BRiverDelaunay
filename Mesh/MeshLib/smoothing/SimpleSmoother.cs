@@ -4,7 +4,7 @@ using System.Linq;
 using CommonLib;
 using CommonLib.Geometry;
 using GeometryLib.Vector;
-using MemLogLib.Diagnostic;
+using Serilog;
 
 namespace MeshLib.Smoothing
 {
@@ -104,8 +104,7 @@ namespace MeshLib.Smoothing
 
             foreach (var pair in newValues)
                 meshCosinusTable[pair.Key] = pair.Value;
-            string msg = $"Смещенные точки (кол-во): {counter}";
-            SimpleLogger.GetInstance().Log(msg);
+            Log.Information($"Смещенные точки (кол-во): {counter}");
         }
 
         /// <summary>
