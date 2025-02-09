@@ -1,4 +1,5 @@
 ﻿using CommonLib.Geometry;
+using MemLogLib.Diagnostic;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,6 +13,8 @@ namespace TestDelaunayGenerator
     public class BoundarySet
     {
         List<Boundary> boundaries = new List<Boundary>();
+
+        public int Count => boundaries.Count;
 
         private IHPoint[] _allBounaries;
         /// <summary>
@@ -42,21 +45,10 @@ namespace TestDelaunayGenerator
         /// Контейнер для границ области триангуляции
         /// </summary>
         /// <param name="basePoints">точки области триангуляции</param>
-        /// <param name="useAvgPointAlgorithm">true - ребра границ будут поделены на отрезки,
-        /// равные среднему расстоянию между точками в области построения <br/>
-        /// false - количество отрезков на каждом ребре границы будет фиксированно
-        /// </param>
-        public BoundarySet(IHPoint[] basePoints, bool useAvgPointAlgorithm = false)
+        
+        public BoundarySet(IHPoint[] basePoints)
         {
-            //this._basePoints = new SpecialSorter(basePoints).GetSortedArray();
             this._basePoints = basePoints;
-            if (useAvgPointAlgorithm)
-            {
-                var watch = Stopwatch.StartNew();
-                avg = CalculateAverageDistance(1);
-                string msg = $" Рассчет среднего расстояния между точками ({this._basePoints.Length})шт {watch.Elapsed.TotalSeconds} сек";
-                Console.WriteLine(msg);
-            }
         }
 
         double avg = 0;
@@ -90,77 +82,6 @@ namespace TestDelaunayGenerator
             }
             return -1;
 
-        }
-
-
-        double CalculateAverageDistance(int k)
-        {
-            var distances = new List<double>();
-            int n = _basePoints.Length;
-
-            for (int i = 0; i < n; i++)
-            {
-                var nearestNeighbors = FindNearestNeighbors(_basePoints[i], k);
-                foreach (var neighbor in nearestNeighbors)
-                {
-                    double distance = Math.Sqrt(Math.Pow(neighbor.X - _basePoints[i].X, 2) + Math.Pow(neighbor.Y - _basePoints[i].Y, 2));
-                    distances.Add(distance);
-                }
-            }
-
-            return distances.Count > 0 ? distances.Average() : 0.0;
-        }
-
-        IHPoint[] FindNearestNeighbors(IHPoint target, int k)
-        {
-            //return points
-            //    .Where(p => p != target)
-            //    .OrderBy(p => Math.Sqrt(Math.Pow(p.X - target.X, 2) + Math.Pow(p.Y - target.Y, 2)))
-            //    .Take(k)
-            //    .ToArray();
-
-            int n = _basePoints.Length;
-            double[] distances = new double[n];
-            IHPoint[] neighbors = new IHPoint[k];
-
-            int count = 0;
-
-            // Вычисляем расстояния до всех точек
-            for (int i = 0; i < n; i++)
-            {
-                if (_basePoints[i] != target)
-                {
-                    distances[i] = Math.Sqrt(Math.Pow(_basePoints[i].X - target.X, 2) + Math.Pow(_basePoints[i].Y - target.Y, 2));
-                    if (count < k)
-                    {
-                        neighbors[count] = _basePoints[i];
-                        count++;
-                    }
-                    else
-                    {
-                        // Находим максимальное расстояние среди текущих соседей
-                        double maxDistance = distances[0];
-                        int maxIndex = 0;
-                        for (int j = 1; j < k; j++)
-                        {
-                            if (distances[j] > maxDistance)
-                            {
-                                maxDistance = distances[j];
-                                maxIndex = j;
-                            }
-                        }
-
-                        // Если текущее расстояние меньше максимального, заменяем
-                        if (distances[i] < maxDistance)
-                        {
-                            neighbors[maxIndex] = _basePoints[i];
-                            distances[maxIndex] = distances[i];
-                        }
-                    }
-                }
-            }
-
-            return neighbors;
         }
     }
 }

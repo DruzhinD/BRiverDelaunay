@@ -102,7 +102,7 @@ namespace TestDelaunayGenerator
         void AddPointsBetweenVertexes(List<IHPoint> points, IHPoint v1, IHPoint v2)
         {
             //по умолчанию добавляется фикс колиество точек
-            int amountNewPoints = 20;
+            int amountNewPoints = 30;
             //если задано среднее расстояние между точками,
             //то на его основе формируем новые граничные точки
             if (AvgDistance > 0)

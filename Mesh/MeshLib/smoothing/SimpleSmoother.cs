@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using CommonLib;
 using CommonLib.Geometry;
 using GeometryLib.Vector;
+using MemLogLib.Diagnostic;
 
 namespace MeshLib.Smoothing
 {
@@ -47,12 +47,10 @@ namespace MeshLib.Smoothing
             }
             InitMeshCosinusTable(rebuild);
 
-            int keyId = 0;
             //TODO: избавиться от промежуточного хранения новых значений
             Dictionary<(int, int), double> newValues = new Dictionary<(int, int), double>();
             foreach (KeyValuePair<(int, int), double> angleInfo in meshCosinusTable)
             {
-                keyId++;
                 //angleInfo = meshCosinusTable.ElementAt(i); //слишком долгий поиск
                 int boundFlag = Array.IndexOf<int>(mesh.BoundKnots, (int)IndexGlobalVertex(angleInfo.Key.Item1, angleInfo.Key.Item2));
                 //TODO: раздвоить границу для косинусов (для тупых и острых углов)
@@ -106,8 +104,8 @@ namespace MeshLib.Smoothing
 
             foreach (var pair in newValues)
                 meshCosinusTable[pair.Key] = pair.Value;
-            Console.WriteLine($"Смещенные точки (кол-во): {counter}");
-            Console.WriteLine($"количество ключей: {keyId}");
+            string msg = $"Смещенные точки (кол-во): {counter}";
+            SimpleLogger.GetInstance().Log(msg);
         }
 
         /// <summary>
@@ -244,7 +242,6 @@ namespace MeshLib.Smoothing
             List<uint> vertexes = new List<uint>(); //вершины, образующие область
 
             //далее получаем вершины, образующие область, вокруг центра center
-
             var currentTriangle = triangles[0];
             //вершина для записи в список и удаления
             uint vertexToAdd;
@@ -254,6 +251,10 @@ namespace MeshLib.Smoothing
                 vertexToAdd = currentTriangle.Vertex2;
             while (triangles.Count > 0)
             {
+                //TODO костыль, избавиться
+                if (vertexes.Count > 20)
+                    return false;
+
                 triangles.Remove(currentTriangle);
                 var curTrVert = currentTriangle.Vertexes.ToList();
                 vertexes.Add(vertexToAdd); //добавляем вершину в список

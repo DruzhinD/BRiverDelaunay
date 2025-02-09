@@ -80,10 +80,16 @@ namespace TestDelaunayGenerator
         /// </summary>
         private int[] ids;
         /// <summary>
-        /// Координаты центра триангуляции
+        /// Координаты центра триангуляции X
         /// </summary>
         private double cx;
+        /// <summary>
+        /// Координаты центра триангуляции Y
+        /// </summary>
         private double cy;
+        /// <summary>
+        /// центр триангуляции
+        /// </summary>
         protected HPoint pc;
 
         int i0 = 0;
@@ -199,15 +205,16 @@ namespace TestDelaunayGenerator
                     }
                 }
             //граничные точки и линии, сформированные на основе всего множества точек сетки (естественным образом)
-            for (int i = 0; i < CountHullKnots; i++)
-            {
-                mesh.BoundElems[meshIndex].Vertex1 = (uint)Hull[i];
-                mesh.BoundElems[meshIndex].Vertex2 = (uint)Hull[(i + 1) % CountHullKnots];
-                mesh.BoundElementsMark[meshIndex] = 0;
-                mesh.BoundKnots[meshIndex] = Hull[i];
-                mesh.BoundKnotsMark[meshIndex] = 0;
-                meshIndex++;
-            }
+            if (boundarySet == null || boundarySet.Count % 2 == 0)
+                for (int i = 0; i < CountHullKnots; i++)
+                {
+                    mesh.BoundElems[meshIndex].Vertex1 = (uint)Hull[i];
+                    mesh.BoundElems[meshIndex].Vertex2 = (uint)Hull[(i + 1) % CountHullKnots];
+                    mesh.BoundElementsMark[meshIndex] = 0;
+                    mesh.BoundKnots[meshIndex] = Hull[i];
+                    mesh.BoundKnotsMark[meshIndex] = 0;
+                    meshIndex++;
+                }
             #endregion
 
             if (DEGUG == true)
@@ -219,14 +226,18 @@ namespace TestDelaunayGenerator
         /// </summary>
         public void Generator(IHPoint[] points, BoundarySet boundSet = null)
         {
-            if (points.Length < 3)
+            //базовая проверка для множества точек
+            if (points is null || points.Length < 3)
                 throw new ArgumentOutOfRangeException("Нужно как минимум 3 вершины");
             Points = points;
+            //генерация границы
             this.boundarySet = boundSet;
             if (this.boundarySet != null)
                 this.IncludeBoundary();
-            hashSize = (int)Math.Ceiling(Math.Sqrt(Points.Length));
-            var maxTriangles = 2 * Points.Length - 5;
+
+            hashSize = (int)Math.Ceiling(Math.Sqrt(Points.Length)); //размер хэш-пространства
+            //выделение памяти
+            int maxTriangles = 2 * Points.Length - 5;
             MEM.Alloc(Points.Length, ref EdgeStack);
             MEM.Alloc(Points.Length, ref coordsX);
             MEM.Alloc(Points.Length, ref coordsY);
@@ -240,6 +251,7 @@ namespace TestDelaunayGenerator
             MEM.Alloc(Points.Length, ref mark);
             MEM.Alloc(Points.Length, ref hullHash);
 
+            //заполняем массивы хранящие значения X, Y и метку отрисовки точки
             for (var i = 0; i < Points.Length; i++)
             {
                 var p = Points[i];
@@ -249,10 +261,13 @@ namespace TestDelaunayGenerator
             }
 
             #region поиск начального треугольника
+            //TODO выяснить резонно ли искать центр тяжести области
+            //находим центр тяжести области
             cx = Points.Sum(x => x.X) / (Points.Length);
             cy = Points.Sum(x => x.Y) / (Points.Length);
             pc = new HPoint(cx, cy);
 
+            //внешняя точка
             var maxX = Points.Max(x => x.X);
             externalPoint = new HPoint(maxX * 1.1, cy); //TODO: исправить формирование внешней точки
 
@@ -274,8 +289,43 @@ namespace TestDelaunayGenerator
             for (int i = 0; i < Points.Length; i++)
                 ids[i] = i;
 
+            double minRadius = double.PositiveInfinity;
             var minDist = double.PositiveInfinity;
+            #region Попытка упростить формирование начальной оболочки. Пока случаются проблемы
+            //функция для получения строкового значения ряда координат по их индексам
+            string ToStringCoords(IEnumerable<int> coordsItems)
+            {
+                IEnumerable<string> stringCoords = coordsItems.Select(
+                i => string.Format("{0};{1}", Points[i].X, Points[i].Y));
+                return string.Join("|", stringCoords);
+            }
+            /*
+            //TODO искать все 3 точки сразу, в одном цикле относительно центра тяжести области
             // выбираем начальную точку ближе к центру
+            for (int i = 0; i < Points.Length; i++)
+            {
+                if (!mark[i]) continue;
+                double curDist = Dist(i);
+                //Console.WriteLine(curDist);
+                if (curDist < minDist)
+                {
+                    i2 = i1;
+                    i1 = i0;
+                    i0 = i;
+                    minDist = curDist;
+                }
+            }
+            
+            minRadius = Circumradius(i2);
+
+            int[] seedTriangleIds = { i0, i1, i2 };
+            Console.WriteLine($"Координаты центра: {cx};{cy}");
+            Console.WriteLine($"Новый способ: {string.Join(", ", seedTriangleIds)}");
+            Console.WriteLine($"Координаты: {ToStringCoords(seedTriangleIds)}");
+            */
+            #endregion
+
+            minDist = double.PositiveInfinity;
             for (int i = 0; i < Points.Length; i++)
             {
                 if (mark[i] == false) continue;
@@ -299,7 +349,6 @@ namespace TestDelaunayGenerator
                     minDist = d;
                 }
             }
-            double minRadius = double.PositiveInfinity;
             // найдите третью точку, которая образует
             // наименьшую окружность с первыми двумя точками
             for (int i = 0; i < Points.Length; i++)
@@ -313,6 +362,11 @@ namespace TestDelaunayGenerator
                     minRadius = r;
                 }
             }
+
+            //int[] oldTriangleIds = { i0, i1, i2 };
+            //Console.WriteLine($"Старый: {string.Join(", ", oldTriangleIds)}");
+            //Console.WriteLine($"Координаты: {ToStringCoords(oldTriangleIds)}");
+
             if (minRadius == double.PositiveInfinity)
             {
                 // Если три точки не найдены! То...
@@ -326,14 +380,12 @@ namespace TestDelaunayGenerator
                 i2 = i;
             }
             #endregion
-            /// Центр окружности проведенной по трем 
-            /// вершинами с координатами ...
+            //пересчет центра области - центра описанной окружности около начального треугольника
             Circumcenter();
-            // Расчет растояний от центра окружности 1
-            // треугольника до точек триангуляции
+            //расчет расстояний от центра области до каждой из точек в области
             for (var i = 0; i < Points.Length; i++)
             {
-                if (mark[i] == false) continue;
+                if (mark[i] == false) continue; //пропускает не входящие в область построения
                 dists[i] = Dist(i);
             }
             // быстрая сортировка точек по расстоянию от
@@ -698,7 +750,7 @@ namespace TestDelaunayGenerator
                 coordsY[idx] - cy) * hashSize) % hashSize);
         }
         /// <summary>
-        /// определение радиуса окружности проходящую через 3 точки
+        /// определение квадрата радиуса окружности проходящей через 3 точки
         /// </summary>
         /// <param name="i"></param>
         /// <returns></returns>
@@ -716,10 +768,12 @@ namespace TestDelaunayGenerator
             return x * x + y * y;
         }
         /// <summary>
-        /// Центр окружности проведенной по трем вершинам
+        /// Пересчет начальной точки области - центра описанной окружности около начальной оболочки,
+        /// т.е. начально треугольника
         /// </summary>
         private void Circumcenter()
         {
+            //координаты вершин начального треугольника
             double ax = coordsX[i0];
             double ay = coordsY[i0];
             double dx = coordsX[i1] - coordsX[i0];
@@ -727,6 +781,7 @@ namespace TestDelaunayGenerator
             double ex = coordsX[i2] - coordsX[i0];
             double ey = coordsY[i2] - coordsY[i0];
 
+            //расчет центра описанной окружности
             double bl = dx * dx + dy * dy;
             double cl = ex * ex + ey * ey;
             double d = 0.5 / (dx * ey - dy * ex);
@@ -748,10 +803,10 @@ namespace TestDelaunayGenerator
         /// <summary>
         /// быстрая сортировка точек по расстоянию от центра окружности исходного треугольника
         /// </summary>
-        /// <param name="ids">индекс сортируемой точки</param>
-        /// <param name="dists">дистанции от центра до сортируемой точки</param>
+        /// <param name="ids">индексы сортируемых точек</param>
+        /// <param name="dists">расстояния от центра до сортируемой точки</param>
         /// <param name="left">начальный номер узла сортируемых массивов</param>
-        /// <param name="right">конечный номер узла сортируемых массивов</param></param>
+        /// <param name="right">конечный номер узла сортируемых массивов</param>
         private static void Quicksort(int[] ids, double[] dists, int left, int right)
         {
             if (right - left <= 20)
@@ -799,6 +854,12 @@ namespace TestDelaunayGenerator
                 }
             }
         }
+        /// <summary>
+        /// Поменять местами элементы в массиве (сделать свап, смену)
+        /// </summary>
+        /// <param name="arr">массив с элементами</param>
+        /// <param name="i">индекс 1 элемента</param>
+        /// <param name="j">индекс 2 элемента</param>
         private static void Swap(int[] arr, int i, int j)
         {
             var tmp = arr[i];
@@ -806,27 +867,21 @@ namespace TestDelaunayGenerator
             arr[j] = tmp;
         }
 
-        //private static double Circumradius(double ax, double ay, double bx, double by, double cx, double cy)
-        //{
-        //    var dx = bx - ax;
-        //    var dy = by - ay;
-        //    var ex = cx - ax;
-        //    var ey = cy - ay;
-
-        //    var bl = dx * dx + dy * dy;
-        //    var cl = ex * ex + ey * ey;
-        //    var d = 0.5 / (dx * ey - dy * ex);
-        //    var x = (ey * bl - dy * cl) * d;
-        //    var y = (dx * cl - ex * bl) * d;
-        //    return x * x + y * y;
-        //}
-
+        /// <summary>
+        /// Квадрат расстояния между точками по указанным индексам
+        /// </summary>
+        /// <param name="i">индекс 1 точки</param>
+        /// <param name="j">индекс 2 точки</param>
         private double Dist(int i, int j)
         {
             var dx = coordsX[i] - coordsX[j];
             var dy = coordsY[i] - coordsY[j];
             return dx * dx + dy * dy;
         }
+        /// <summary>
+        /// Квадрат расстояния от центра области до точки с указанным индексом
+        /// </summary>
+        /// <param name="j">индекс точки</param>
         private double Dist(int j)
         {
             var dx = cx - coordsX[j];
@@ -864,6 +919,10 @@ namespace TestDelaunayGenerator
             return (crossCount % 2 == 1);
         }
 
+        /// <summary>
+        /// Проверка пересечения отрезка, обрзованного двумя точками с элементами границы
+        /// </summary>
+        /// <returns>True - линия пересекает границу</returns>
         bool InArea(HPoint p1, HPoint p2)
         {
             foreach (Boundary boundary in boundarySet)
@@ -893,6 +952,7 @@ namespace TestDelaunayGenerator
             //если граница не определена, то помечаем точку, как входящую в сетку
             if (boundarySet == null) return true;
 
+            //вершины треугольника являются граничными узлами
             int indexMaxNotBoundaryPoint = Points.Length - boundarySet.AllBoundaryPoints.Length - 1;
             if (i > indexMaxNotBoundaryPoint && j > indexMaxNotBoundaryPoint && k > indexMaxNotBoundaryPoint)
             {
@@ -901,7 +961,13 @@ namespace TestDelaunayGenerator
                 HPoint ctri = new HPoint(ctx, cty);
                 return InArea(ctri);
             }
+            //хотя бы 1 вершина треугольника не является граничным узлом
+            else
+                return (mark[i] && mark[j] && mark[k]);
 
+
+            //проверка на пересечение ребер треугольника с границей
+            /*
             int[] pointIds = new int[]
             {
                 i, j, k
@@ -916,6 +982,7 @@ namespace TestDelaunayGenerator
                     return false;
             }
             return true;
+            */
         }
 
         #endregion CreationLogic
