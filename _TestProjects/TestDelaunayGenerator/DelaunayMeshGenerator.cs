@@ -168,13 +168,8 @@ namespace TestDelaunayGenerator
             //TODO зачем выделять память снова?
             //сохраняем все треугольники сетки в объект сетки
             mesh.AreaElems = tri.ToArray();
-            MEM.Alloc(Points.Length, ref mesh.CoordsX);
-            MEM.Alloc(Points.Length, ref mesh.CoordsY);
-            for (int i = 0; i < Points.Length; i++)
-            {
-                mesh.CoordsX[i] = Points[i].X;
-                mesh.CoordsY[i] = Points[i].Y;
-            }
+            mesh.CoordsX = this.coordsX;
+            mesh.CoordsY = this.coordsY;
 
             #region формирование граничных точек и линий
             //определение количества точек границы
@@ -193,17 +188,31 @@ namespace TestDelaunayGenerator
 
             //граничные точки и линии, сформированные на основе переданных точек границы (boundarySet)
             if (boundarySet != null)
+            {
+                //первый индекс граничной точки в массиве
+                int notBoundaryOffset = this.Points.Length - boundarySet.AllBoundaryPoints.Length;
+                //текущее смещение в общем массиве точек
+                int currentOffset = notBoundaryOffset;
                 foreach (Boundary boundary in boundarySet)
                 {
-                    for (int i = 0; i < boundary.BoundaryPoints.Length; i++)
+                    //индекс массива точек, обозначающий последнюю вершину текущей границы
+                    int boundaryLastId = currentOffset + boundary.BoundaryPoints.Length;
+                    for (int i = currentOffset; i < boundaryLastId; i++)
                     {
-                        int indexV1 = Array.IndexOf(this.Points, boundary.BoundaryPoints[i]);
-                        int indexV2 = Array.IndexOf(this.Points, boundary.BoundaryPoints[(i + 1) % boundary.BoundaryPoints.Length]);
-                        mesh.BoundElems[meshIndex].Vertex1 = (uint)indexV1;
-                        mesh.BoundElems[meshIndex].Vertex2 = (uint)indexV2;
-                        mesh.BoundKnots[meshIndex] = indexV1;
+                        int edgeStartId = i; //индекс точки из массива, являющейся началом ребра
+                        int edgeEndId = i + 1; //конец ребра
+                        //если выход за пределы массива,
+                        //то конечной вершиной ребра будет первая граничная точка из текущей границы
+                        if (edgeEndId == boundaryLastId)
+                            edgeEndId = currentOffset;
+
+                        mesh.BoundElems[meshIndex].Vertex1 = (uint)edgeStartId;
+                        mesh.BoundElems[meshIndex].Vertex2 = (uint)edgeEndId;
+                        mesh.BoundKnots[meshIndex] = edgeStartId;
                         meshIndex++;
                     }
+                    currentOffset += boundary.BoundaryPoints.Length;
+                }
                 }
             //граничные точки и линии, сформированные на основе всего множества точек сетки (естественным образом)
             if (boundarySet == null || boundarySet.Count % 2 == 0)
