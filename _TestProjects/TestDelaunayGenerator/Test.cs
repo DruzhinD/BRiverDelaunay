@@ -1,6 +1,5 @@
 ﻿using CommonLib;
 using CommonLib.Geometry;
-using GeometryLib.Aalgorithms;
 using GeometryLib.Vector;
 using MeshLib;
 using RenderLib;
@@ -9,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Forms;
 using Serilog;
+using TestDelaunayGenerator.Boundary;
 
 namespace TestDelaunayGenerator
 {
@@ -16,7 +16,8 @@ namespace TestDelaunayGenerator
     {
         string areaType = "none"; //тип отрисовываемой области
         IHPoint[] points = null;
-        BoundarySet boundarySet = null;
+        BoundaryContainer boundarySet = null;
+        GeneratorBase generator = new GeneratorFixed(100);
         public Test() { }
         public void CreateRestArea(int idx)
         {
@@ -31,14 +32,20 @@ namespace TestDelaunayGenerator
                     areaType = "Прямоугольник простой";
                     points = new IHPoint[]
                     {
-                        new HPoint(0, 0),
-                        new HPoint(0, 1),
-                        new HPoint(1, 1),
-                        new HPoint(1, 0),
-                        new HPoint(0.5, 0.95),
-                        new HPoint(0.5, 0.05),
+                        new HPoint(0,0),
+                        new HPoint(0,1),
+                        new HPoint(1,1),
+                        new HPoint(1,0),
+                        new HPoint(0.32,0.3),
+                        new HPoint(0.3,0.7),
+                        new HPoint(0.75,0.7),
+                        new HPoint(0.7,0.3),
+                        new HPoint(0.5,0.53),
+
+                        //new HPoint(0.5, 0.7),
 
                     };
+
                     break;
                 //Прямоугольник большой
                 case 1:
@@ -62,7 +69,7 @@ namespace TestDelaunayGenerator
                             idd = idd % dxx.Length;
                         }
 
-                    boundarySet = new BoundarySet(points);
+                    boundarySet = new BoundaryContainer(points, generator);
 
                     boundary = new IHPoint[]
                     {
@@ -102,7 +109,7 @@ namespace TestDelaunayGenerator
                         for (int j = 0; j < N; j++)
                             points[i * N + j] = new HPoint(h * i, hx * j);
                     }
-                    boundarySet = new BoundarySet(points);
+                    boundarySet = new BoundaryContainer(points, generator);
                     boundary = new IHPoint[]
                     {
                         new HPoint(0.1, 0.1),
@@ -131,7 +138,7 @@ namespace TestDelaunayGenerator
                         points = new IHPoint[samples.Count];
                         for (int i = 0; i < samples.Count; i++)
                             points[i] = new HPoint(samples[i].X, samples[i].Y);
-                        boundarySet = new BoundarySet(points);
+                        boundarySet = new BoundaryContainer(points, generator);
                         int offset = 40;
                         boundary = new IHPoint[4]
                         {
@@ -155,10 +162,11 @@ namespace TestDelaunayGenerator
                     {
                         areaType = "Случайная генерация";
                         Random rnd = new Random();
-                        this.points = new IHPoint[100 * 100];
+                        this.points = new IHPoint[N * N];
+                        (int from, int to) = (-500, 500);
                         for (int i = 0; i < this.points.Length; i++)
                         {
-                            var p = new HPoint(rnd.Next(0, 1000) * rnd.NextDouble(), rnd.Next(0, 1000) * rnd.NextDouble());
+                            var p = new HPoint(rnd.Next(from, to) * rnd.NextDouble(), rnd.Next(from, to) * rnd.NextDouble());
                             this.points[i] = p;
                         }
                         break;
@@ -171,17 +179,19 @@ namespace TestDelaunayGenerator
             Log.Information($"Выбрана область с {areaId} id | тип: {areaType}");
             DelaunayMeshGenerator delaunator = new DelaunayMeshGenerator();
 
+            bool border = boundarySet != null;
+            int boundCount = 0;
+            if (boundarySet != null)
+                boundCount = boundarySet.AllBoundaryPoints.Length;
+
             var watch = Stopwatch.StartNew();
             delaunator.Generator(points, boundarySet);
-            Log.Information($"Рассчет триангуляции {this.points.Length}шт {watch.Elapsed.TotalSeconds} сек.");
-            bool border = boundarySet != null;
-            Log.Information($"Граница:{border} | Начальное количество точек:{points.Length}шт | Колво после генерации:{delaunator.Points.Length}шт");
+            Log.Information($"Рассчет триангуляции {delaunator.Points.Length}шт ({boundCount}шт граничные, заданы вручную) {watch.Elapsed.TotalSeconds} сек.");
+            Log.Information($"Граница:{border} ({boundCount}шт) | Начальное количество точек:{points.Length}шт | Колво после генерации:{delaunator.Points.Length}шт");
 
             watch = Stopwatch.StartNew();
             IMesh mesh = delaunator.CreateMesh();
             Log.Information($"Генерация сетки (TriMesh) {delaunator.Points.Length}/{this.points.Length}шт {watch.Elapsed.TotalSeconds} сек.");
-
-            IConvexHull ch = new ConvexHull();
             ShowMesh(mesh);
         }
 

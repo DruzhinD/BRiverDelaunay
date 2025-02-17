@@ -75,8 +75,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Boundary.cs" />
-    <Compile Include="BoundarySet.cs" />
+    <Compile Include="BoundaryGen.cs" />
+    <Compile Include="Boundary\BoundaryContainer.cs" />
+    <Compile Include="Boundary\BoundaryBase.cs" />
+    <Compile Include="Boundary\GeneratorBase.cs" />
+    <Compile Include="Boundary\GeneratorFixed.cs" />
     <Compile Include="DelaunayMeshGenerator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -85,7 +88,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="SpecialSorter.cs" />
     <Compile Include="Test.cs" />
     <Compile Include="CircleDelaunayGenerator.cs" />
   </ItemGroup>
@@ -93,6 +95,8 @@
     <None Include="App.config" />
     <None Include="logs.log" />
     <None Include="packages.config" />
+    <None Include="reports\ген кв 100x100 без границы.diagsession" />
+    <None Include="reports\генерация квадрата 100х100.diagsession" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\CommonLib\CommonLib.csproj">
@@ -126,5 +130,6 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

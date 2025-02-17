@@ -16,6 +16,7 @@ namespace TestDelaunayGenerator
     using GeometryLib.Locators;
     using System.Collections.Generic;
     using GeometryLib.Vector;
+    using TestDelaunayGenerator.Boundary;
 
     /// <summary>
     /// ОО: Делоне генератор выпуклой триангуляции
@@ -115,7 +116,7 @@ namespace TestDelaunayGenerator
         /// </summary>
         private int hullStart;
         /// <summary>
-        /// Количество узлов в оболочке
+        /// Количество узлов, образующих выпуклую оболочку
         /// </summary>
         private int CountHullKnots;
 
@@ -131,7 +132,7 @@ namespace TestDelaunayGenerator
         /// <summary>
         /// Содержит группы массивов координат входных точек 
         /// </summary>
-        public BoundarySet boundarySet;
+        public BoundaryContainer boundarySet;
         /// <summary>
         /// включить множество границ в область построения
         /// </summary>
@@ -163,9 +164,9 @@ namespace TestDelaunayGenerator
                 {
                     tri.Add(new TriElement((uint)i0, (uint)i1, (uint)i2));
                 }
+                    //tri.Add(new TriElement((uint)i0, (uint)i1, (uint)i2));
             }
 
-            //TODO зачем выделять память снова?
             //сохраняем все треугольники сетки в объект сетки
             mesh.AreaElems = tri.ToArray();
             mesh.CoordsX = this.coordsX;
@@ -193,10 +194,10 @@ namespace TestDelaunayGenerator
                 int notBoundaryOffset = this.Points.Length - boundarySet.AllBoundaryPoints.Length;
                 //текущее смещение в общем массиве точек
                 int currentOffset = notBoundaryOffset;
-                foreach (Boundary boundary in boundarySet)
+                foreach (BoundaryBase boundary in boundarySet)   
                 {
                     //индекс массива точек, обозначающий последнюю вершину текущей границы
-                    int boundaryLastId = currentOffset + boundary.BoundaryPoints.Length;
+                    int boundaryLastId = currentOffset + boundary.Length;
                     for (int i = currentOffset; i < boundaryLastId; i++)
                     {
                         int edgeStartId = i; //индекс точки из массива, являющейся началом ребра
@@ -211,9 +212,9 @@ namespace TestDelaunayGenerator
                         mesh.BoundKnots[meshIndex] = edgeStartId;
                         meshIndex++;
                     }
-                    currentOffset += boundary.BoundaryPoints.Length;
+                    currentOffset += boundary.Length;
                 }
-                }
+            }
             //граничные точки и линии, сформированные на основе всего множества точек сетки (естественным образом)
             if (boundarySet == null || boundarySet.Count % 2 == 0)
                 for (int i = 0; i < CountHullKnots; i++)
@@ -234,7 +235,7 @@ namespace TestDelaunayGenerator
         /// <summary>
         /// Генерация
         /// </summary>
-        public void Generator(IHPoint[] points, BoundarySet boundSet = null)
+        public void Generator(IHPoint[] points, BoundaryContainer boundSet = null)
         {
             //базовая проверка для множества точек
             if (points is null || points.Length < 3)
@@ -245,7 +246,6 @@ namespace TestDelaunayGenerator
             if (this.boundarySet != null)
                 this.IncludeBoundary();
 
-            hashSize = (int)Math.Ceiling(Math.Sqrt(Points.Length)); //размер хэш-пространства
             //выделение памяти
             MEM.Alloc(Points.Length, ref mark, value:true);
 
@@ -287,8 +287,8 @@ namespace TestDelaunayGenerator
             MEM.Alloc(Points.Length, ref hullTri);
             MEM.Alloc(Points.Length, ref ids);
             MEM.Alloc(Points.Length, ref dists);
-            //MEM.Alloc(Points.Length, ref mark, true);
-            MEM.Alloc(Points.Length, ref hullHash);
+            hashSize = (int)Math.Ceiling(Math.Sqrt(Points.Length)); //размер хэш-пространства
+            MEM.Alloc(hashSize, ref hullHash);
 
             //заполняем массивы хранящие значения X, Y и метку отрисовки точки
             for (var i = 0; i < Points.Length; i++)
@@ -343,7 +343,7 @@ namespace TestDelaunayGenerator
             minDist = double.PositiveInfinity;
             for (int i = 0; i < Points.Length; i++)
             {
-                if (mark[i] == false) continue;
+                //if (mark[i] == false) continue;
                 double d = Dist(i);
                 if (d < minDist)
                 {
@@ -356,7 +356,7 @@ namespace TestDelaunayGenerator
             for (int i = 0; i < Points.Length; i++)
             {
                 if (i == i0) continue;
-                if (mark[i] == false) continue;
+                //if (mark[i] == false) continue;
                 double d = Dist(i0, i);
                 if (d < minDist && d > 0)
                 {
@@ -369,7 +369,7 @@ namespace TestDelaunayGenerator
             for (int i = 0; i < Points.Length; i++)
             {
                 if (i == i0 || i == i1) continue;
-                if (mark[i] == false) continue;
+                //if (mark[i] == false) continue;
                 double r = Circumradius(i);
                 if (r < minRadius)
                 {
@@ -433,21 +433,20 @@ namespace TestDelaunayGenerator
             #endregion
 
             #region Поиск выпуклой оболочки и триангуляция
+            //TODO можно игнорировать первые 3 узла, т.к. составляют начальную оболочку
             // Поиск выпуклой оболочки и триангуляция
-            for (var k = 0; k < ids.Length; k++)
+            //узлы, составляющие начальную оболочку (первые 3) не учитываются
+            for (var k = 3; k < ids.Length; k++)
+            //for (var k = 0; k < ids.Length; k++)
             {
                 // добавление текущего k - го узла
                 int i = ids[k];
-                // узлы за границей контура                
-                if (mark[i] == false)
-                    continue;
-                // игнорировать  начальные точки треугольника
-                if (i == i0 || i == i1 || i == i2)
-                    continue;
+
                 // поиск  края видимой выпуклой оболочки, используя хэш ребра
+                //ближайший узел к текущему на выпуклой оболочке
                 int start = 0;
                 // поиск близкого узла на выпуклой оболочке 
-                // по псевдо углу хеширования  
+                // по псевдо углу хеширования
                 for (int j = 0; j < hashSize; j++)
                 {
                     int key = HashKey(i);
@@ -460,6 +459,7 @@ namespace TestDelaunayGenerator
                 int q = hullNext[e];
                 // проверка видимости найденного стартового узла и возможности
                 // построения новых треугольников на оболочке
+                //true - грань видима для добавляемой точки
                 while (Orient(i, e, q) == false)
                 {
                     e = q;
@@ -482,7 +482,9 @@ namespace TestDelaunayGenerator
                 //     \       /
                 //  -1  \     / -1
                 //       \   /
-                //         i        
+                //         i
+                
+                //индекс первой вершины треугольника в массиве треугольников
                 int t = AddTriangle(e, i, hullNext[e], -1, -1, hullTri[e]);
                 // рекурсивная перестройки треугольников от точки к точке,
                 // пока они не удовлетворят условию Делоне
@@ -498,8 +500,6 @@ namespace TestDelaunayGenerator
                 /// при движении вперед по контуру 
                 while (Orient(i, nextW, nextE) == true)
                 {
-                    //if (CheckIn(nextW, i, nextE) == false)
-                    //    break;
                     // если nextW - hullNext[nextW] - на видимой границе оболочки
                     //  добавьте первый треугольник от точки i
                     //
@@ -529,8 +529,6 @@ namespace TestDelaunayGenerator
                     int prewW = hullPrev[prewE];
                     while (Orient(i, prewW, prewE) == true)
                     {
-                        //if (CheckIn(prewW, i, prewE) == false)
-                        //    break;
                         //  если prewW  - prewE - на видимой границе оболочки
                         //  добавьте первый треугольник от точки i
                         //
@@ -614,7 +612,8 @@ namespace TestDelaunayGenerator
 
         #region CreationLogic
         /// <summary>
-        /// знак верктоного произведения построенного на касательных к двум граням
+        /// знак верктоного произведения построенного на касательных к двум граням. <br/>
+        /// Используется для проверки угла на выпуклость, т.е. true - угол < 180
         /// </summary>
         /// <param name="i"></param>
         /// <param name="q"></param>
@@ -629,8 +628,8 @@ namespace TestDelaunayGenerator
         /// рекурсивная перестройки треугольников от точки к точке,
         /// пока они не удовлетворят условию Делоне 
         /// </summary>
-        /// <param name="a"></param>
-        /// <returns></returns>
+        /// <param name="EdgeA_ID">индекс 3-ей вершины треугольника в массиве Triangles</param>
+        /// <returns>индекс 2-ой (средней) вершины треугольника</returns>
         private int Legalize(int EdgeA_ID)
         {
             var i = 0;
@@ -647,7 +646,7 @@ namespace TestDelaunayGenerator
                 // переверните их против часовой стрелки.
                 // Выполните ту же проверку рекурсивно для новой пары
                 // треугольников
-                // 
+                //                                    triA
                 //            pl                       pl
                 //           /||\                     /  \
                 //        al/ || \bl               al/    \EdgeA_ID
@@ -658,12 +657,13 @@ namespace TestDelaunayGenerator
                 //        ar\ || /br         EdgeB_ID\    /br
                 //           \||/                     \  /
                 //            pr                       pr
-                //
+                //                                    triB
 
-                // адрес - смешение для 1 треугольника
+                // адрес - смешение для 1 треугольника (1-ый индекс в треугольнике)
                 int triA_ID = EdgeA_ID - EdgeA_ID % 3;
                 ar = triA_ID + (EdgeA_ID + 2) % 3;
 
+                //если смежный треугольник не был найден (т.е. -1), то достаем следующий из стека
                 if (EdgeB_ID == -1)
                 {
                     // граница выпуклой оболочки 
@@ -678,10 +678,11 @@ namespace TestDelaunayGenerator
                 int triB_ID = EdgeB_ID - EdgeB_ID % 3;
                 int bl = triB_ID + (EdgeB_ID + 2) % 3;
 
+                //индексы вершин двух смежных треугольников
                 int p0 = Triangles[ar];
                 int pr = Triangles[EdgeA_ID];
                 int pl = Triangles[al];
-                int p1 = Triangles[bl];
+                int p1 = Triangles[bl]; //вершина смежного треугольника
 
                 bool illegal = InCircle(p0, pr, pl, p1);
                 if (illegal)
@@ -712,6 +713,7 @@ namespace TestDelaunayGenerator
                     // произойти только при крайне вырожденном вводе
                     if (i < EdgeStack.Length)
                     {
+                        //помещаем середину второго треугольника полученного при флипе
                         EdgeStack[i++] = triB_ID + (EdgeB_ID + 1) % 3;
                     }
                     else
@@ -733,10 +735,10 @@ namespace TestDelaunayGenerator
         /// <summary>
         /// принадлежность узла кругу проведенному через три точки
         /// </summary>
-        /// <param name="i"></param>
-        /// <param name="j"></param>
-        /// <param name="k"></param>
-        /// <param name="n"></param>
+        /// <param name="i">V1</param>
+        /// <param name="j">V2</param>
+        /// <param name="k">V3</param>
+        /// <param name="n">проверяемый узел, не должен входить в окружность</param>
         /// <returns></returns>
         private bool InCircle(int i, int j, int k, int n)
         {
@@ -789,12 +791,14 @@ namespace TestDelaunayGenerator
         /// Получение хеш индекса через псевдо угол точки относительно 
         /// начального центра триангуляции
         /// </summary>
-        /// <param name="idx"></param>
+        /// <param name="idx">индекс точки в исходном массиве</param>
         /// <returns></returns>
         private int HashKey(int idx)
         {
-            return ((int)(PseudoAngle(coordsX[idx] - cx,
-                coordsY[idx] - cy) * hashSize) % hashSize);
+            //разность координат между текущей точкой и центром триангуляции требуется для того,
+            //чтобы принять центр триангуляции за центр координат
+            return (int)(PseudoAngle(coordsX[idx] - cx,
+                coordsY[idx] - cy) * hashSize) % hashSize;
         }
         /// <summary>
         /// определение квадрата радиуса окружности проходящей через 3 точки
@@ -839,9 +843,9 @@ namespace TestDelaunayGenerator
         /// <summary>
         /// Вычисление псевдо угола точки 
         /// </summary>
-        /// <param name="dx"></param>
-        /// <param name="dy"></param>
-        /// <returns></returns>
+        /// <param name="dx">отклонение точки от центра координат по оси Х</param>
+        /// <param name="dy">отклонение точки от центра координат по оси Y</param>
+        /// <returns>псевно угол (упрощенная альтернатива полярному углу)</returns>
         private static double PseudoAngle(double dx, double dy)
         {
             var p = dx / (Math.Abs(dx) + Math.Abs(dy));
@@ -951,27 +955,16 @@ namespace TestDelaunayGenerator
             int crossCount = 0;
             //метод - хелпер, помогающий отрисовать невыпуклый контур
             //в цикле подсчитывается количество пересечений с границей области
-            foreach (Boundary boundary in boundarySet)
-                for (int k = 0; k < boundary.BoundaryVertex.Length; k++)
+            foreach (BoundaryBase boundary in boundarySet)
+                for (int k = 0; k < boundary.Vertexes.Length; k++)
                 {
                     if (CrossLine.IsCrossing(
-                        (HPoint)boundary.BoundaryVertex[k],
-                        (HPoint)boundary.BoundaryVertex[(k + 1) % boundary.BoundaryVertex.Length],
+                        (HPoint)boundary.Vertexes[k],
+                        (HPoint)boundary.Vertexes[(k + 1) % boundary.Vertexes.Length],
                          (HPoint)externalPoint,
                          Point) == true)
                         crossCount += 1;
                 }
-            //for (int k = 0; k < boundary.Length; k++)
-            //{
-            //    if (CrossLine.IsCrossing(
-            //        (HPoint)boundary[k],
-            //        (HPoint)boundary[(k + 1) % boundary.Length],
-            //         (HPoint)externalPoint,
-            //         Point) == true)
-            //        crossCount += 1;
-            //}
-            //входит в область % 2 == 1 (в данном случае инверсия, поэтому наоборот)
-            //return !(crossCount % 2 == 1);
             return (crossCount % 2 == 1);
         }
 
@@ -981,7 +974,7 @@ namespace TestDelaunayGenerator
         /// <returns>True - линия пересекает границу</returns>
         bool InArea(HPoint p1, HPoint p2)
         {
-            foreach (Boundary boundary in boundarySet)
+            foreach (BoundaryBase boundary in boundarySet)
                 for (int k = 0; k < boundary.Length; k++)
                 {
                     if (CrossLine.AreLinesIntersecting(
@@ -1019,7 +1012,8 @@ namespace TestDelaunayGenerator
             }
             //хотя бы 1 вершина треугольника не является граничным узлом
             else
-                return (mark[i] && mark[j] && mark[k]);
+                //return (mark[i] && mark[j] && mark[k]);
+                return true;
 
 
             //проверка на пересечение ребер треугольника с границей

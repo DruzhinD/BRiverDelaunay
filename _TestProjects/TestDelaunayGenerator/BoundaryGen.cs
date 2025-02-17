@@ -1,13 +1,14 @@
 ﻿using CommonLib.Geometry;
 using System;
 using System.Collections.Generic;
+using TestDelaunayGenerator.Boundary;
 
 namespace TestDelaunayGenerator
 {
     /// <summary>
     /// формирует множество граничных точек области построения
     /// </summary>
-    public class Boundary
+    public class BoundaryGen
     {
         public IHPoint this[int index]
         {
@@ -50,7 +51,7 @@ namespace TestDelaunayGenerator
         /// </summary>
         /// <param name="boundary">вершины границы</param>
         /// <param name="avgDistance">среднее расстояние между точками области построения (optional)</param>
-        public Boundary(IHPoint[] boundary, double avgDistance = 0)
+        public BoundaryGen(IHPoint[] boundary, double avgDistance = 0)
         {
             this.boundaryVertex = boundary;
             AvgDistance = avgDistance;
@@ -62,9 +63,9 @@ namespace TestDelaunayGenerator
         /// <param name="boundaryVertexes"></param>
         /// <returns></returns>
         [Obsolete()]
-        public static Boundary Generate(IHPoint[] boundaryVertexes)
+        public static BoundaryGen Generate(IHPoint[] boundaryVertexes)
         {
-            Boundary boundary = new Boundary(boundaryVertexes);
+            BoundaryGen boundary = new BoundaryGen(boundaryVertexes);
             boundary.InitializeBoundary();
             return boundary;
         }
@@ -95,6 +96,13 @@ namespace TestDelaunayGenerator
             boundaryPoints = points.ToArray();
         }
 
+        //public IHPoint[] InitializeBoundary(GeneratorBase generator)
+        //{
+        //    if (this.boundaryPoints is null)
+        //        boundaryPoints = generator.Generate(this);
+        //    return boundaryPoints;
+        //}
+
         /// <summary>
         /// добавить новые точки между 2 вершинами
         /// </summary>
@@ -102,7 +110,7 @@ namespace TestDelaunayGenerator
         void AddPointsBetweenVertexes(List<IHPoint> points, IHPoint v1, IHPoint v2)
         {
             //по умолчанию добавляется фикс колиество точек
-            int amountNewPoints = 30;
+            int amountNewPoints = 100;
             //если задано среднее расстояние между точками,
             //то на его основе формируем новые граничные точки
             if (AvgDistance > 0)

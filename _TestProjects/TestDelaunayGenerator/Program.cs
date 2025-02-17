@@ -14,7 +14,7 @@ namespace TestDelaunayGenerator
         {
             //настройка логгера
             LoggerConfig();
-            Log.Information("Запуск проекта .NET Framework 4.8");
+            Log.Information("Запуск проекта .NET Framework 4.8.");
             while (true)
             {
                 Test test = new Test();

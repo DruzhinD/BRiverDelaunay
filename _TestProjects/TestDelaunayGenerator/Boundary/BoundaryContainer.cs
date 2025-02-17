@@ -3,15 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using TestDelaunayGenerator.Boundary;
 
 namespace TestDelaunayGenerator
 {
     /// <summary>
-    /// Множество границ
+    /// Контейнер-генератор множества областей, представляющих границу
     /// </summary>
-    public class BoundarySet
+    public class BoundaryContainer
     {
-        List<Boundary> boundaries = new List<Boundary>();
+        List<BoundaryBase> boundaries = new List<BoundaryBase>();
 
         public int Count => boundaries.Count;
 
@@ -23,14 +24,8 @@ namespace TestDelaunayGenerator
         {
             get
             {
-                if (_allBounaries != null)
-                    return _allBounaries;
-                List<IHPoint> boundaryPoints = new List<IHPoint>();
-                foreach (Boundary boundary in boundaries)
-                {
-                    boundaryPoints.AddRange(boundary.BoundaryPoints);
-                }
-                _allBounaries = boundaryPoints.ToArray();
+                if (_allBounaries is null)
+                    this.IntializeContainer();
                 return _allBounaries;
             }
         }
@@ -40,26 +35,27 @@ namespace TestDelaunayGenerator
         /// </summary>
         readonly IHPoint[] _basePoints;
 
+        protected readonly GeneratorBase generator;
+
         /// <summary>
         /// Контейнер для границ области триангуляции
         /// </summary>
         /// <param name="basePoints">точки области триангуляции</param>
-        
-        public BoundarySet(IHPoint[] basePoints)
+        public BoundaryContainer(IHPoint[] basePoints, GeneratorBase generator)
         {
             this._basePoints = basePoints;
+            this.generator = generator;
         }
 
-        double avg = 0;
 
         public void Add(IHPoint[] vertexes)
         {
-            Boundary boundary = new Boundary(vertexes, avg);
+            BoundaryBase boundary = new BoundaryBase(vertexes, this._basePoints);
             boundaries.Add(boundary);
         }
 
         //генератор
-        public IEnumerator<Boundary> GetEnumerator()
+        public IEnumerator<BoundaryBase> GetEnumerator()
         {
             for (int i = 0; i < boundaries.Count; i++)
             {
@@ -68,7 +64,7 @@ namespace TestDelaunayGenerator
         }
 
         /// <summary>
-        /// Получить индекс границы, которой принадлежт точка
+        /// Получить индекс границы, которой принадлежит точка
         /// </summary>
         /// <param name="point"></param>
         /// <returns>-1 если точка не принадлежит границе</returns>
@@ -76,11 +72,22 @@ namespace TestDelaunayGenerator
         {
             for (int i = 0; i < boundaries.Count; ++i)
             {
-                if (Array.IndexOf(boundaries[i].BoundaryPoints, point) != -1)
+                if (Array.IndexOf(boundaries[i].Points, point) != -1)
                     return i;
             }
             return -1;
 
+        }
+
+        protected void IntializeContainer()
+        {
+            List<IHPoint> boundaryPoints = new List<IHPoint>(2);
+            foreach (BoundaryBase boundary in boundaries)
+            {
+                boundaryPoints.AddRange(
+                    boundary.Initialize(this.generator));
+            }
+            _allBounaries = boundaryPoints.ToArray();
         }
     }
 }
