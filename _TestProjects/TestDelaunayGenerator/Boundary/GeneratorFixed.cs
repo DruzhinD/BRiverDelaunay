@@ -20,7 +20,7 @@ namespace TestDelaunayGenerator.Boundary
         /// <exception cref="ArgumentException"></exception>
         public GeneratorFixed(int fixedByEdge = 30)
         {
-            if (fixedByEdge <= 0)
+            if (fixedByEdge < 0)
                 throw new ArgumentException($"недопустимое значение Для {nameof(fixedByEdge)} ({fixedByEdge})");
             this.fixedByEdge = fixedByEdge;
         }

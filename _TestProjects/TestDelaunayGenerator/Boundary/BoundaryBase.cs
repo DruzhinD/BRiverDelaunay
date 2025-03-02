@@ -44,7 +44,10 @@ namespace TestDelaunayGenerator.Boundary
         /// Общее количество граничных точек
         /// </summary>
         public int Length => points.Length;
-        
+
+        protected int[] vertexesIds = null;
+        public int[] VertexesIds => vertexesIds;
+
         /// <summary>
         /// Инициализация границы, генерация точек между вершинами, образующими оболочку границы
         /// </summary>
@@ -53,6 +56,22 @@ namespace TestDelaunayGenerator.Boundary
         public IHPoint[] Initialize(GeneratorBase generator)
         {
             this.points = generator.Generate(this);
+            
+            //сохраняем индексы вершин, образующих область
+            vertexesIds = new int[this.Vertexes.Length];
+            int currentVertexId = 0;
+            for (int i = 0; i < points.Length; i++)
+            {
+                //if (Vertexes[currentVertexId] == points[i])
+                if (Vertexes[currentVertexId].X == points[i].X && Vertexes[currentVertexId].Y == points[i].Y)
+                {
+                    vertexesIds[currentVertexId] = i;
+                    currentVertexId++;
+                    if (currentVertexId == vertexesIds.Length)
+                        break;
+                }
+            }
+
             return this.points;
         }
 

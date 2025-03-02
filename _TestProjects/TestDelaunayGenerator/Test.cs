@@ -40,11 +40,29 @@ namespace TestDelaunayGenerator
                         new HPoint(0.3,0.7),
                         new HPoint(0.75,0.7),
                         new HPoint(0.7,0.3),
-                        new HPoint(0.5,0.53),
+                        new HPoint(0.6,0.58),
 
                         //new HPoint(0.5, 0.7),
 
                     };
+                    generator = new GeneratorFixed(0);
+                    boundarySet = new BoundaryContainer(points, generator);
+                    boundary = new IHPoint[]
+                    {
+                        new HPoint(0.4, 0.4),
+                        new HPoint(0.4, 0.6),
+                        new HPoint(0.52,0.52),
+                        new HPoint(0.6, 0.4),
+                    };
+                    boundarySet.Add(boundary);
+                    boundary = new IHPoint[]
+                    {
+                        new HPoint(-0.1, -0.1),
+                        new HPoint(-0.1, 1.1),
+                        new HPoint(1.1, 1.1),
+                        new HPoint(1.1, -0.1),
+                    };
+                    boundarySet.Add(boundary);
 
                     break;
                 //Прямоугольник большой
@@ -89,15 +107,15 @@ namespace TestDelaunayGenerator
                         new HPoint(0.7, 0.3),
                     };
                     boundarySet.Add(boundary);
-
-                    boundary = new IHPoint[]
-                    {
-                        new HPoint(0.0+0.01, 0.0+0.01),
-                        new HPoint(0.0+0.01, 1.0-0.01),
-                        new HPoint(1.0-0.01, 1.0-0.01),
-                        new HPoint(1.0-0.01, 0.0+0.01),
-                    };
-                    boundarySet.Add(boundary);
+                    
+                    //boundary = new IHPoint[]
+                    //{
+                    //    new HPoint(0.2, 0.25),
+                    //    new HPoint(0.4, 0.4),
+                    //    new HPoint(0.5, 0.4),
+                    //    new HPoint(0.7, 0.25),
+                    //};
+                    //boundarySet.Add(boundary);
                     break;
                 //Трапеция
                 case 2:
@@ -182,7 +200,7 @@ namespace TestDelaunayGenerator
             bool border = boundarySet != null;
             int boundCount = 0;
             if (boundarySet != null)
-                boundCount = boundarySet.AllBoundaryPoints.Length;
+                boundCount = boundarySet.AllBoundaryKnots.Length;
 
             var watch = Stopwatch.StartNew();
             delaunator.Generator(points, boundarySet);

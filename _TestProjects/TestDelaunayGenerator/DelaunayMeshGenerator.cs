@@ -126,6 +126,13 @@ namespace TestDelaunayGenerator
         IHPoint externalPoint;
 
         /// <summary>
+        /// 0 - треугольник не принадлежит области
+        /// 1 - треугольник принадлежит области
+        /// 2 - треугольник еще не обработан
+        /// </summary>
+        protected byte[] isRelated = null;
+
+        /// <summary>
         /// ОО: Делоне генератор выпуклой триангуляции
         /// </summary>
         public DelaunayMeshGenerator() { }
@@ -138,7 +145,7 @@ namespace TestDelaunayGenerator
         /// </summary>
         void IncludeBoundary()
         {
-            IHPoint[] boundary = boundarySet.AllBoundaryPoints;
+            IHPoint[] boundary = boundarySet.AllBoundaryKnots;
             int exPointsLength = this.Points.Length;
             Array.Resize(ref this.Points, Points.Length + boundary.Length);
             boundary.CopyTo(this.Points, exPointsLength);
@@ -155,17 +162,21 @@ namespace TestDelaunayGenerator
             int CountElems = Triangles.Length / 3;
             MEM.Alloc(CountElems, ref mesh.AreaElems);
             List<TriElement> tri = new List<TriElement>();
+
+            MEM.Alloc(CountElems, ref isRelated, (byte)2);
             for (int i = 0; i < CountElems; i++)
             {
+                
                 int i0 = Triangles[3 * i];
                 int i1 = Triangles[3 * i + 1];
                 int i2 = Triangles[3 * i + 2];
-                if (CheckIn(i0, i1, i2) == true)
+                if (CheckIn(i) == true)
                 {
                     tri.Add(new TriElement((uint)i0, (uint)i1, (uint)i2));
                 }
-                    //tri.Add(new TriElement((uint)i0, (uint)i1, (uint)i2));
+                //tri.Add(new TriElement((uint)i0, (uint)i1, (uint)i2));
             }
+            Console.WriteLine(curseCounter);
 
             //сохраняем все треугольники сетки в объект сетки
             mesh.AreaElems = tri.ToArray();
@@ -176,7 +187,7 @@ namespace TestDelaunayGenerator
             //определение количества точек границы
             int boundaryPointsAmount;
             if (boundarySet != null)
-                boundaryPointsAmount = this.boundarySet.AllBoundaryPoints.Length + CountHullKnots;
+                boundaryPointsAmount = this.boundarySet.AllBoundaryKnots.Length + CountHullKnots;
             else
                 boundaryPointsAmount = CountHullKnots;
 
@@ -191,7 +202,7 @@ namespace TestDelaunayGenerator
             if (boundarySet != null)
             {
                 //первый индекс граничной точки в массиве
-                int notBoundaryOffset = this.Points.Length - boundarySet.AllBoundaryPoints.Length;
+                int notBoundaryOffset = this.Points.Length - boundarySet.AllBoundaryKnots.Length;
                 //текущее смещение в общем массиве точек
                 int currentOffset = notBoundaryOffset;
                 foreach (BoundaryBase boundary in boundarySet)   
@@ -215,6 +226,7 @@ namespace TestDelaunayGenerator
                     currentOffset += boundary.Length;
                 }
             }
+            //TODO убрать вовсе или изменить логику
             //граничные точки и линии, сформированные на основе всего множества точек сетки (естественным образом)
             if (boundarySet == null || boundarySet.Count % 2 == 0)
                 for (int i = 0; i < CountHullKnots; i++)
@@ -266,7 +278,7 @@ namespace TestDelaunayGenerator
             {
                 //выполняем проверку точек вплоть до последней точки из НАЧАЛЬНОГО массива (Points),
                 //т.к. массив точек ДОПОЛНЕН массивом граничных точек
-                for (var i = 0; i < Points.Length - this.boundarySet.AllBoundaryPoints.Length; i++)
+                for (var i = 0; i < Points.Length - this.boundarySet.AllBoundaryKnots.Length; i++)
                 {
                     // Проверяем, входит ли точка в сетку или же её необходимо исключить
                     mark[i] = InArea(i);
@@ -314,32 +326,42 @@ namespace TestDelaunayGenerator
                 i => string.Format("{0};{1}", Points[i].X, Points[i].Y));
                 return string.Join("|", stringCoords);
             }
-            /*
-            //TODO искать все 3 точки сразу, в одном цикле относительно центра тяжести области
-            // выбираем начальную точку ближе к центру
-            for (int i = 0; i < Points.Length; i++)
-            {
-                if (!mark[i]) continue;
-                double curDist = Dist(i);
-                //Console.WriteLine(curDist);
-                if (curDist < minDist)
-                {
-                    i2 = i1;
-                    i1 = i0;
-                    i0 = i;
-                    minDist = curDist;
-                }
-            }
-            
-            minRadius = Circumradius(i2);
 
-            int[] seedTriangleIds = { i0, i1, i2 };
-            Console.WriteLine($"Координаты центра: {cx};{cy}");
-            Console.WriteLine($"Новый способ: {string.Join(", ", seedTriangleIds)}");
-            Console.WriteLine($"Координаты: {ToStringCoords(seedTriangleIds)}");
-            */
+            ////TODO искать все 3 точки сразу, в одном цикле относительно центра тяжести области
+            //// выбираем начальную точку ближе к центру
+            //var curDists = new double[3] {
+            //double.PositiveInfinity,
+            //double.PositiveInfinity,
+            //double.PositiveInfinity,
+            //}; //0 - расстояние до i0, 2 - расстояние до i2
+            //for (int i = 0; i < Points.Length; i++)
+            //{
+            //    //if (!mark[i]) continue;
+            //    double curDist = Dist(i);
+            //    //Console.WriteLine(curDist);
+            //    //if (curDist < minDist)
+            //    if (curDist < curDists[2])
+            //    {
+            //        i2 = i1;
+            //        i1 = i0;
+            //        i0 = i;
+            //        curDists[2] = curDists[1];
+            //        curDists[1] = curDists[0];
+            //        curDists[0] = curDist;
+            //        minDist = curDist;
+            //    }
+            //}
+
+            //minRadius = Circumradius(i2);
+
+            //int[] seedTriangleIds = { i0, i1, i2 };
+            //Console.WriteLine($"Координаты центра: {cx};{cy}");
+            //Console.WriteLine($"Новый способ: {string.Join(", ", seedTriangleIds)}");
+            //Console.WriteLine($"Координаты: {ToStringCoords(seedTriangleIds)}");
+
             #endregion
 
+            #region старый способ определение нач оболочки
             minDist = double.PositiveInfinity;
             for (int i = 0; i < Points.Length; i++)
             {
@@ -381,6 +403,7 @@ namespace TestDelaunayGenerator
             //int[] oldTriangleIds = { i0, i1, i2 };
             //Console.WriteLine($"Старый: {string.Join(", ", oldTriangleIds)}");
             //Console.WriteLine($"Координаты: {ToStringCoords(oldTriangleIds)}");
+            #endregion
 
             if (minRadius == double.PositiveInfinity)
             {
@@ -994,45 +1017,112 @@ namespace TestDelaunayGenerator
         /// args: индексы вершин треугольника
         /// </summary>
         /// <returns>True - точка принадлежит области</returns>
-        private bool CheckIn(int i, int j, int k)
+        private bool CheckIn(int triangleId)
         {
-            //i == 10121 || i == 10119 || i == 1462 //good
-            //i == 10138 || i == 10137 || i == 10102
             //если граница не определена, то помечаем точку, как входящую в сетку
-            if (boundarySet == null) return true;
+            if (boundarySet is null) return true;
 
-            //вершины треугольника являются граничными узлами
-            int indexMaxNotBoundaryPoint = Points.Length - boundarySet.AllBoundaryPoints.Length - 1;
-            if (i > indexMaxNotBoundaryPoint && j > indexMaxNotBoundaryPoint && k > indexMaxNotBoundaryPoint)
-            {
-                double ctx = (coordsX[i] + coordsX[j] + coordsX[k]) / 3;
-                double cty = (coordsY[i] + coordsY[j] + coordsY[k]) / 3;
-                HPoint ctri = new HPoint(ctx, cty);
-                return InArea(ctri);
-            }
-            //хотя бы 1 вершина треугольника не является граничным узлом
-            else
-                //return (mark[i] && mark[j] && mark[k]);
+            //вершины треугольника
+            (int i, int j, int k) =
+                (Triangles[triangleId * 3], Triangles[triangleId * 3 + 1], Triangles[triangleId * 3 + 2]);
+
+
+            //если ранее "статус" треугольника был определен
+            if (isRelated[triangleId] == 0)
+                return false;
+            else if (isRelated[triangleId] == 1)
                 return true;
 
-
-            //проверка на пересечение ребер треугольника с границей
-            /*
-            int[] pointIds = new int[]
+            //хотя бы 1 узел не принадлежит границе
+            int indexMaxNotBoundaryPoint = Points.Length - boundarySet.AllBoundaryKnots.Length - 1;
+            if (i <= indexMaxNotBoundaryPoint || j <= indexMaxNotBoundaryPoint || k <= indexMaxNotBoundaryPoint)
             {
-                i, j, k
-            };
-            for (int d = 0; d < pointIds.Length; d++)
-            {
-                int pId = pointIds[d];
-                int next = pointIds[(d + 1) % pointIds.Length];
-                HPoint p1 = new HPoint(coordsX[pId], coordsY[pId]);
-                HPoint p2 = new HPoint(coordsX[next], coordsY[next]);
-                if (InArea(p1, p2))
-                    return false;
+                isRelated[triangleId] = 1; //сохраняем треугольник, как входящий в область
+                return true;
             }
-            return true;
-            */
+            curseCounter++;
+            //текущий треугольник построен на граничных узлах
+            //вычисляем принадлежность треугольника области
+            double ctx = (coordsX[i] + coordsX[j] + coordsX[k]) / 3;
+            double cty = (coordsY[i] + coordsY[j] + coordsY[k]) / 3;
+            HPoint ctri = new HPoint(ctx, cty);
+            bool isInArea = InArea(ctri);
+            //формируем значение
+            byte relatedValue = 0;
+            if (isInArea)
+                relatedValue = 1;
+            //запускаем заражение
+            RecursiveFillTriangleRelated(triangleId, triangleId, relatedValue);
+            //isRelated[triangleId] = relatedValue;
+            return isInArea;
+        }
+
+        int curseCounter = 0;
+
+
+        void RecursiveFillTriangleRelated(int exAdjacentVertexId, int triangleId, byte value)
+        {
+            //вершины треугольника
+            (int i, int j, int k) = (Triangles[triangleId * 3], Triangles[triangleId * 3 + 1], Triangles[triangleId * 3 + 2]);
+
+            //базовый случай рекурсии, достигли треугольника, не построенного на граничных узлах
+            int idLastNotBoundary = Points.Length - boundarySet.AllBoundaryKnots.Length - 1;
+            if (i <= idLastNotBoundary || j <= idLastNotBoundary || k <= idLastNotBoundary)
+                return;
+            //или треугольник уже обработан
+            else if (isRelated[triangleId] != 2)
+                return;
+
+            ////проверяем принадлежит ли смежное ребро границе
+            //int curHalfEdge = HalfEdges[exAdjacentVertexId];
+            //int exVertex = Triangles[exAdjacentVertexId];
+            //int currentAdjacentId = Triangles[curHalfEdge];
+            //for (int boundId = 0; boundId < boundarySet.Count; boundId++)
+            //{
+            //    //
+            //    int offset = boundarySet.GetBoundaryOffset(boundId);
+            //    int nextOffset = boundarySet.AllBoundaryKnots.Length;
+            //    if (boundId < boundarySet.Count - 1)
+            //        nextOffset = boundarySet.GetBoundaryOffset(boundId+1);
+
+            //    BoundaryBase boundary = boundarySet[boundId];
+            //    int[] edgesVertexesIds = new int[boundary.Vertexes.Length + 1];
+            //    for (int edgeVertexId = 0; edgeVertexId < boundary.VertexesIds.Length; edgeVertexId++)
+            //        edgesVertexesIds[edgeVertexId] = idLastNotBoundary + 1 + offset + boundary.VertexesIds[edgeVertexId];
+            //    edgesVertexesIds[edgesVertexesIds.Length - 1] = idLastNotBoundary + 1 + nextOffset - 1;
+                
+            //    int cnter = 0;
+            //    for (int edgeId = 0; edgeId < edgesVertexesIds.Length-1; edgeId++)
+            //    {
+            //        if (edgesVertexesIds[edgeId] <= exVertex && (exVertex <= edgesVertexesIds[edgeId + 1] || exVertex == edgesVertexesIds[0]))
+            //            cnter++;
+            //        if (edgesVertexesIds[edgeId] <= currentAdjacentId && (currentAdjacentId <= edgesVertexesIds[edgeId + 1] || currentAdjacentId == edgesVertexesIds[0]))
+            //            cnter++;
+
+            //        //обе вершины ребра текущего треугольника принадлежат одному ребру той же границы
+            //        if (cnter == 2)
+            //            return;
+            //        //вершины текущего треугольника находятся на разных граничных ребрах
+            //        else if (cnter == 1)
+            //            break;
+
+            //    }
+            //}
+
+            //записываем флаг принадлежности треугольника области
+            isRelated[triangleId] = value;
+
+            //заражаем следующие 3 треугольника
+            for (int vertex = triangleId*3; vertex < triangleId*3 + 3; vertex++)
+            //foreach (int vertex in triangleIds)
+            {
+                int halfEdge = HalfEdges[vertex];
+                //пропускаем случаи, когда у ребра нет смежного треугольника
+                if (halfEdge == -1)
+                    continue;
+                int newTriangleId = halfEdge / 3;
+                RecursiveFillTriangleRelated(vertex, newTriangleId, value);
+            }
         }
 
         #endregion CreationLogic

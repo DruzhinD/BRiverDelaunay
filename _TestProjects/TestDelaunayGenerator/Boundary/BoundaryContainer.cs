@@ -14,19 +14,54 @@ namespace TestDelaunayGenerator
     {
         List<BoundaryBase> boundaries = new List<BoundaryBase>();
 
-        public int Count => boundaries.Count;
-
-        private IHPoint[] _allBounaries;
-        /// <summary>
-        /// Получить все граничные точки
-        /// </summary>
-        public IHPoint[] AllBoundaryPoints
+        public BoundaryBase this[int boundId]
         {
             get
             {
-                if (_allBounaries is null)
+                if (boundId > boundaries.Count - 1)
+                    throw new ArgumentException($"{nameof(boundId)} вышел за пределы индексации.");
+                return boundaries[boundId];
+            }
+        }
+
+        /// <summary>
+        /// Количество границ
+        /// </summary>
+        public int Count => boundaries.Count;
+
+        /// <summary>
+        /// Смещение по количеству узлов в общем массиве узлов для конкретной границы. <br/>
+        /// Для первой границы смещение будет 0, для 2-ой границы смещение будет 0 + количество узлов в первой границе и т.д.
+        /// </summary>
+        /// <param name="boundId"></param>
+        /// <returns></returns>
+        public int GetBoundaryOffset(int boundId)
+        {
+            if (boundId > boundaries.Count - 1 || boundId < 0)
+                throw new ArgumentException($"{nameof(boundId)} вышел за пределы индексации.");
+
+            int offset = 0;
+            for (int i = 0; i < boundId; i++)
+            {
+                offset += boundaries[i].Length;
+            }
+            return offset;
+        }
+
+        /// <summary>
+        /// Все граничные узлы
+        /// </summary>
+        private IHPoint[] _allBounaryKnots;
+        /// <summary>
+        /// Получить все граничные точки
+        /// </summary>
+        public IHPoint[] AllBoundaryKnots
+        {
+            get
+            {
+                if (_allBounaryKnots is null)
                     this.IntializeContainer();
-                return _allBounaries;
+                return _allBounaryKnots;
             }
         }
 
@@ -87,7 +122,7 @@ namespace TestDelaunayGenerator
                 boundaryPoints.AddRange(
                     boundary.Initialize(this.generator));
             }
-            _allBounaries = boundaryPoints.ToArray();
+            _allBounaryKnots = boundaryPoints.ToArray();
         }
     }
 }
