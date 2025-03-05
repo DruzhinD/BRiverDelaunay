@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using Serilog;
 using TestDelaunayGenerator.Boundary;
+using MeshLib.CArea;
 
 namespace TestDelaunayGenerator
 {
@@ -82,40 +83,38 @@ namespace TestDelaunayGenerator
                         {
                             // тряска координат
                             points[i * N + j] = new HPoint(h * i + dxx[idd], h * j + dyy[idd]);
-                            //  points[i * N + j] = new HPoint(h * i, h * j );
                             idd++;
                             idd = idd % dxx.Length;
                         }
 
                     boundarySet = new BoundaryContainer(points, generator);
+                    //внешняя граница
+                    boundary = new IHPoint[]
+                    {
+                        new HPoint(0.03, 0.03),
+                        new HPoint(0.03, 0.97),
+                        new HPoint(0.97, 0.97),
+                        new HPoint(0.97, 0.03),
+                    };
+                    boundarySet.Add(boundary);
+                    //дырки
+                    boundary = new IHPoint[]
+                    {
+                        new HPoint(0.7, 0.7),
+                        new HPoint(0.7, 0.9),
+                        new HPoint(0.9, 0.9),
+                        new HPoint(0.9, 0.7),
+                    };
+                    boundarySet.Add(boundary);
 
                     boundary = new IHPoint[]
                     {
                         new HPoint(0.1, 0.1),
-                        new HPoint(0.1, 0.9),
-                        new HPoint(0.9, 0.9),
-                        new HPoint(0.9, 0.1),
-
-                    };
-                    boundarySet.Add(boundary);
-
-                    boundary = new IHPoint[]
-                    {
+                        new HPoint(0.1, 0.3),
                         new HPoint(0.3, 0.3),
-                        new HPoint(0.3, 0.7),
-                        new HPoint(0.7, 0.7),
-                        new HPoint(0.7, 0.3),
+                        new HPoint(0.3, 0.1),
                     };
                     boundarySet.Add(boundary);
-                    
-                    //boundary = new IHPoint[]
-                    //{
-                    //    new HPoint(0.2, 0.25),
-                    //    new HPoint(0.4, 0.4),
-                    //    new HPoint(0.5, 0.4),
-                    //    new HPoint(0.7, 0.25),
-                    //};
-                    //boundarySet.Add(boundary);
                     break;
                 //Трапеция
                 case 2:
@@ -187,6 +186,34 @@ namespace TestDelaunayGenerator
                             var p = new HPoint(rnd.Next(from, to) * rnd.NextDouble(), rnd.Next(from, to) * rnd.NextDouble());
                             this.points[i] = p;
                         }
+                        break;
+                    }
+                case 5:
+                    {
+                        areaType = "Прямоугольник для иллюстраций";
+                        idd = 0;
+                        int n = 8;
+                        points = new IHPoint[n * n];
+                        double offsetCoord = 1.0 / n;
+                        int indexer = 0;
+                        Random rnd = new Random();
+                        for (int i = 0; i < n; i++)
+                            for (int j = 0; j < n; j++)
+                            {
+                                points[indexer++] = new HPoint(i * offsetCoord + rnd.Next(-10, 10) / 10000.0, j * offsetCoord + rnd.Next(-10, 10)/10000.0);
+                            }
+                        boundarySet = new BoundaryContainer(points, new GeneratorFixed(5));
+                        boundary = new IHPoint[]
+                        {
+                            new HPoint(0.45, 0.45),
+                            new HPoint(0.2, 0.4),
+                            new HPoint(0.1, 0.7),
+                            new HPoint(0.8, 0.7),
+                            new HPoint(0.7, 0.4),
+                        };
+                        boundarySet.Add(boundary);
+                        //boundarySet = null;
+
                         break;
                     }
             }

@@ -24,10 +24,11 @@ namespace TestDelaunayGenerator
                 Console.WriteLine("3. Трапеция");
                 Console.WriteLine("4. Круглое множество с вогнутой границей");
                 Console.WriteLine("5. Случайная генерация");
+                Console.WriteLine("6. Для иллюстраций.");
                 Console.WriteLine("Esc: выход");
                 try
                 {
-                    ConsoleKeyInfo consoleKeyInfo = Console.ReadKey();
+                    ConsoleKeyInfo consoleKeyInfo = Console.ReadKey(true);
                     if (consoleKeyInfo.Key == ConsoleKey.Escape)
                         return;
                     if (consoleKeyInfo.Key == ConsoleKey.D1)
@@ -42,6 +43,8 @@ namespace TestDelaunayGenerator
                         test.Run(4);
                     if (consoleKeyInfo.Key == ConsoleKey.D6)
                         test.Run(5);
+                    if (consoleKeyInfo.Key == ConsoleKey.D7)
+                        test.Run(6);
                     Console.Clear();
                 }
                 catch (Exception ee)
