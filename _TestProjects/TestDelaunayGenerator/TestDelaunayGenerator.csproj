@@ -97,6 +97,9 @@
     <None Include="packages.config" />
     <None Include="reports\ген кв 100x100 без границы.diagsession" />
     <None Include="reports\генерация квадрата 100х100.diagsession" />
+    <None Include="reports\квадрат х100, норм граница без заражения.diagsession" />
+    <None Include="reports\квадрат, х100, заражение %28нестабильное%29.diagsession" />
+    <None Include="reports\трапеция 1млн без границы.diagsession" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\CommonLib\CommonLib.csproj">

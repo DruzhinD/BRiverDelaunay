@@ -1007,9 +1007,9 @@ namespace TestDelaunayGenerator
             if (boundarySet is null) return true;
 
             //вершины треугольника
-            (int i, int j, int k) =
-                (Triangles[triangleId * 3], Triangles[triangleId * 3 + 1], Triangles[triangleId * 3 + 2]);
-
+            int i = Triangles[triangleId * 3];
+            int j = Triangles[triangleId * 3 + 1];
+            int k = Triangles[triangleId * 3 + 2];
 
             //если ранее "статус" треугольника был определен
             if (isIncluded[triangleId] == 0)
@@ -1025,6 +1025,7 @@ namespace TestDelaunayGenerator
                 return true;
             }
             curseCounter++;
+
             //текущий треугольник построен на граничных узлах
             //вычисляем принадлежность треугольника области
             double ctx = (coordsX[i] + coordsX[j] + coordsX[k]) / 3;
