@@ -58,6 +58,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решения", "Элементы решения", "{3A42A8E8-0851-4A71-AB0F-31AD5D276F7A}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		_TestProjects\TestDelaunayGenerator\logs.json = _TestProjects\TestDelaunayGenerator\logs.json
 		logs.log = logs.log
 		README.md = README.md
 		Решения.md = Решения.md

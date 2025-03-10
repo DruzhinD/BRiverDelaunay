@@ -12,12 +12,6 @@ namespace TestDelaunayGenerator.Boundary
     /// </summary>
     public class BoundaryBase
     {
-        /// <summary>
-        /// базовое множество точек, которое текущая область будет ограничивать
-        /// </summary>
-        protected readonly IHPoint[] basePoints;
-
-
         protected IHPoint[] points;
         /// <summary>
         /// Точки, образующие границу, включая вершины области. <br/>
@@ -82,10 +76,9 @@ namespace TestDelaunayGenerator.Boundary
         /// </summary>
         /// <param name="vertexes">множество точек, формирующее область объявляемой границы</param>
         /// <param name="basePoints">базовое множество точек, которое будет ограничено текущей границей</param>
-        public BoundaryBase(IHPoint[] vertexes, IHPoint[] basePoints)
+        public BoundaryBase(IHPoint[] vertexes)
         {
             this.vertexes = vertexes;
-            this.basePoints = basePoints;
         }
 
         /// <summary>

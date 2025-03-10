@@ -65,27 +65,21 @@ namespace TestDelaunayGenerator
             }
         }
 
-        /// <summary>
-        /// Все множество точек области построения (сетки)
-        /// </summary>
-        readonly IHPoint[] _basePoints;
-
         protected readonly GeneratorBase generator;
 
         /// <summary>
         /// Контейнер для границ области триангуляции
         /// </summary>
         /// <param name="basePoints">точки области триангуляции</param>
-        public BoundaryContainer(IHPoint[] basePoints, GeneratorBase generator)
+        public BoundaryContainer(GeneratorBase generator)
         {
-            this._basePoints = basePoints;
             this.generator = generator;
         }
 
 
         public void Add(IHPoint[] vertexes)
         {
-            BoundaryBase boundary = new BoundaryBase(vertexes, this._basePoints);
+            BoundaryBase boundary = new BoundaryBase(vertexes);
             boundaries.Add(boundary);
         }
 

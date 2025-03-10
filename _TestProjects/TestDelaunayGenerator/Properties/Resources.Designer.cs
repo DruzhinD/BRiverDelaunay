@@ -61,6 +61,15 @@ namespace TestDelaunayGenerator.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на logs.json.
+        /// </summary>
+        internal static string jsonLogPath {
+            get {
+                return ResourceManager.GetString("jsonLogPath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на {Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u4}] {Message:lj}{NewLine}{Exception}.
         /// </summary>
         internal static string logFormat {

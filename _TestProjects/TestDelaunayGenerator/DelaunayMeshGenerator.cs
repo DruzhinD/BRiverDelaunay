@@ -255,8 +255,8 @@ namespace TestDelaunayGenerator
             Points = points;
             //генерация границы
             this.boundarySet = boundSet;
-            if (this.boundarySet != null)
-                this.IncludeBoundary();
+            //if (this.boundarySet != null)
+            //    this.IncludeBoundary();
 
             //выделение памяти
             MEM.Alloc(Points.Length, ref mark, value:true);

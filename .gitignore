@@ -5,6 +5,7 @@
 
 #CUSTOM
 reports/
+logs.json
 
 # User-specific files
 *.rsuser
