@@ -47,11 +47,11 @@ namespace TestDelaunayGenerator
             watch = Stopwatch.StartNew();
             IMesh mesh = delaunator.CreateMesh();
             double filterSeconds = watch.Elapsed.TotalSeconds;
-
+#if DEBUG
             var log = new TriangulationLog(area, mesh, genSeconds, filterSeconds);
             Log.Information(log.ToString());
             specialLogger.Information("{@info}", log);
-
+#endif
             //отобразить форму
             if (openForm)
                 ShowMesh(mesh);

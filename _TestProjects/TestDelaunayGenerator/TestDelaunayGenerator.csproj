@@ -81,6 +81,7 @@
     <Compile Include="Areas\AreaBase.cs" />
     <Compile Include="Areas\GaussArea.cs" />
     <Compile Include="Areas\GridArea.cs" />
+    <Compile Include="Areas\SimpleSquareArea.cs" />
     <Compile Include="Areas\UniformArea.cs" />
     <Compile Include="BoundaryGen.cs" />
     <Compile Include="Boundary\BoundaryContainer.cs" />

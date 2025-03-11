@@ -22,10 +22,13 @@ namespace TestDelaunayGenerator
             //настройка логгера
             LoggerConfig();
             var jsonLogger = JsonLoggerConfig();
+#if DEBUG
             Log.Information("Запуск проекта .NET Framework 4.8.");
+#endif
             Test test = new Test(specialLogger:jsonLogger);
             while (true)
             {
+                Console.WriteLine("0: Простой квадрат (с границей)");
                 Console.WriteLine("1: Равномерное распределение");
                 Console.WriteLine("2: Нормальное (Гаусово) распределение");
                 Console.WriteLine("3: Квадратная сетка");
@@ -37,13 +40,16 @@ namespace TestDelaunayGenerator
                 try
                 {
                     IHPoint[] boundary = null;
-                    bool showForm = true;
+                    bool showForm = false;
                     AreaBase area = null;
-                    BoundaryContainer boundaryContainer = null;
-                    GeneratorBase generator = new GeneratorFixed(120);
+                    //BoundaryContainer boundaryContainer = null;
+                    GeneratorBase generator = new GeneratorFixed(500);
                     ConsoleKeyInfo consoleKeyInfo = Console.ReadKey(true);
                     switch (consoleKeyInfo.Key)
                     {
+                        case ConsoleKey.D0:
+                            area = new SimpleSquareArea();
+                            break;
                         case ConsoleKey.D1:
                             area = new UniformArea();
                             break;
@@ -82,7 +88,7 @@ namespace TestDelaunayGenerator
                             area.AddBoundary(boundary);
                             break;
                         case ConsoleKey.D6:
-                            area = new GridArea();
+                            area = new GridArea(1000);
                             boundary = new IHPoint[]
                             {
                                 new HPoint(0.2,0.2),
@@ -98,15 +104,16 @@ namespace TestDelaunayGenerator
                             area.BoundaryGenerator = generator;
                             boundary = new IHPoint[]
                             {
-                                new HPoint(0.5001,1.0001),
+                                new HPoint(0.5001,0.9001),
                                 new HPoint(0.6001,0.4001),
-                                new HPoint(1.0001,0.38001),
+                                new HPoint(0.9001,0.38001),
                                 new HPoint(0.6001,0.2001),
-                                new HPoint(0.9001,0.0001),
+                                new HPoint(0.9001,0.0101),
                                 new HPoint(0.5001,0.1001),
-                                new HPoint(0.1001,0.0001),
+                                new HPoint(0.1001,0.0101),
+                                new HPoint(0.29, 0.135), //обычный узел заскочил на сетку
                                 new HPoint(0.4011,0.2001),
-                                new HPoint(0.0001,0.38001),
+                                new HPoint(0.0101,0.38001),
                                 new HPoint(0.4001,0.4001),
                             };
                             area.AddBoundary(boundary);
