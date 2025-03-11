@@ -1049,7 +1049,7 @@ namespace TestDelaunayGenerator
 
         int curseCounter = 0;
         int stackDeepCurrent = 0;
-        const int stackDeepMax = 2048;
+        const int stackDeepMax = 3072;
 
         /// <summary>
         /// Рекурсивное определение принадлежности треугольника области построения. <br/>

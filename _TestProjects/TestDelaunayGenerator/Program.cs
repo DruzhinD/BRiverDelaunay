@@ -1,10 +1,7 @@
 ﻿using System;
 using System.IO;
-using System.Xml;
 using CommonLib.Geometry;
 using Serilog;
-using Serilog.Formatting.Compact;
-using Serilog.Formatting.Display;
 using Serilog.Formatting.Json;
 using TestDelaunayGenerator.Areas;
 using TestDelaunayGenerator.Boundary;
@@ -13,6 +10,7 @@ namespace TestDelaunayGenerator
 {
     internal class Program
     {
+        static ILogger jsonLogger;
         /// <summary>
         /// Главная точка входа для приложения.
         /// </summary>
@@ -21,11 +19,11 @@ namespace TestDelaunayGenerator
         {
             //настройка логгера
             LoggerConfig();
-            var jsonLogger = JsonLoggerConfig();
+            jsonLogger = JsonLoggerConfig();
 #if DEBUG
             Log.Information("Запуск проекта .NET Framework 4.8.");
 #endif
-            Test test = new Test(specialLogger:jsonLogger);
+            Test test = new Test(specialLogger: jsonLogger);
             while (true)
             {
                 Console.WriteLine("0: Простой квадрат (с границей)");
@@ -36,11 +34,12 @@ namespace TestDelaunayGenerator
                 Console.WriteLine("5: Нормальное (Гаусово) распределение (с границей)");
                 Console.WriteLine("6: Квадратная сетка (с границей)");
                 Console.WriteLine("7: звезда (сетка) (с границей)");
+                Console.WriteLine("T: запуск тестов с записью логов в файлы логов");
                 Console.WriteLine("Esc: выход");
                 try
                 {
                     IHPoint[] boundary = null;
-                    bool showForm = false;
+                    bool showForm = true;
                     AreaBase area = null;
                     //BoundaryContainer boundaryContainer = null;
                     GeneratorBase generator = new GeneratorFixed(500);
@@ -70,12 +69,12 @@ namespace TestDelaunayGenerator
                                 new HPoint(0.7,0.8),
                                 new HPoint(0.7,0.1),
                             };
-                            area = new UniformArea(valueMin:0, valueMax:1);
+                            area = new UniformArea(valueMin: 0, valueMax: 1);
                             area.BoundaryGenerator = generator;
                             area.AddBoundary(boundary);
                             break;
                         case ConsoleKey.D5:
-                            area = new GaussArea(mean:0.5, stdDev:0.1);
+                            area = new GaussArea(mean: 0.5, stdDev: 0.1);
                             area.BoundaryGenerator = generator;
                             boundary = new IHPoint[]
                             {
@@ -88,15 +87,16 @@ namespace TestDelaunayGenerator
                             area.AddBoundary(boundary);
                             break;
                         case ConsoleKey.D6:
-                            area = new GridArea(1000);
+                            area = new GridArea(100_000);
+                            double small = 0.011115987;
                             boundary = new IHPoint[]
                             {
-                                new HPoint(0.2,0.2),
-                                new HPoint(0.2,0.8),
-                                new HPoint(0.8,0.8),
-                                new HPoint(0.8,0.2),
+                                new HPoint(0.1+small,0.1+small),
+                                new HPoint(0.1+small,0.8+small),
+                                new HPoint(0.8+small,0.8+small),
+                                new HPoint(0.8+small,0.1+small),
                             };
-                            area.BoundaryGenerator = new GeneratorFixed(50);
+                            area.BoundaryGenerator = new GeneratorFixed(400);
                             area.AddBoundary(boundary);
                             break;
                         case ConsoleKey.D7:
@@ -118,6 +118,11 @@ namespace TestDelaunayGenerator
                             };
                             area.AddBoundary(boundary);
                             break;
+                        case ConsoleKey.T:
+                            MultipleSquareBoundaryTests(1000);
+                            Console.WriteLine("Нажмите Enter для выхода");
+                            Console.ReadLine();
+                            return;
                         case ConsoleKey.Escape:
                             return;
                         default:
@@ -165,6 +170,32 @@ namespace TestDelaunayGenerator
                 .WriteTo.File(formatter: new JsonFormatter(closingDelimiter: ",\r\n"), path: jsonLogPath)
                 .CreateLogger();
             return logger;
+        }
+
+        //TODO мб вынести в отдельный класс
+        /// <summary>
+        /// Тестирование без отображения формы
+        /// </summary>
+        /// <param name="tests_cnt"></param>
+        static void MultipleSquareBoundaryTests(int tests_cnt)
+        {
+            AreaBase area = new GridArea(10_000);
+            double small = 0.011115987;
+            var boundary = new IHPoint[]
+            {
+                                new HPoint(0.1+small,0.1+small),
+                                new HPoint(0.1+small,0.8+small),
+                                new HPoint(0.8+small,0.8+small),
+                                new HPoint(0.8+small,0.1+small),
+            };
+            area.BoundaryGenerator = new GeneratorFixed(120);
+            area.AddBoundary(boundary);
+            area.Initialize();
+
+            Test test = new Test(jsonLogger);
+
+            for (int i = 0; i < tests_cnt; i++)
+                test.Run(area, false);
         }
     }
 }
