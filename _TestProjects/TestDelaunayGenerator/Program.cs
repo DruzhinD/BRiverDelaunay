@@ -39,7 +39,8 @@ namespace TestDelaunayGenerator
                 try
                 {
                     IHPoint[] boundary = null;
-                    bool showForm = true;
+                    //bool showForm = true;
+                    bool showForm = false;
                     AreaBase area = null;
                     //BoundaryContainer boundaryContainer = null;
                     GeneratorBase generator = new GeneratorFixed(500);
@@ -179,7 +180,7 @@ namespace TestDelaunayGenerator
         /// <param name="tests_cnt"></param>
         static void MultipleSquareBoundaryTests(int tests_cnt)
         {
-            AreaBase area = new GridArea(10_000);
+            AreaBase area = new GridArea(100_000);
             double small = 0.011115987;
             var boundary = new IHPoint[]
             {
@@ -188,7 +189,7 @@ namespace TestDelaunayGenerator
                                 new HPoint(0.8+small,0.8+small),
                                 new HPoint(0.8+small,0.1+small),
             };
-            area.BoundaryGenerator = new GeneratorFixed(120);
+            area.BoundaryGenerator = new GeneratorFixed(400);
             area.AddBoundary(boundary);
             area.Initialize();
 

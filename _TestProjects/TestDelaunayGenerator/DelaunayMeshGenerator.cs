@@ -274,18 +274,18 @@ namespace TestDelaunayGenerator
 
             // Если контур границы определен,
             //то помечаем точки, которые будут входить в сетку
-            //if (this.boundarySet != null)
-            //{
-            //    //выполняем проверку точек вплоть до последней точки из НАЧАЛЬНОГО массива (Points),
-            //    //т.к. массив точек ДОПОЛНЕН массивом граничных точек
-            //    for (var i = 0; i < Points.Length - this.boundarySet.AllBoundaryKnots.Length; i++)
-            //    {
-            //        // Проверяем, входит ли точка в сетку или же её необходимо исключить
-            //        mark[i] = InArea(i);
-            //    }
-            //    //очищаем массив от неиспользуемых точек, обрезаем до нужного размера
-            //    FilterPointArray();
-            //}
+            if (this.boundarySet != null)
+            {
+                //выполняем проверку точек вплоть до последней точки из НАЧАЛЬНОГО массива (Points),
+                //т.к. массив точек ДОПОЛНЕН массивом граничных точек
+                for (var i = 0; i < Points.Length - this.boundarySet.AllBoundaryKnots.Length; i++)
+                {
+                    // Проверяем, входит ли точка в сетку или же её необходимо исключить
+                    mark[i] = InArea(i);
+                }
+                //очищаем массив от неиспользуемых точек, обрезаем до нужного размера
+                FilterPointArray();
+            }
 
             //выделяем память
             int maxTriangles = 2 * Points.Length - 5;
@@ -1011,6 +1011,10 @@ namespace TestDelaunayGenerator
             int j = Triangles[triangleId * 3 + 1];
             int k = Triangles[triangleId * 3 + 2];
 
+            int offsetKnots = Points.Length - boundarySet.AllBoundaryKnots.Length;
+            if (i < offsetKnots || j < offsetKnots || k < offsetKnots)
+                isIncluded[triangleId] = 1;
+
             //если ранее "статус" треугольника был определен
             if (isIncluded[triangleId] == 0)
                 return false;
@@ -1070,6 +1074,8 @@ namespace TestDelaunayGenerator
             (int i, int j, int k) = (Triangles[triangleId * 3], Triangles[triangleId * 3 + 1], Triangles[triangleId * 3 + 2]);
 
             int offsetKnots = Points.Length - boundarySet.AllBoundaryKnots.Length;
+            if (i < offsetKnots || j < offsetKnots || k < offsetKnots)
+                return;
             //базовы случай рекурсии - треугольник ранее был обработан
             if (isIncluded[triangleId] != 2)
                 return;
