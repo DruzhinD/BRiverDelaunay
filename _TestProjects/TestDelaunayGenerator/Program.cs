@@ -19,10 +19,16 @@ namespace TestDelaunayGenerator
         {
             //настройка логгера
             LoggerConfig();
-            jsonLogger = JsonLoggerConfig();
-#if DEBUG
             Log.Information("Запуск проекта .NET Framework 4.8.");
-#endif
+
+            jsonLogger = JsonLoggerConfig();
+
+            ConsoleInterface();
+        }
+
+
+        static void ConsoleInterface()
+        {
             Test test = new Test(specialLogger: jsonLogger);
             while (true)
             {
@@ -39,11 +45,11 @@ namespace TestDelaunayGenerator
                 try
                 {
                     IHPoint[] boundary = null;
-                    //bool showForm = true;
-                    bool showForm = false;
+                    bool showForm = true;
+                    bool usePointsFilter = false;
                     AreaBase area = null;
-                    //BoundaryContainer boundaryContainer = null;
-                    GeneratorBase generator = new GeneratorFixed(500);
+                    int count = 1;
+                    GeneratorBase generator = new GeneratorFixed(600);
                     ConsoleKeyInfo consoleKeyInfo = Console.ReadKey(true);
                     switch (consoleKeyInfo.Key)
                     {
@@ -88,8 +94,9 @@ namespace TestDelaunayGenerator
                             area.AddBoundary(boundary);
                             break;
                         case ConsoleKey.D6:
-                            area = new GridArea(100_000);
+                            area = new GridArea(10_000);
                             double small = 0.011115987;
+                            area.BoundaryGenerator = new GeneratorFixed(120);
                             boundary = new IHPoint[]
                             {
                                 new HPoint(0.1+small,0.1+small),
@@ -97,8 +104,16 @@ namespace TestDelaunayGenerator
                                 new HPoint(0.8+small,0.8+small),
                                 new HPoint(0.8+small,0.1+small),
                             };
-                            area.BoundaryGenerator = new GeneratorFixed(400);
                             area.AddBoundary(boundary);
+                            boundary = new IHPoint[]
+                            {
+                                new HPoint(0.3+small,0.3+small),
+                                new HPoint(0.3+small,0.6+small),
+                                new HPoint(0.6+small,0.6+small),
+                                new HPoint(0.6+small,0.3+small),
+                            };
+                            area.AddBoundary(boundary);
+
                             break;
                         case ConsoleKey.D7:
                             area = new GridArea();
@@ -120,17 +135,18 @@ namespace TestDelaunayGenerator
                             area.AddBoundary(boundary);
                             break;
                         case ConsoleKey.T:
-                            MultipleSquareBoundaryTests(1000);
-                            Console.WriteLine("Нажмите Enter для выхода");
-                            Console.ReadLine();
-                            return;
+                            SpecialTests(usePointsFilter);
+                            break;
                         case ConsoleKey.Escape:
                             return;
                         default:
                             break;
                     }
-                    area.Initialize();
-                    test.Run(area, showForm);
+                    if (area != null)
+                    {
+                        area.Initialize();
+                        test.Run(area, usePointsFilter, count, showForm);
+                    }
 
                     Console.Clear();
                 }
@@ -141,6 +157,7 @@ namespace TestDelaunayGenerator
             }
         }
 
+        #region Конфигурация логгеров
         /// <summary>
         /// Настройка логгера для текущего проекта, используется <see cref="Log.Logger"/>
         /// </summary>
@@ -163,40 +180,63 @@ namespace TestDelaunayGenerator
         /// <returns></returns>
         static ILogger JsonLoggerConfig()
         {
-            string jsonLogPath = Path.Combine(
-                new DirectoryInfo(Directory.GetCurrentDirectory()).Parent.Parent.FullName, Properties.Resources.jsonLogPath
+            string logPath = Path.Combine(
+                new DirectoryInfo(Directory.GetCurrentDirectory()).Parent.Parent.FullName, Properties.Resources.specialLogPath
                 );
             var logger = new LoggerConfiguration()
                 .MinimumLevel.Information()
-                .WriteTo.File(formatter: new JsonFormatter(closingDelimiter: ",\r\n"), path: jsonLogPath)
+                //.WriteTo.File(formatter: new CsvFormatter(), path: logPath)
+                .WriteTo.File(formatter: new JsonFormatter(closingDelimiter: ",\r\n"), path: logPath)
                 .CreateLogger();
             return logger;
         }
+        #endregion
 
-        //TODO мб вынести в отдельный класс
-        /// <summary>
-        /// Тестирование без отображения формы
-        /// </summary>
-        /// <param name="tests_cnt"></param>
-        static void MultipleSquareBoundaryTests(int tests_cnt)
+        static void SpecialTests(bool usePointsFilter = true, int increment = 5_000, int start = 10_000,  int limit = 300_000)
         {
-            AreaBase area = new GridArea(100_000);
-            double small = 0.011115987;
+            Test test = new Test(jsonLogger);
+            AreaBase area = null;
+
+            double small = 0.01111598798431234;
             var boundary = new IHPoint[]
             {
-                                new HPoint(0.1+small,0.1+small),
-                                new HPoint(0.1+small,0.8+small),
-                                new HPoint(0.8+small,0.8+small),
-                                new HPoint(0.8+small,0.1+small),
+                new HPoint(0.1+small,0.1+small),
+                new HPoint(0.1+small,0.8+small),
+                new HPoint(0.8+small,0.8+small),
+                new HPoint(0.8+small,0.1+small),
             };
-            area.BoundaryGenerator = new GeneratorFixed(400);
-            area.AddBoundary(boundary);
-            area.Initialize();
 
-            Test test = new Test(jsonLogger);
+            var boundary2 = new IHPoint[]
+            {
+                new HPoint(0.3+small,0.3+small),
+                new HPoint(0.3+small,0.6+small),
+                new HPoint(0.6+small,0.6+small),
+                new HPoint(0.6+small,0.3+small),
+            };
+            var boundary3 = new IHPoint[]
+            {
+                new HPoint(0.4+small,0.4+small),
+                new HPoint(0.4+small,0.5+small),
+                new HPoint(0.5+small,0.5+small),
+                new HPoint(0.5+small,0.4+small),
+            };
 
-            for (int i = 0; i < tests_cnt; i++)
-                test.Run(area, false);
+            int currentCnt = start;
+            int currentBoundaryCnt = 2000;
+            //int boundaryPointsIncrement = (2500 - currentBoundaryCnt) / (limit / increment);
+            while (currentCnt <= limit)
+            {
+                area = new GridArea(currentCnt);
+                area.BoundaryGenerator = new GeneratorFixed(currentBoundaryCnt);
+                area.AddBoundary(boundary);
+                area.AddBoundary(boundary2);
+                area.AddBoundary(boundary3);
+                area.Initialize();
+                test.Run(area, usePointsFilter, 1, false);
+                currentCnt += increment;
+                //currentBoundaryCnt += boundaryPointsIncrement;
+            }
+
         }
     }
 }

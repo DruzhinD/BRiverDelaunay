@@ -88,6 +88,7 @@
     <Compile Include="Boundary\BoundaryBase.cs" />
     <Compile Include="Boundary\GeneratorBase.cs" />
     <Compile Include="Boundary\GeneratorFixed.cs" />
+    <Compile Include="CsvFormatter.cs" />
     <Compile Include="DelaunayMeshGenerator.cs" />
     <Compile Include="TriangulationLog.cs" />
     <Compile Include="Program.cs" />
@@ -102,6 +103,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="logs.json" />
     <None Include="logs.log" />
     <None Include="packages.config" />
     <None Include="reports\ген кв 100x100 без границы.diagsession" />

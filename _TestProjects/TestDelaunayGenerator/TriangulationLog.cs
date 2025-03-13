@@ -15,13 +15,17 @@ namespace TestDelaunayGenerator
         /// <param name="area">исходное область, может содержать границуё</param>
         /// <param name="secondsGenerate">Время генерации триангуляции Делоне</param>
         /// <param name="secondsFilter">Время фильтрации треугольников</param>
-        public TriangulationLog(AreaBase area, IMesh mesh, double secondsGenerate, double secondsFilter)
+        /// <param name="usePointFilter">true - используется только метод заражения треугольников. Фильтрация точек отключена</param>
+        public TriangulationLog(AreaBase area, IMesh mesh, double secondsGenerate, double secondsFilter, bool usePointFilter = true)
         {
             PointsBaseBeforeCnt = area.Points.Length;
             HasBoundary = !(area.BoundaryContainer is null);
             PointsBoundaryCnt = 0;
             if (HasBoundary)
+            {
                 PointsBoundaryCnt = area.BoundaryContainer.AllBoundaryKnots.Length;
+                this.BoundaryCount = area.BoundaryContainer.Count;
+            }
             AreaType = area.Name;
 
             this.TrianglesCnt = mesh.CountElements;
@@ -29,6 +33,7 @@ namespace TestDelaunayGenerator
 
             this.SecondsGenerate = secondsGenerate;
             this.SecondsFilter = secondsFilter;
+            this.UsePointFilter = usePointFilter;
         }
 
         /// <summary>
@@ -40,6 +45,8 @@ namespace TestDelaunayGenerator
         /// количество граничных узлов
         /// </summary>
         public int PointsBoundaryCnt { get; set; } = 0;
+
+        public int BoundaryCount { get; set; }
 
         /// <summary>
         /// Количество исходных узлов и количество граничных узлов до генерации сетки
@@ -88,21 +95,30 @@ namespace TestDelaunayGenerator
         public double SecondsTotal => SecondsGenerate + SecondsFilter;
 
 
+        /// <summary>
+        /// True - использовать предварительную фильтрацию исходного множества точек,
+        /// оставляя только те, что гарантированно войдут в триангуляцию Делоне
+        /// </summary>
+        public bool UsePointFilter { get; set; } = true;
+
         public override string ToString()
         {
             string s = $"Область:{AreaType}; " +
-                $"граница:{HasBoundary}; " +
-                $"колво граница(шт):{PointsBoundaryCnt}; " +
-                $"узлы до(шт):{PointsBaseBeforeCnt}; " +
-                $"общее до(шт):{PointsBeforeCnt}; " +
-                $"узлы после(шт):{PointsBaseAfterCnt}; " +
-                $"общее после(шт):{PointsAfterCnt}; " +
-                $"треугольники(шт):{TrianglesCnt}; " +
-                $"генерация(сек):{SecondsGenerate}; " +
-                $"фильтрация(сек):{SecondsFilter}; " +
-                $"общее(сек):{SecondsTotal};" +
-                $"";
+            $"граница:{HasBoundary}; " +
+            $"колво граница(шт):{PointsBoundaryCnt}; " +
+            $"колво огран областей(шт):{BoundaryCount}; " +
+            $"узлы до(шт):{PointsBaseBeforeCnt}; " +
+            $"общее до(шт):{PointsBeforeCnt}; " +
+            $"узлы после(шт):{PointsBaseAfterCnt}; " +
+            $"общее после(шт):{PointsAfterCnt}; " +
+            $"треугольники(шт):{TrianglesCnt}; " +
+            $"генерация(сек):{SecondsGenerate}; " +
+            $"фильтрация(сек):{SecondsFilter}; " +
+            $"общее(сек):{SecondsTotal};" +
+            $"предварительный фильтр:{UsePointFilter}";
             return s;
         }
+
+        string[] headers = {"область", "граница", "колво граница(шт)", "узлы до(шт)", "узлы после(шт)", "общее после(шт)", "треугольники(шт)", "генерация(сек)", "фильтрация(сек)", "общее(сек)", "предварительный фильтр" };
     }
 }

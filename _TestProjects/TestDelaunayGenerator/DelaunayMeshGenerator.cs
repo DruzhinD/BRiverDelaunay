@@ -137,19 +137,9 @@ namespace TestDelaunayGenerator
         /// </summary>
         public DelaunayMeshGenerator() { }
         /// <summary>
-        /// Содержит группы массивов координат входных точек 
+        /// Контейнер для ограниченных областей
         /// </summary>
-        public BoundaryContainer boundarySet;
-        /// <summary>
-        /// включить множество границ в область построения
-        /// </summary>
-        void IncludeBoundary()
-        {
-            IHPoint[] boundary = boundarySet.AllBoundaryKnots;
-            int exPointsLength = this.Points.Length;
-            Array.Resize(ref this.Points, Points.Length + boundary.Length);
-            boundary.CopyTo(this.Points, exPointsLength);
-        }
+        public BoundaryContainer boundaryContainer;
 
         /// <summary>
         /// Генерация объекта симпл - сетки
@@ -166,7 +156,7 @@ namespace TestDelaunayGenerator
             MEM.Alloc(CountElems, ref isIncluded, (byte)2);
             for (int i = 0; i < CountElems; i++)
             {
-                
+
                 int i0 = Triangles[3 * i];
                 int i1 = Triangles[3 * i + 1];
                 int i2 = Triangles[3 * i + 2];
@@ -186,8 +176,8 @@ namespace TestDelaunayGenerator
             #region формирование граничных точек и линий
             //определение количества точек границы
             int boundaryPointsAmount;
-            if (boundarySet != null)
-                boundaryPointsAmount = this.boundarySet.AllBoundaryKnots.Length + CountHullKnots;
+            if (boundaryContainer != null)
+                boundaryPointsAmount = this.boundaryContainer.AllBoundaryKnots.Length + CountHullKnots;
             else
                 boundaryPointsAmount = CountHullKnots;
 
@@ -199,13 +189,13 @@ namespace TestDelaunayGenerator
             int meshIndex = 0;
 
             //граничные точки и линии, сформированные на основе переданных точек границы (boundarySet)
-            if (boundarySet != null)
+            if (boundaryContainer != null)
             {
                 //первый индекс граничной точки в массиве
-                int notBoundaryOffset = this.Points.Length - boundarySet.AllBoundaryKnots.Length;
+                int notBoundaryOffset = this.Points.Length - boundaryContainer.AllBoundaryKnots.Length;
                 //текущее смещение в общем массиве точек
                 int currentOffset = notBoundaryOffset;
-                foreach (BoundaryBase boundary in boundarySet)   
+                foreach (BoundaryBase boundary in boundaryContainer)
                 {
                     //индекс массива точек, обозначающий последнюю вершину текущей границы
                     int boundaryLastId = currentOffset + boundary.Length;
@@ -228,7 +218,7 @@ namespace TestDelaunayGenerator
             }
             //TODO убрать вовсе или изменить логику
             //граничные точки и линии, сформированные на основе всего множества точек сетки (естественным образом)
-            if (boundarySet == null || boundarySet.Count % 2 == 0)
+            if (boundaryContainer == null || boundaryContainer.Count % 2 == 0)
                 for (int i = 0; i < CountHullKnots; i++)
                 {
                     mesh.BoundElems[meshIndex].Vertex1 = (uint)Hull[i];
@@ -244,22 +234,27 @@ namespace TestDelaunayGenerator
                 mesh.Print();
             return mesh;
         }
+
+        /// <summary>
+        /// True - использовать предварительную фильтрацию точек, т.е.
+        /// перед триангуляцией оставить только те точки, которые гарантированно попадут в триангуляцию
+        /// </summary>
+        protected bool usePointFilter = true;
+
         /// <summary>
         /// Генерация
         /// </summary>
-        public void Generator(IHPoint[] points, BoundaryContainer boundSet = null)
+        public void Generator(IHPoint[] points, BoundaryContainer boundSet = null, bool usePointFilter = true)
         {
+            this.usePointFilter = usePointFilter;
             //базовая проверка для множества точек
             if (points is null || points.Length < 3)
                 throw new ArgumentOutOfRangeException("Нужно как минимум 3 вершины");
             Points = points;
-            //генерация границы
-            this.boundarySet = boundSet;
-            //if (this.boundarySet != null)
-            //    this.IncludeBoundary();
+            this.boundaryContainer = boundSet;
 
             //выделение памяти
-            MEM.Alloc(Points.Length, ref mark, value:true);
+            MEM.Alloc(Points.Length, ref mark, value: true);
 
             //TODO выяснить резонно ли искать центр тяжести области
             //находим центр тяжести области
@@ -274,11 +269,11 @@ namespace TestDelaunayGenerator
 
             // Если контур границы определен,
             //то помечаем точки, которые будут входить в сетку
-            if (this.boundarySet != null)
+            if (this.boundaryContainer != null && usePointFilter)
             {
                 //выполняем проверку точек вплоть до последней точки из НАЧАЛЬНОГО массива (Points),
                 //т.к. массив точек ДОПОЛНЕН массивом граничных точек
-                for (var i = 0; i < Points.Length - this.boundarySet.AllBoundaryKnots.Length; i++)
+                for (var i = 0; i < Points.Length - this.boundaryContainer.AllBoundaryKnots.Length; i++)
                 {
                     // Проверяем, входит ли точка в сетку или же её необходимо исключить
                     mark[i] = InArea(i);
@@ -506,7 +501,7 @@ namespace TestDelaunayGenerator
                 //  -1  \     / -1
                 //       \   /
                 //         i
-                
+
                 //индекс первой вершины треугольника в массиве треугольников
                 int t = AddTriangle(e, i, hullNext[e], -1, -1, hullTri[e]);
                 // рекурсивная перестройки треугольников от точки к точке,
@@ -611,7 +606,7 @@ namespace TestDelaunayGenerator
         {
             //количество точек области, входящих в область триангуляции
             int markedPointsAmount = mark.Count(x => x is true);
-            
+
             //следующий индекс для перезаписи в массиве
             int curNewPointIndex = 0;
             //сужаем исходный массив до размера, необходимого лишь множеству точек из области построения
@@ -627,7 +622,7 @@ namespace TestDelaunayGenerator
 
             //обрезаем исходный массив точек до необходимого размера
             Array.Resize(ref Points, markedPointsAmount);
-            
+
             //TODO mark не нужен, ибо в нем все элементы True
             //перезаполняем mark
             MEM.Alloc<bool>(Points.Length, ref mark, value: true);
@@ -970,7 +965,7 @@ namespace TestDelaunayGenerator
         private bool InArea(int i)
         {
             //граничные точки по умолчанию входят в триангуляцию
-            int offsetPoints = this.Points.Length - this.boundarySet.AllBoundaryKnots.Length;
+            int offsetPoints = this.Points.Length - this.boundaryContainer.AllBoundaryKnots.Length;
             if (i >= offsetPoints)
                 return true;
             //передаем конкретную точку
@@ -982,7 +977,7 @@ namespace TestDelaunayGenerator
             int crossCount = 0;
             //метод - хелпер, помогающий отрисовать невыпуклый контур
             //в цикле подсчитывается количество пересечений с границей области
-            foreach (BoundaryBase boundary in boundarySet)
+            foreach (BoundaryBase boundary in boundaryContainer)
                 for (int k = 0; k < boundary.Vertexes.Length; k++)
                 {
                     if (CrossLine.IsCrossing(
@@ -1004,16 +999,21 @@ namespace TestDelaunayGenerator
         private bool CheckIn(int triangleId)
         {
             //если граница не определена, то помечаем точку, как входящую в сетку
-            if (boundarySet is null) return true;
+            if (boundaryContainer is null) return true;
 
             //вершины треугольника
             int i = Triangles[triangleId * 3];
             int j = Triangles[triangleId * 3 + 1];
             int k = Triangles[triangleId * 3 + 2];
 
-            int offsetKnots = Points.Length - boundarySet.AllBoundaryKnots.Length;
-            if (i < offsetKnots || j < offsetKnots || k < offsetKnots)
-                isIncluded[triangleId] = 1;
+            //смещение по количеству неграничных узлов
+            int offsetKnots = Points.Length - boundaryContainer.AllBoundaryKnots.Length;
+
+            //включена предварительная фильтрация узлов
+            //хотя бы 1 вершина не является граничной
+            if (this.usePointFilter)
+                if (i < offsetKnots || j < offsetKnots || k < offsetKnots)
+                    isIncluded[triangleId] = 1;
 
             //если ранее "статус" треугольника был определен
             if (isIncluded[triangleId] == 0)
@@ -1021,7 +1021,6 @@ namespace TestDelaunayGenerator
             else if (isIncluded[triangleId] == 1)
                 return true;
 
-            //хотя бы 1 узел не принадлежит границе
             curseCounter++;
 
             //вычисляем принадлежность треугольника области
@@ -1052,14 +1051,22 @@ namespace TestDelaunayGenerator
         }
 
         int curseCounter = 0;
+
+        /// <summary>
+        /// Текущая глубина стека вызовов для метода заражения
+        /// </summary>
         int stackDeepCurrent = 0;
-        const int stackDeepMax = 3072;
+
+        /// <summary>
+        /// Максимальная глубина стека вызовов для метода заражения
+        /// </summary>
+        const int stackDeepMax = 2500;
 
         /// <summary>
         /// Рекурсивное определение принадлежности треугольника области построения. <br/>
         /// Метод заражения треугольников
         /// </summary>
-        /// <param name="commonKnotId">по этому индексу можно получить смежное ребро. <br/>
+        /// <param name="commonKnotId">по этому индексу можно получить смежное ребро двух треугольников <br/>
         /// Т.е. из <see cref="Triangles"/> первую вершину смежного ребра из предыдущего треугольника,
         /// из <see cref="HalfEdges"/> - вторую вершину смежного ребра.
         /// </param>
@@ -1067,101 +1074,106 @@ namespace TestDelaunayGenerator
         /// <param name="value">0,1 (2 по умолчанию в <see cref="isIncluded"/>, поэтому оно не передается). Значение для заражения</param>
         void RecursiveTriangleFilter(int commonKnotId, int triangleId, byte value)
         {
+            //достигнут предел стека
             if (stackDeepCurrent > stackDeepMax)
                 return;
-            //Примечание: все смещения по узлам обозначают не индексы, а именно количественное смещение
-            //вершины треугольника
-            (int i, int j, int k) = (Triangles[triangleId * 3], Triangles[triangleId * 3 + 1], Triangles[triangleId * 3 + 2]);
 
-            int offsetKnots = Points.Length - boundarySet.AllBoundaryKnots.Length;
-            if (i < offsetKnots || j < offsetKnots || k < offsetKnots)
-                return;
-            //базовы случай рекурсии - треугольник ранее был обработан
+            //базовый случай рекурсии - треугольник ранее был обработан
             if (isIncluded[triangleId] != 2)
                 return;
 
-            //индексы вершин смежного ребра двух треугольников
-            int exAdjEdgeId = Triangles[commonKnotId]; //первая вершина (предыдущий треугольник)
-            int curAdjEdgeId = Triangles[HalfEdges[commonKnotId]]; //вторая вершина (текущий треугольник)
+            //вершины треугольника
+            int i = Triangles[triangleId * 3];
+            int j = Triangles[triangleId * 3 + 1];
+            int k = Triangles[triangleId * 3 + 2];
 
+            //смещение по количеству неграничных точек
+            //Примечание: все смещения по узлам обозначают не индексы, а именно количественное смещение
+            int offsetKnots = Points.Length - boundaryContainer.AllBoundaryKnots.Length;
+
+            //включена предварительная фильтрация точек
+            //хотя бы 1 узел не является граничным
+            if (this.usePointFilter && (i < offsetKnots || j < offsetKnots || k < offsetKnots))
+                return;
+
+            //индексы вершин смежного ребра двух смежных треугольников
+            int lastAdjacentVertexId = Triangles[commonKnotId]; //первая вершина (предыдущий треугольник)
+            int currentAdjacentId = Triangles[HalfEdges[commonKnotId]]; //вторая вершина (текущий треугольник)
+
+
+            bool breakFlag = false; //остановка цикла границ
             //проверяем принадлежит ли смежное ребро границе
-            for (int boundId = 0; boundId < boundarySet.Count; boundId++)
+            for (int boundId = 0; boundId < boundaryContainer.Count; boundId++)
             {
                 //смещение для ТЕКУЩЕЙ ограниченной области в рамках контейнера граничных узлов
-                int offsetBoundary = boundarySet.GetBoundaryOffset(boundId);
+                int offsetBoundary = boundaryContainer.GetBoundaryOffset(boundId);
                 //смещение для СЛЕДУЮЩЕЙ ограниченной области в рамках контейнера граничных узлов
-                int offsetNextBoundary = boundarySet.AllBoundaryKnots.Length;
-                if (boundId < boundarySet.Count-1)
-                    offsetNextBoundary = boundarySet.GetBoundaryOffset(boundId + 1);
+                int offsetNextBoundary = boundaryContainer.AllBoundaryKnots.Length;
+                if (boundId < boundaryContainer.Count - 1)
+                    offsetNextBoundary = boundaryContainer.GetBoundaryOffset(boundId + 1);
 
-                BoundaryBase bound = boundarySet[boundId];
+                BoundaryBase boundary = boundaryContainer[boundId];
                 //индексы вершин, между которыми расположены узлы, образующие ограниченную область
-                int[] edgesKnotsIds = new int[bound.Vertexes.Length+1];
+                int[] boundaryKnotsIds = new int[boundary.Vertexes.Length + 1];
                 //заполняем вершинами, которые формируют ограниченную область
-                for (int edgeId = 0; edgeId < bound.Vertexes.Length; edgeId++)
+                for (int innerKnotId = 0; innerKnotId < boundary.Vertexes.Length; innerKnotId++)
                 {
-                    edgesKnotsIds[edgeId] = offsetKnots + offsetBoundary + bound.VertexesIds[edgeId];
+                    int globalKnotId = offsetKnots + offsetBoundary + boundary.VertexesIds[innerKnotId];
+                    boundaryKnotsIds[innerKnotId] = globalKnotId;
                 }
                 //добавляем в конец точку, которая будет иметь максимальный индекс среди узлов, образующих границу,
                 //но при этом эта точка не является вершиной ограниченной области, хотя и является соседней для такой вершины
-                edgesKnotsIds[edgesKnotsIds.Length - 1] = offsetKnots + offsetNextBoundary - 1;
+                boundaryKnotsIds[boundaryKnotsIds.Length - 1] = offsetKnots + offsetNextBoundary - 1;
 
-                int exAdjIndex = Array.BinarySearch<int>(edgesKnotsIds, exAdjEdgeId);
-                int curAdjIndex = Array.BinarySearch<int>(edgesKnotsIds, curAdjEdgeId);
+                //внутренние индексы вершин, образующих смежное ребро, в массиве для текущей ограниченной области
+                //index < 0, если вершины не являются вершинами текущей ограниченной области
+                int innerLastAdjacentVertexId = Array.BinarySearch<int>(boundaryKnotsIds, lastAdjacentVertexId);
+                int innerCurrentAdjacentVertexId = Array.BinarySearch<int>(boundaryKnotsIds, currentAdjacentId);
 
 
                 //как минимум одна вершина треугольника является вершиной ограниченной области
                 //2-ая вершина принадлежит ребру, которое образует 1-ая вершина
-                if (IsRelatedVertex(exAdjIndex, exAdjEdgeId, curAdjIndex, curAdjEdgeId) || IsRelatedVertex(curAdjIndex, curAdjEdgeId, exAdjIndex, exAdjEdgeId))
-                    //return;
+                if (IsBelongsBorderVertex(innerLastAdjacentVertexId, innerCurrentAdjacentVertexId, currentAdjacentId, boundaryKnotsIds) ||
+                    IsBelongsBorderVertex(innerCurrentAdjacentVertexId, innerLastAdjacentVertexId, lastAdjacentVertexId, boundaryKnotsIds))
+                {
                     value = (byte)((value + 1) % 2);
-
-                //true - ребро граничное
-                bool IsRelatedVertex(int v1Index, int v1Id, int v2Index, int v2Id)
-                {
-                    if (v1Index < 0)
-                        return false;
-
-                    int len = edgesKnotsIds.Length;
-                    //обе вершины являются вершинами ограниченной области
-                    if (v2Index >= 0)
-                        //вершины образуют одну и ту же грань ограниченной области
-                        if (Math.Abs(v1Index - v2Index) == 1 || Math.Abs(v1Index - v2Index) == len-1)
-                            return true;
-
-                    //принадлежит ли v2 ребру, которое образует v1
-                    if (edgesKnotsIds[Math.Abs(v1Index + len - 1) % len] < v2Id && v2Id < edgesKnotsIds[v1Index])
-                        return true;
-                    else if (edgesKnotsIds[v1Index] < v2Id && v2Id < edgesKnotsIds[(v1Index + len + 1) % len])
-                        return true;
-                    return false;
+                    break;
                 }
-
-
-                //один из проверяемых узлов не является начальной вершиной ограниченной области
-                int edgeCounter = 0;
-                int edgeCnt = edgesKnotsIds.Length;
-                for (int knotId = 0; knotId < edgeCnt; knotId++)
+                
+                int[] adjacentEdgeIds =
                 {
-                    if (edgesKnotsIds[knotId % edgeCnt] < exAdjEdgeId && exAdjEdgeId < edgesKnotsIds[(knotId + 1) % edgeCnt])
-                        edgeCounter++;
-                    if (edgesKnotsIds[knotId % edgeCnt] < curAdjEdgeId && curAdjEdgeId < edgesKnotsIds[(knotId + 1) % edgeCnt])
-                        edgeCounter++;
+                    lastAdjacentVertexId,
+                    currentAdjacentId
+                };
+                for (int knotId = 0; knotId < boundaryKnotsIds.Length; knotId++)
+                {
+                    int edgeCounter = 0;
+                    //являются ли вершины ребра граничными узлами
+                    foreach (int edgeVertex in adjacentEdgeIds)
+                        if (boundaryKnotsIds[knotId % boundaryKnotsIds.Length] < edgeVertex &&
+                        edgeVertex < boundaryKnotsIds[(knotId + 1) % boundaryKnotsIds.Length])
+                            edgeCounter++;
+
+                    //обе вершины принадлежит одному ребру
                     if (edgeCounter == 2)
-                        //return;
                         value = (byte)((value + 1) % 2);
-                    if (edgeCounter == 1)
+                    //хотя бы 1 вершина принадлежит текущему ребру - прерываем цикл
+                    if (edgeCounter >= 1)
+                    {
+                        breakFlag = true;
                         break;
-                    edgeCounter = 0;
+                    }
                 }
 
+                if (breakFlag)
+                    break;
             }
 
             //записываем флаг принадлежности треугольника области
             isIncluded[triangleId] = value;
 
             //заражаем следующие 3 треугольника
-            for (int vertex = triangleId*3; vertex < triangleId*3 + 3; vertex++)
+            for (int vertex = triangleId * 3; vertex < triangleId * 3 + 3; vertex++)
             //foreach (int vertex in triangleIds)
             {
                 int halfEdge = HalfEdges[vertex];
@@ -1173,6 +1185,42 @@ namespace TestDelaunayGenerator
                 RecursiveTriangleFilter(vertex, newTriangleId, value);
                 stackDeepCurrent--;
             }
+        }
+
+        /// <summary>
+        /// Принадлежит ли текущее ребро ограниченной области,
+        /// при этом одна вершин ребра также должна быть вершиной ограниченной области
+        /// </summary>
+        /// <param name="checkedVertex">индекс проверяемой вершины в массиве boundaryKnotsIds. мб меньше 0 </param>
+        /// <param name="innerIdOther">индекс второй вершины в массиве вершин ограниченной области</param>
+        /// <param name="globalIdOther">глобальный индекс второй вершины относительно <see cref="ids"/></param>
+        /// <param name="boundaryKnotsIds">массив вершин, образующих конкретную ограниченную область</param>
+        /// <returns>True - ребро принадлежит ограниченной области <br/>
+        /// False - ребро не принадлежит ограниченной области или checkedVertex не является вершиной ограниченной области</returns>
+        bool IsBelongsBorderVertex(int checkedVertex, int innerIdOther, int globalIdOther, int[] boundaryKnotsIds)
+        {
+            //проверяемая вершина не является вершиной ограниченной области
+            if (checkedVertex < 0)
+                return false;
+
+            //количество вершин ограниченной области
+            int len = boundaryKnotsIds.Length;
+
+            //обе вершины являются вершинами ограниченной области
+            if (innerIdOther >= 0)
+                //вершины образуют одну и ту же грань ограниченной области
+                if (Math.Abs(checkedVertex - innerIdOther) == 1 || Math.Abs(checkedVertex - innerIdOther) == len - 1)
+                    return true;
+
+            //принадлежит ли 2-ая вершина ребру ограниченной области, вершиной которого является проверяемая вершина
+            //т.к. проверяемая вершина образует 2 ребра, проверяем каждое по очереди
+            if (boundaryKnotsIds[Math.Abs(checkedVertex + len - 1) % len] < globalIdOther &&
+                globalIdOther < boundaryKnotsIds[checkedVertex])
+                return true;
+            else if (boundaryKnotsIds[checkedVertex] < globalIdOther &&
+                globalIdOther < boundaryKnotsIds[(checkedVertex + len + 1) % len])
+                return true;
+            return false;
         }
 
         #endregion CreationLogic

@@ -1,15 +1,11 @@
 ﻿using CommonLib;
 using CommonLib.Geometry;
-using GeometryLib.Vector;
 using MeshLib;
 using RenderLib;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Forms;
 using Serilog;
-using TestDelaunayGenerator.Boundary;
-using MeshLib.CArea;
 using TestDelaunayGenerator.Areas;
 
 namespace TestDelaunayGenerator
@@ -23,38 +19,42 @@ namespace TestDelaunayGenerator
 
         protected ILogger specialLogger = null;
 
-        public void Run(AreaBase area, bool openForm = true)
+        public void Run(AreaBase area, bool usePointsFilter = true, int count = 1, bool openForm = true)
         {
-            IHPoint[] points = area.Points;
-            BoundaryContainer boundaryContainer = area.BoundaryContainer;
-            //TODO переместить в AreaBase
-            //если граница задана, то расширяем исходное множество узлов множеством граничных узлов
-            if (boundaryContainer != null)
+            for (int i = 0; i < count; i++)
             {
-                IHPoint[] boundary = boundaryContainer.AllBoundaryKnots;
-                int exPointsLength = points.Length;
-                Array.Resize(ref points, points.Length + boundary.Length);
-                boundary.CopyTo(points, exPointsLength);
-            }
+                IHPoint[] points = area.Points;
+                BoundaryContainer boundaryContainer = area.BoundaryContainer;
+                //TODO переместить в AreaBase
+                //если граница задана, то расширяем исходное множество узлов множеством граничных узлов
+                if (boundaryContainer != null)
+                {
+                    IHPoint[] boundary = boundaryContainer.AllBoundaryKnots;
+                    int exPointsLength = points.Length;
+                    Array.Resize(ref points, points.Length + boundary.Length);
+                    boundary.CopyTo(points, exPointsLength);
+                }
 
-            DelaunayMeshGenerator delaunator = new DelaunayMeshGenerator();
-            //измерение времени генерации сетки
-            Stopwatch watch = Stopwatch.StartNew();
-            delaunator.Generator(points, boundaryContainer);
-            double genSeconds = watch.Elapsed.TotalSeconds;
-            
-            //фильтрация треугольников
-            watch = Stopwatch.StartNew();
-            IMesh mesh = delaunator.CreateMesh();
-            double filterSeconds = watch.Elapsed.TotalSeconds;
-#if DEBUG
-            var log = new TriangulationLog(area, mesh, genSeconds, filterSeconds);
-            Log.Information(log.ToString());
-            specialLogger.Information("{@info}", log);
-#endif
-            //отобразить форму
-            if (openForm)
-                ShowMesh(mesh);
+                DelaunayMeshGenerator delaunator = new DelaunayMeshGenerator();
+                //измерение времени генерации сетки
+                Stopwatch watch = Stopwatch.StartNew();
+                delaunator.Generator(points, boundaryContainer, usePointsFilter);
+                double genSeconds = watch.Elapsed.TotalSeconds;
+
+                //фильтрация треугольников
+                watch = Stopwatch.StartNew();
+                IMesh mesh = delaunator.CreateMesh();
+                double filterSeconds = watch.Elapsed.TotalSeconds;
+
+                var log = new TriangulationLog(area, mesh, genSeconds, filterSeconds, usePointsFilter);
+                Log.Information(log.ToString());
+                if (specialLogger != null)
+                    specialLogger.Information("{@info}", log);
+                
+                //отобразить форму
+                if (openForm)
+                    ShowMesh(mesh);
+            }
 
         }
 
