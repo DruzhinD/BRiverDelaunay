@@ -35,10 +35,15 @@ namespace TestDelaunayGenerator
                     boundary.CopyTo(points, exPointsLength);
                 }
 
-                DelaunayMeshGenerator delaunator = new DelaunayMeshGenerator();
-                //измерение времени генерации сетки
+                DelaunayMeshGenerator delaunator = new DelaunayMeshGenerator(points, boundaryContainer, usePointsFilter);
+                //измерение времени предварительной фильтрации
                 Stopwatch watch = Stopwatch.StartNew();
-                delaunator.Generator(points, boundaryContainer, usePointsFilter);
+                delaunator.PreFilterPoints();
+                double filterPointsSeconds = watch.Elapsed.TotalSeconds;
+
+                //измерение времени генерации сетки
+                watch = Stopwatch.StartNew();
+                delaunator.Generator();
                 double genSeconds = watch.Elapsed.TotalSeconds;
 
                 //фильтрация треугольников
@@ -46,7 +51,7 @@ namespace TestDelaunayGenerator
                 IMesh mesh = delaunator.CreateMesh();
                 double filterSeconds = watch.Elapsed.TotalSeconds;
 
-                var log = new TriangulationLog(area, mesh, genSeconds, filterSeconds, usePointsFilter);
+                var log = new TriangulationLog(area, mesh, filterPointsSeconds, genSeconds, filterSeconds, usePointsFilter);
                 Log.Information(log.ToString());
                 if (specialLogger != null)
                     specialLogger.Information("{@info}", log);

@@ -40,6 +40,10 @@ namespace TestDelaunayGenerator.Boundary
         public int Length => points.Length;
 
         protected int[] vertexesIds = null;
+        /// <summary>
+        /// Индексы вершин, образующих область.
+        /// Первая вершина идет с нулевым индексом
+        /// </summary>
         public int[] VertexesIds => vertexesIds;
 
         /// <summary>
@@ -49,6 +53,7 @@ namespace TestDelaunayGenerator.Boundary
         /// <returns>Сгенерированное множество точек границы, в т.ч. вершины, образующие область границы</returns>
         public IHPoint[] Initialize(GeneratorBase generator)
         {
+            //генерируем множество граничных узлов
             this.points = generator.Generate(this);
             
             //сохраняем индексы вершин, образующих область
@@ -66,7 +71,49 @@ namespace TestDelaunayGenerator.Boundary
                 }
             }
 
+            InitializeSquare();
+
             return this.points;
+        }
+
+
+        protected IHPoint[] outRect = null;
+        /// <summary>
+        /// Прямоугольник, описанный около текущей ограниченной области
+        /// </summary>
+        public IHPoint[] OutRect => outRect;
+
+        /// <summary>
+        /// Вычислить 4 вершины, которые образуют прямоугольник,
+        /// в который можно вписать текущую ограниченную область
+        /// </summary>
+        protected void InitializeSquare()
+        {
+            double minX = double.MaxValue;
+            double maxX = double.MinValue;
+            double minY = double.MaxValue;
+            double maxY = double.MinValue;
+
+            //собираем края области
+            foreach (var vertex in this.Vertexes)
+            {
+                if (vertex.X < minX)
+                    minX = vertex.X;
+                if (vertex.X > maxX)
+                    maxX = vertex.X;
+                if (vertex.Y < minY)
+                    minY = vertex.Y;
+                if (vertex.Y > maxY)
+                    maxY = vertex.Y;
+            }
+
+            //формируем описанный прямоугольник
+            IHPoint[] rectangle = new IHPoint[4];
+            rectangle[0] = new HPoint(minX, minY);
+            rectangle[1] = new HPoint(minX, maxY);
+            rectangle[2] = new HPoint(maxX, maxY);
+            rectangle[3] = new HPoint(maxX, minY);
+            this.outRect = rectangle;
         }
 
 

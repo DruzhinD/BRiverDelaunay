@@ -13,10 +13,11 @@ namespace TestDelaunayGenerator
         /// 
         /// </summary>
         /// <param name="area">исходное область, может содержать границуё</param>
+        /// <param name="secondsFilterPoints">Время предварительной фильтрации</param>
         /// <param name="secondsGenerate">Время генерации триангуляции Делоне</param>
         /// <param name="secondsFilter">Время фильтрации треугольников</param>
         /// <param name="usePointFilter">true - используется только метод заражения треугольников. Фильтрация точек отключена</param>
-        public TriangulationLog(AreaBase area, IMesh mesh, double secondsGenerate, double secondsFilter, bool usePointFilter = true)
+        public TriangulationLog(AreaBase area, IMesh mesh, double secondsFilterPoints, double secondsGenerate, double secondsFilter, bool usePointFilter = true)
         {
             PointsBaseBeforeCnt = area.Points.Length;
             HasBoundary = !(area.BoundaryContainer is null);
@@ -25,12 +26,15 @@ namespace TestDelaunayGenerator
             {
                 PointsBoundaryCnt = area.BoundaryContainer.AllBoundaryKnots.Length;
                 this.BoundaryCount = area.BoundaryContainer.Count;
+                foreach (var boundary in area.BoundaryContainer)
+                    BoundaryVertexCnt += boundary.Vertexes.Length;
             }
             AreaType = area.Name;
 
             this.TrianglesCnt = mesh.CountElements;
             this.PointsBaseAfterCnt = mesh.CountKnots - PointsBoundaryCnt;
 
+            this.SecondsFilterPoints = secondsFilterPoints;
             this.SecondsGenerate = secondsGenerate;
             this.SecondsFilter = secondsFilter;
             this.UsePointFilter = usePointFilter;
@@ -46,7 +50,15 @@ namespace TestDelaunayGenerator
         /// </summary>
         public int PointsBoundaryCnt { get; set; } = 0;
 
+        /// <summary>
+        /// Количество ограниченных областей
+        /// </summary>
         public int BoundaryCount { get; set; }
+
+        /// <summary>
+        /// Общее количество вершин, образующих ограниченные области
+        /// </summary>
+        public int BoundaryVertexCnt { get; set; } = 0;
 
         /// <summary>
         /// Количество исходных узлов и количество граничных узлов до генерации сетки
@@ -80,6 +92,11 @@ namespace TestDelaunayGenerator
         public string AreaType { get;set; }
 
         /// <summary>
+        /// Время предварительной фильтрации
+        /// </summary>
+        public double SecondsFilterPoints { get; set; } = 0;
+
+        /// <summary>
         /// Время генерации триангуляции
         /// </summary>
         public double SecondsGenerate { get; set; }
@@ -92,7 +109,7 @@ namespace TestDelaunayGenerator
         /// <summary>
         /// Общее затраченное время
         /// </summary>
-        public double SecondsTotal => SecondsGenerate + SecondsFilter;
+        public double SecondsTotal => SecondsFilterPoints + SecondsGenerate + SecondsFilter;
 
 
         /// <summary>
@@ -107,18 +124,18 @@ namespace TestDelaunayGenerator
             $"граница:{HasBoundary}; " +
             $"колво граница(шт):{PointsBoundaryCnt}; " +
             $"колво огран областей(шт):{BoundaryCount}; " +
+            $"колво вершин огран областей(шт):{BoundaryVertexCnt}; " +
             $"узлы до(шт):{PointsBaseBeforeCnt}; " +
             $"общее до(шт):{PointsBeforeCnt}; " +
             $"узлы после(шт):{PointsBaseAfterCnt}; " +
             $"общее после(шт):{PointsAfterCnt}; " +
             $"треугольники(шт):{TrianglesCnt}; " +
+            $"предв. фильтр.(сек):{SecondsFilterPoints}; " +
             $"генерация(сек):{SecondsGenerate}; " +
             $"фильтрация(сек):{SecondsFilter}; " +
             $"общее(сек):{SecondsTotal};" +
             $"предварительный фильтр:{UsePointFilter}";
             return s;
         }
-
-        string[] headers = {"область", "граница", "колво граница(шт)", "узлы до(шт)", "узлы после(шт)", "общее после(шт)", "треугольники(шт)", "генерация(сек)", "фильтрация(сек)", "общее(сек)", "предварительный фильтр" };
     }
 }

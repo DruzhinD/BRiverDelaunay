@@ -83,7 +83,6 @@
     <Compile Include="Areas\GridArea.cs" />
     <Compile Include="Areas\SimpleSquareArea.cs" />
     <Compile Include="Areas\UniformArea.cs" />
-    <Compile Include="BoundaryGen.cs" />
     <Compile Include="Boundary\BoundaryContainer.cs" />
     <Compile Include="Boundary\BoundaryBase.cs" />
     <Compile Include="Boundary\GeneratorBase.cs" />
@@ -106,6 +105,13 @@
     <None Include="logs.json" />
     <None Include="logs.log" />
     <None Include="packages.config" />
+    <None Include="reports\3 methods WITHOUT_square 10vrtxs.diagsession" />
+    <None Include="reports\3 methods with_square 10vrtxs.diagsession" />
+    <None Include="reports\3 methods.diagsession" />
+    <None Include="reports\onlyInfectionSingleBorder.diagsession" />
+    <None Include="reports\only_zaraz_one_boundary.diagsession" />
+    <None Include="reports\pointFilterSingleBoundary.diagsession" />
+    <None Include="reports\with_point_filter_report.diagsession" />
     <None Include="reports\ген кв 100x100 без границы.diagsession" />
     <None Include="reports\генерация квадрата 100х100.diagsession" />
     <None Include="reports\квадрат х100, норм граница без заражения.diagsession" />

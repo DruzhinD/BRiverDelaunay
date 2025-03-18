@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using CommonLib.Geometry;
 using Serilog;
 using Serilog.Formatting.Json;
@@ -45,11 +46,11 @@ namespace TestDelaunayGenerator
                 try
                 {
                     IHPoint[] boundary = null;
-                    bool showForm = true;
-                    bool usePointsFilter = false;
+                    bool showForm = false;
+                    bool usePointsFilter = true;
                     AreaBase area = null;
                     int count = 1;
-                    GeneratorBase generator = new GeneratorFixed(600);
+                    GeneratorBase generator = new GeneratorFixed(200);
                     ConsoleKeyInfo consoleKeyInfo = Console.ReadKey(true);
                     switch (consoleKeyInfo.Key)
                     {
@@ -94,24 +95,15 @@ namespace TestDelaunayGenerator
                             area.AddBoundary(boundary);
                             break;
                         case ConsoleKey.D6:
-                            area = new GridArea(10_000);
+                            int pointsCount = 10_000;
+                            area = new GridArea(pointsCount);
                             double small = 0.011115987;
-                            area.BoundaryGenerator = new GeneratorFixed(120);
-                            boundary = new IHPoint[]
-                            {
-                                new HPoint(0.1+small,0.1+small),
-                                new HPoint(0.1+small,0.8+small),
-                                new HPoint(0.8+small,0.8+small),
-                                new HPoint(0.8+small,0.1+small),
-                            };
-                            area.AddBoundary(boundary);
-                            boundary = new IHPoint[]
-                            {
-                                new HPoint(0.3+small,0.3+small),
-                                new HPoint(0.3+small,0.6+small),
-                                new HPoint(0.6+small,0.6+small),
-                                new HPoint(0.6+small,0.3+small),
-                            };
+                            int boundaryVertexesCnt = 10;
+                            int BoundaryPointsCnt = (int)Math.Ceiling(0.03 * pointsCount / boundaryVertexesCnt);
+                            area.BoundaryGenerator = new GeneratorFixed(BoundaryPointsCnt);
+                            var center = new HPoint(0.5 + small, 0.5 + small);
+                            boundary = TruePolygonVertices(0.25, boundaryVertexesCnt, center);
+
                             area.AddBoundary(boundary);
 
                             break;
@@ -135,7 +127,10 @@ namespace TestDelaunayGenerator
                             area.AddBoundary(boundary);
                             break;
                         case ConsoleKey.T:
-                            SpecialTests(usePointsFilter);
+                            SpecialTests(
+                                startPointsCnt: 250_000, incrementPoints: 250_000, limitPoints: 500_000,
+                                startBoundVertexes: 10, incrementBoundaryVertexes: 10, limitBoundVertexes: 100,
+                                showForm: showForm);
                             break;
                         case ConsoleKey.Escape:
                             return;
@@ -192,51 +187,57 @@ namespace TestDelaunayGenerator
         }
         #endregion
 
-        static void SpecialTests(bool usePointsFilter = true, int increment = 5_000, int start = 10_000,  int limit = 300_000)
+        static void SpecialTests(
+            int startPointsCnt = 10_000, int incrementPoints = 5_000, int limitPoints = 300_000,
+            int startBoundVertexes = 4, int incrementBoundaryVertexes = 4, int limitBoundVertexes = 20,
+            bool showForm = false)
         {
             Test test = new Test(jsonLogger);
             AreaBase area = null;
 
-            double small = 0.01111598798431234;
-            var boundary = new IHPoint[]
-            {
-                new HPoint(0.1+small,0.1+small),
-                new HPoint(0.1+small,0.8+small),
-                new HPoint(0.8+small,0.8+small),
-                new HPoint(0.8+small,0.1+small),
-            };
+            double small = 0.00001598798431234;
+            double maxValue = 1;
 
-            var boundary2 = new IHPoint[]
+            var center = new HPoint(0.5 + small, 0.5 + small);
+            //цикл вариантов алгоритма: с использование предварительной фильтрации и без неё
+            for (int i = 0; i < 2; i++)
             {
-                new HPoint(0.3+small,0.3+small),
-                new HPoint(0.3+small,0.6+small),
-                new HPoint(0.6+small,0.6+small),
-                new HPoint(0.6+small,0.3+small),
-            };
-            var boundary3 = new IHPoint[]
-            {
-                new HPoint(0.4+small,0.4+small),
-                new HPoint(0.4+small,0.5+small),
-                new HPoint(0.5+small,0.5+small),
-                new HPoint(0.5+small,0.4+small),
-            };
+                bool usePointsFilter = i % 2 == 0;
+                int currentBoundVertexes = startBoundVertexes;
+                //цикл ограниченных областей
+                while (currentBoundVertexes <= limitBoundVertexes)
+                {
+                    var boundary = TruePolygonVertices(maxValue/4, currentBoundVertexes, center);
 
-            int currentCnt = start;
-            int currentBoundaryCnt = 2000;
-            //int boundaryPointsIncrement = (2500 - currentBoundaryCnt) / (limit / increment);
-            while (currentCnt <= limit)
-            {
-                area = new GridArea(currentCnt);
-                area.BoundaryGenerator = new GeneratorFixed(currentBoundaryCnt);
-                area.AddBoundary(boundary);
-                area.AddBoundary(boundary2);
-                area.AddBoundary(boundary3);
-                area.Initialize();
-                test.Run(area, usePointsFilter, 1, false);
-                currentCnt += increment;
-                //currentBoundaryCnt += boundaryPointsIncrement;
+                    int currentPointsCnt = startPointsCnt;
+                    //цикл генерации исходных точек
+                    while (currentPointsCnt <= limitPoints)
+                    {
+                        int currentBoundaryCnt = (int)Math.Ceiling(0.1 * currentPointsCnt / currentBoundVertexes);
+                        area = new GridArea(currentPointsCnt, maxValue);
+                        area.Initialize();
+                        area.BoundaryGenerator = new GeneratorFixed(currentBoundaryCnt);
+                        area.AddBoundary(boundary);
+                        test.Run(area, usePointsFilter, 1, showForm);
+                        currentPointsCnt += incrementPoints;
+                    }
+                    currentBoundVertexes += incrementBoundaryVertexes;
+                }
             }
+        }
 
+        static IHPoint[] TruePolygonVertices(double radius, int vertexesCnt, IHPoint center)
+        {
+            var vertexes = new IHPoint[vertexesCnt];
+
+            for (int i = 0; i < vertexesCnt; i++)
+            {
+                double theta = 2 * Math.PI * i / vertexesCnt;
+                double x = center.X + radius * Math.Cos(theta);
+                double y = center.Y + radius * Math.Sin(theta);
+                vertexes[i] = new HPoint(x, y);
+            }
+            return vertexes;
         }
     }
 }

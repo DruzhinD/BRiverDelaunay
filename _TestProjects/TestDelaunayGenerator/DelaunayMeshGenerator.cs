@@ -132,14 +132,40 @@ namespace TestDelaunayGenerator
         /// </summary>
         protected byte[] isIncluded = null;
 
+
         /// <summary>
-        /// ОО: Делоне генератор выпуклой триангуляции
+        /// True - использовать предварительную фильтрацию точек, т.е.
+        /// перед триангуляцией оставить только те точки, которые гарантированно попадут в триангуляцию
         /// </summary>
-        public DelaunayMeshGenerator() { }
+        protected bool usePointFilter = true;
+        /// <summary>
+        /// True - использовать предварительную фильтрацию точек, т.е.
+        /// перед триангуляцией оставить только те точки, которые гарантированно попадут в триангуляцию
+        /// </summary>
+        public bool UsePointFilter => usePointFilter;
+
         /// <summary>
         /// Контейнер для ограниченных областей
         /// </summary>
         public BoundaryContainer boundaryContainer;
+
+        /// <summary>
+        /// ОО: Делоне генератор выпуклой триангуляции
+        /// </summary>
+        /// <param name="points">Множество точек, из которых будет сформирована триангуляция Делоне.
+        /// Если заданы граничные узлы, то они также должны входить в текущий массив.</param>
+        /// <param name="boundaryContainer">контейнер для ограниченных областей, усекающих триангуляцию</param>
+        /// <param name="usePointFilter">true - использовать предварительную фильтрацию точек,
+        /// которые гарантированно не войдут в триангуляцию</param>
+        public DelaunayMeshGenerator(
+            IHPoint[] points, BoundaryContainer boundaryContainer = null, bool usePointFilter = true)
+        {
+            if (points is null || points.Length < 3)
+                throw new ArgumentOutOfRangeException("Нужно как минимум 3 вершины");
+            this.Points = points;
+            this.boundaryContainer = boundaryContainer;
+            this.usePointFilter = usePointFilter;
+        }
 
         /// <summary>
         /// Генерация объекта симпл - сетки
@@ -166,7 +192,7 @@ namespace TestDelaunayGenerator
                 }
                 //tri.Add(new TriElement((uint)i0, (uint)i1, (uint)i2));
             }
-            Console.WriteLine(curseCounter);
+            //Console.WriteLine(curseCounter);
 
             //сохраняем все треугольники сетки в объект сетки
             mesh.AreaElems = tri.ToArray();
@@ -236,23 +262,60 @@ namespace TestDelaunayGenerator
         }
 
         /// <summary>
-        /// True - использовать предварительную фильтрацию точек, т.е.
-        /// перед триангуляцией оставить только те точки, которые гарантированно попадут в триангуляцию
+        /// Выполняет предварительную фильтрацию точек, оставляя лишь те, что гарантированно войдут в триагнуляцию.
+        /// Имеет смысл, если <see cref="UsePointFilter"/> находится в True.
         /// </summary>
-        protected bool usePointFilter = true;
+        public void PreFilterPoints()
+        {
+            if (boundaryContainer != null)
+                //выделение памяти
+                MEM.Alloc(Points.Length, ref mark, value: true);
+            //если фильтр предварительной фильтрации выключен, то покидаем метод
+            if (!usePointFilter || boundaryContainer is null)
+                return;
+
+            cy = Points.Sum(x => x.Y) / (Points.Length);
+            var maxX = Points.Max(x => x.X);
+            externalPoint = new HPoint(maxX * 1.1, cy);
+
+            bool withHashSquare = true;
+            //выполняем проверку точек вплоть до последней точки из НАЧАЛЬНОГО массива (Points),
+            //т.к. массив точек ДОПОЛНЕН массивом граничных точек
+            for (var i = 0; i < Points.Length - this.boundaryContainer.AllBoundaryKnots.Length; i++)
+            {
+                // Проверяем, входит ли точка в сетку или же её необходимо исключить
+                mark[i] = InArea(i, withHashSquare);
+            }
+
+            //очищаем массив от неиспользуемых точек, обрезаем до нужного размера
+            int markedPointsAmount = mark.Count(x => x is true);
+            //следующий индекс для перезаписи в массиве
+            int curNewPointIndex = 0;
+            //сужаем исходный массив до размера, необходимого лишь множеству точек из области построения
+            for (int i = 0; i < mark.Length; i++)
+            {
+                if (mark[i])
+                {
+                    Points[curNewPointIndex] = //новое положение точки
+                        Points[i]; //старое положение точки
+                    curNewPointIndex++;
+                }
+            }
+
+            //обрезаем исходный массив точек до необходимого размера
+            Array.Resize(ref Points, markedPointsAmount);
+
+            //TODO mark не нужен, ибо в нем все элементы True
+            //перезаполняем mark
+            MEM.Alloc<bool>(Points.Length, ref mark, value: true);
+        }
+
 
         /// <summary>
         /// Генерация
         /// </summary>
-        public void Generator(IHPoint[] points, BoundaryContainer boundSet = null, bool usePointFilter = true)
+        public void Generator()
         {
-            this.usePointFilter = usePointFilter;
-            //базовая проверка для множества точек
-            if (points is null || points.Length < 3)
-                throw new ArgumentOutOfRangeException("Нужно как минимум 3 вершины");
-            Points = points;
-            this.boundaryContainer = boundSet;
-
             //выделение памяти
             MEM.Alloc(Points.Length, ref mark, value: true);
 
@@ -263,23 +326,11 @@ namespace TestDelaunayGenerator
             pc = new HPoint(cx, cy);
 
             //внешняя точка
-            var maxX = Points.Max(x => x.X);
-            externalPoint = new HPoint(maxX * 1.1, cy); //TODO: исправить формирование внешней точки
-
-
-            // Если контур границы определен,
-            //то помечаем точки, которые будут входить в сетку
-            if (this.boundaryContainer != null && usePointFilter)
+            //дублирование инициализации, т.к. метод PreFilterPoints() мб и не вызван
+            if (!usePointFilter)
             {
-                //выполняем проверку точек вплоть до последней точки из НАЧАЛЬНОГО массива (Points),
-                //т.к. массив точек ДОПОЛНЕН массивом граничных точек
-                for (var i = 0; i < Points.Length - this.boundaryContainer.AllBoundaryKnots.Length; i++)
-                {
-                    // Проверяем, входит ли точка в сетку или же её необходимо исключить
-                    mark[i] = InArea(i);
-                }
-                //очищаем массив от неиспользуемых точек, обрезаем до нужного размера
-                FilterPointArray();
+                var maxX = Points.Max(x => x.X);
+                externalPoint = new HPoint(maxX * 1.1, cy); //TODO: исправить формирование внешней точки
             }
 
             //выделяем память
@@ -597,36 +648,6 @@ namespace TestDelaunayGenerator
             HalfEdges = HalfEdges.Take(trianglesLen).ToArray();
         }
 
-        /// <summary>
-        /// Фильтрует исходное множество точек, оставляя только те,
-        /// что входят в область построения. <br/>
-        /// Обрезает массив точек и связанные с ним до необходимого размера
-        /// </summary>
-        void FilterPointArray()
-        {
-            //количество точек области, входящих в область триангуляции
-            int markedPointsAmount = mark.Count(x => x is true);
-
-            //следующий индекс для перезаписи в массиве
-            int curNewPointIndex = 0;
-            //сужаем исходный массив до размера, необходимого лишь множеству точек из области построения
-            for (int i = 0; i < mark.Length; i++)
-            {
-                if (mark[i])
-                {
-                    Points[curNewPointIndex] = //новое положение точки
-                        Points[i]; //старое положение точки
-                    curNewPointIndex++;
-                }
-            }
-
-            //обрезаем исходный массив точек до необходимого размера
-            Array.Resize(ref Points, markedPointsAmount);
-
-            //TODO mark не нужен, ибо в нем все элементы True
-            //перезаполняем mark
-            MEM.Alloc<bool>(Points.Length, ref mark, value: true);
-        }
 
         #region CreationLogic
         /// <summary>
@@ -962,19 +983,52 @@ namespace TestDelaunayGenerator
         /// </summary>
         /// <param name="i">индекс точки в массиве</param>
         /// <returns>True - точка принадлежит области</returns>
-        private bool InArea(int i)
+        private bool InArea(int i, bool withSquare = false)
         {
             //граничные точки по умолчанию входят в триангуляцию
             int offsetPoints = this.Points.Length - this.boundaryContainer.AllBoundaryKnots.Length;
             if (i >= offsetPoints)
                 return true;
             //передаем конкретную точку
-            return InArea((HPoint)Points[i]);
+            return InArea((HPoint)Points[i], withSquare);
         }
-        private bool InArea(HPoint Point)
+        private bool InArea(HPoint point, bool withSquare = false)
         {
-            //количество пересечений с границей
             int crossCount = 0;
+            //проверка на вхождение точки в описанный квадрат около ограниченной области
+            if (withSquare)
+            {
+                foreach (BoundaryBase boundary in boundaryContainer)
+                {
+
+                    //если количество вершин меньше 5,
+                    //то пропускаем проверку для текущей области
+                    if (boundary.Vertexes.Length < 5)
+                    {
+                        crossCount += 1;
+                        continue;
+                    }
+                    //выполняем вхождение точки в описанный квадрат
+                    //только для областей как минимум с 5 вершинами
+                    for (int i = 0; i < boundary.OutRect.Length; i++)
+                    {
+                        if (CrossLine.IsCrossing(
+                            (HPoint)boundary.OutRect[i],
+                            (HPoint)boundary.OutRect[(i + 1) % boundary.OutRect.Length],
+                            (HPoint)externalPoint,
+                            point))
+                            crossCount += 1;
+                    }
+                }
+
+                //если точка не вошла в описанные квадраты, то далее нет смысла выполнять проверки
+                if (crossCount % 2 == 0)
+                    return false;
+
+            }
+
+            crossCount = 0;
+            //количество пересечений с границей
             //метод - хелпер, помогающий отрисовать невыпуклый контур
             //в цикле подсчитывается количество пересечений с границей области
             foreach (BoundaryBase boundary in boundaryContainer)
@@ -984,7 +1038,7 @@ namespace TestDelaunayGenerator
                         (HPoint)boundary.Vertexes[k],
                         (HPoint)boundary.Vertexes[(k + 1) % boundary.Vertexes.Length],
                          (HPoint)externalPoint,
-                         Point) == true)
+                         point) == true)
                         crossCount += 1;
                 }
             return (crossCount % 2 == 1);
@@ -1139,7 +1193,7 @@ namespace TestDelaunayGenerator
                     value = (byte)((value + 1) % 2);
                     break;
                 }
-                
+
                 int[] adjacentEdgeIds =
                 {
                     lastAdjacentVertexId,
