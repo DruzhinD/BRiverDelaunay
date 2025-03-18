@@ -27,7 +27,7 @@ namespace TestDelaunayGenerator.Areas
                         new HPoint(0.3,0.7),
                         new HPoint(0.75,0.7),
                         new HPoint(0.7,0.3),
-                        new HPoint(0.6,0.58),
+                        new HPoint(0.57,0.55),
                         new HPoint(0.45,0.5),
 
                         //new HPoint(0.5, 0.7),
