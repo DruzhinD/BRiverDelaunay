@@ -193,7 +193,7 @@ namespace TestDelaunayGenerator
                 //tri.Add(new TriElement((uint)i0, (uint)i1, (uint)i2));
             }
 #if DEBUG
-            Console.WriteLine(curseCounter);
+            Console.WriteLine($"Количество нулевых треугольников в заражении: {infectionInitiatorCount}.");
 #endif
             //сохраняем все треугольники сетки в объект сетки
             mesh.AreaElems = tri.ToArray();
@@ -1079,7 +1079,7 @@ namespace TestDelaunayGenerator
             else if (isIncluded[triangleId] == 1)
                 return true;
 
-            curseCounter++;
+            infectionInitiatorCount++;
 
             //вычисляем принадлежность треугольника области
             double ctx = (coordsX[i] + coordsX[j] + coordsX[k]) / 3;
@@ -1087,19 +1087,21 @@ namespace TestDelaunayGenerator
             HPoint ctri = new HPoint(ctx, cty);
             bool isInArea = InArea(ctri);
             //формируем значение
-            byte relatedValue = 0;
+            byte value = 0;
             if (isInArea)
-                relatedValue = 1;
-            isIncluded[triangleId] = relatedValue;
+                value = 1;
+            isIncluded[triangleId] = value;
 
-
-            byte value = relatedValue;
+            //начинаем заражение
             //Item1 - id треугольника, Item2 - value
-            Stack<(int, byte)> stackTriangleIds = new Stack<(int, byte)>(this.Triangles.Length/3);
-            stackTriangleIds.Push((triangleId, value));
+            (int, byte)[] infectionStack = new (int, byte)[this.Triangles.Length / 3];
+            //текущий свободный индекс в стеке
+            //т.е. при 0 - стек пуст
+            int currentStackId = 0;
+            infectionStack[currentStackId++] = (triangleId, value);
             do
             {
-                (triangleId, value) = stackTriangleIds.Pop();
+                (triangleId, value) = infectionStack[--currentStackId];
                 int vertex = triangleId * 3;
                 while (vertex < triangleId * 3 + 3)
                 {
@@ -1114,7 +1116,7 @@ namespace TestDelaunayGenerator
                     }
 
                     //помещаем текущий треугольник в стэк
-                    stackTriangleIds.Push((triangleId, value));
+                    infectionStack[currentStackId++] = (triangleId, value);
 
                     //проверка статуса треугольника на основе предыдущего заражения
 
@@ -1204,11 +1206,14 @@ namespace TestDelaunayGenerator
 
                 }
             }
-            while (stackTriangleIds.Count > 0);
+            while (currentStackId > 0);
             return isInArea;
         }
 
-        protected int curseCounter = 0;
+        /// <summary>
+        /// Количество треугольников, которые стали "нулевыми" треугольниками в заражении
+        /// </summary>
+        protected int infectionInitiatorCount = 0;
 
 
         /// <summary>
