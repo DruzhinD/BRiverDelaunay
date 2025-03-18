@@ -33,7 +33,7 @@ namespace TestDelaunayGenerator.Areas
                         //new HPoint(0.5, 0.7),
 
                     };
-            BoundaryGenerator = new GeneratorFixed(2);
+            BoundaryGenerator = new GeneratorFixed(0);
             var boundary = new IHPoint[]
             {
                         new HPoint(0.4, 0.4),

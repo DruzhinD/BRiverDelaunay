@@ -278,7 +278,7 @@ namespace TestDelaunayGenerator
             var maxX = Points.Max(x => x.X);
             externalPoint = new HPoint(maxX * 1.1, cy);
 
-            bool withHashSquare = true;
+            bool withHashSquare = false;
             //выполняем проверку точек вплоть до последней точки из НАЧАЛЬНОГО массива (Points),
             //т.к. массив точек ДОПОЛНЕН массивом граничных точек
             for (var i = 0; i < Points.Length - this.boundaryContainer.AllBoundaryKnots.Length; i++)

@@ -46,7 +46,7 @@ namespace TestDelaunayGenerator
                 try
                 {
                     IHPoint[] boundary = null;
-                    bool showForm = false;
+                    bool showForm = true;
                     bool usePointsFilter = true;
                     AreaBase area = null;
                     int count = 1;
