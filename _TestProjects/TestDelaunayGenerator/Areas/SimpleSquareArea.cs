@@ -45,6 +45,7 @@ namespace TestDelaunayGenerator.Areas
             boundary = new IHPoint[]
             {
                         new HPoint(-0.1, -0.1),
+                        new HPoint(0.2, 0.5),
                         new HPoint(-0.1, 1.1),
                         new HPoint(1.1, 1.1),
                         new HPoint(1.1, -0.1),
