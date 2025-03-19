@@ -17,6 +17,7 @@ namespace TestDelaunayGenerator
     using System.Collections.Generic;
     using GeometryLib.Vector;
     using TestDelaunayGenerator.Boundary;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// ОО: Делоне генератор выпуклой триангуляции
@@ -266,7 +267,8 @@ namespace TestDelaunayGenerator
         /// Выполняет предварительную фильтрацию точек, оставляя лишь те, что гарантированно войдут в триагнуляцию.
         /// Имеет смысл, если <see cref="UsePointFilter"/> находится в True.
         /// </summary>
-        public void PreFilterPoints()
+        /// <param name="parallel">True - распараллелить цикл в методе</param>
+        public void PreFilterPoints(bool parallel = true)
         {
             if (boundaryContainer != null)
                 //выделение памяти
@@ -282,11 +284,24 @@ namespace TestDelaunayGenerator
             bool withHashSquare = true;
             //выполняем проверку точек вплоть до последней точки из НАЧАЛЬНОГО массива (Points),
             //т.к. массив точек ДОПОЛНЕН массивом граничных точек
-            for (var i = 0; i < Points.Length - this.boundaryContainer.AllBoundaryKnots.Length; i++)
-            {
-                // Проверяем, входит ли точка в сетку или же её необходимо исключить
-                mark[i] = InArea(i, withHashSquare);
-            }
+            if (parallel)
+                Parallel.For(
+                    0, Points.Length - this.boundaryContainer.AllBoundaryKnots.Length, (range, loopState) =>
+                    {
+                        int i = range;
+                        //for (var i = range; i < Points.Length - this.boundaryContainer.AllBoundaryKnots.Length; i++)
+                        //{
+                        // Проверяем, входит ли точка в сетку или же её необходимо исключить
+                        mark[i] = InArea(i, withHashSquare);
+                        //}
+                    }
+                );
+            else
+                for (var i = 0; i < Points.Length - this.boundaryContainer.AllBoundaryKnots.Length; i++)
+                {
+                    // Проверяем, входит ли точка в сетку или же её необходимо исключить
+                    mark[i] = InArea(i, withHashSquare);
+                }
 
             //очищаем массив от неиспользуемых точек, обрезаем до нужного размера
             int markedPointsAmount = mark.Count(x => x is true);
