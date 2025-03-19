@@ -46,10 +46,11 @@ namespace TestDelaunayGenerator
                 try
                 {
                     IHPoint[] boundary = null;
-                    bool showForm = true;
-                    bool usePointsFilter = true;
+                    bool showForm = false;
+                    bool usePointsFilter = false;
                     AreaBase area = null;
-                    int count = 1;
+                    int countTests = 1;
+                    int countPoints = 10_000;
                     GeneratorBase generator = new GeneratorFixed(200);
                     ConsoleKeyInfo consoleKeyInfo = Console.ReadKey(true);
                     switch (consoleKeyInfo.Key)
@@ -95,11 +96,10 @@ namespace TestDelaunayGenerator
                             area.AddBoundary(boundary);
                             break;
                         case ConsoleKey.D6:
-                            int pointsCount = 10_000;
-                            area = new GridArea(pointsCount);
+                            area = new GridArea(countPoints);
                             double small = 0.011115987;
                             int boundaryVertexesCnt = 10;
-                            int BoundaryPointsCnt = (int)Math.Ceiling(0.03 * pointsCount / boundaryVertexesCnt);
+                            int BoundaryPointsCnt = (int)Math.Ceiling(0.07 * countPoints / boundaryVertexesCnt);
                             area.BoundaryGenerator = new GeneratorFixed(BoundaryPointsCnt);
                             var center = new HPoint(0.5 + small, 0.5 + small);
                             boundary = TruePolygonVertices(0.25, boundaryVertexesCnt, center);
@@ -128,8 +128,8 @@ namespace TestDelaunayGenerator
                             break;
                         case ConsoleKey.T:
                             SpecialTests(
-                                startPointsCnt: 250_000, incrementPoints: 250_000, limitPoints: 500_000,
-                                startBoundVertexes: 10, incrementBoundaryVertexes: 10, limitBoundVertexes: 100,
+                                startPointsCnt: 250_000, incrementPoints: 250_000, limitPoints: 250_000,
+                                startBoundVertexes: 10, incrementBoundaryVertexes: 5, limitBoundVertexes: 200,
                                 showForm: showForm);
                             break;
                         case ConsoleKey.Escape:
@@ -140,7 +140,7 @@ namespace TestDelaunayGenerator
                     if (area != null)
                     {
                         area.Initialize();
-                        test.Run(area, usePointsFilter, count, showForm);
+                        test.Run(area, usePointsFilter, countTests, showForm);
                     }
 
                     Console.Clear();

@@ -1133,9 +1133,13 @@ namespace TestDelaunayGenerator
                     k = Triangles[triangleId * 3 + 2];
 
                     bool breakFlag = false; //остановка цикла границ
-                                            //проверяем принадлежит ли смежное ребро границе
+                    //проверяем принадлежит ли смежное ребро границе
                     for (int boundId = 0; boundId < boundaryContainer.Count; boundId++)
                     {
+                        //одна из вершин ребра не является граничным узлом
+                        if (lastAdjacentVertexId < offsetKnots || currentAdjacentId < offsetKnots)
+                            break;
+
                         //смещение для ТЕКУЩЕЙ ограниченной области в рамках контейнера граничных узлов
                         int offsetBoundary = boundaryContainer.GetBoundaryOffset(boundId);
                         //смещение для СЛЕДУЮЩЕЙ ограниченной области в рамках контейнера граничных узлов
