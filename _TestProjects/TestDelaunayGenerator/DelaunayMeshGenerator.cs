@@ -187,11 +187,11 @@ namespace TestDelaunayGenerator
                 int i0 = Triangles[3 * i];
                 int i1 = Triangles[3 * i + 1];
                 int i2 = Triangles[3 * i + 2];
-                //if (CheckIn(i) == true)
-                //{
-                //    tri.Add(new TriElement((uint)i0, (uint)i1, (uint)i2));
-                //}
-                tri.Add(new TriElement((uint)i0, (uint)i1, (uint)i2));
+                if (CheckIn(i) == true)
+                {
+                    tri.Add(new TriElement((uint)i0, (uint)i1, (uint)i2));
+                }
+                //tri.Add(new TriElement((uint)i0, (uint)i1, (uint)i2));
             }
 #if DEBUG
             Console.WriteLine($"Количество нулевых треугольников в заражении: {infectionInitiatorCount}.");

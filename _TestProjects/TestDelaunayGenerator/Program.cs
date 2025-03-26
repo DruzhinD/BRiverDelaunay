@@ -46,12 +46,12 @@ namespace TestDelaunayGenerator
                 try
                 {
                     IHPoint[] boundary = null;
-                    bool showForm = true;
-                    bool usePointsFilter = false;
-                    AreaBase area = null;
-                    int countTests = 1;
-                    int countPoints = 10_000;
-                    GeneratorBase generator = new GeneratorFixed(200);
+                    bool showForm = true; //отобразить форму
+                    bool usePointsFilter = true; //true - использовать предварительный фильтр
+                    AreaBase area = null; //область, в которой находится множество точек триангуляции
+                    int countTests = 1; //количество тестов
+                    int countPoints = 10_000; //количество точек
+                    GeneratorBase generator = new GeneratorFixed(200); //алгоритм генерации граничных точек
                     ConsoleKeyInfo consoleKeyInfo = Console.ReadKey(true);
                     switch (consoleKeyInfo.Key)
                     {
@@ -187,6 +187,16 @@ namespace TestDelaunayGenerator
         }
         #endregion
 
+        /// <summary>
+        /// Запуск нескольких тестов
+        /// </summary>
+        /// <param name="startPointsCnt">начальное количество точек</param>
+        /// <param name="incrementPoints">последующий тест будет увеличен на это количество точек</param>
+        /// <param name="limitPoints">предельное количество точек для тестирования</param>
+        /// <param name="startBoundVertexes"></param>
+        /// <param name="incrementBoundaryVertexes"></param>
+        /// <param name="limitBoundVertexes"></param>
+        /// <param name="showForm">true - визуализация триангуляции</param>
         static void SpecialTests(
             int startPointsCnt = 10_000, int incrementPoints = 5_000, int limitPoints = 300_000,
             int startBoundVertexes = 4, int incrementBoundaryVertexes = 4, int limitBoundVertexes = 20,
@@ -226,6 +236,13 @@ namespace TestDelaunayGenerator
             }
         }
 
+        /// <summary>
+        /// Построение многоугольника с <paramref name="vertexesCnt"/> вершинами
+        /// </summary>
+        /// <param name="radius">радиус для многоугольника</param>
+        /// <param name="vertexesCnt">количество вершин</param>
+        /// <param name="center">координаты центра</param>
+        /// <returns></returns>
         static IHPoint[] TruePolygonVertices(double radius, int vertexesCnt, IHPoint center)
         {
             var vertexes = new IHPoint[vertexesCnt];
