@@ -46,7 +46,7 @@ namespace TestDelaunayGenerator
                 try
                 {
                     IHPoint[] boundary = null;
-                    bool showForm = true; //отобразить форму
+                    bool showForm = false; //отобразить форму
                     bool usePointsFilter = true; //true - использовать предварительный фильтр
                     AreaBase area = null; //область, в которой находится множество точек триангуляции
                     int countTests = 1; //количество тестов
@@ -128,8 +128,8 @@ namespace TestDelaunayGenerator
                             break;
                         case ConsoleKey.T:
                             SpecialTests(
-                                startPointsCnt: 250_000, incrementPoints: 250_000, limitPoints: 250_000,
-                                startBoundVertexes: 10, incrementBoundaryVertexes: 5, limitBoundVertexes: 200,
+                                startPointsCnt: 250_000, incrementPoints: 250_000, limitPoints: 500_000,
+                                startBoundVertexes: 5, incrementBoundaryVertexes: 5, limitBoundVertexes: 100,
                                 showForm: showForm);
                             break;
                         case ConsoleKey.Escape:
@@ -210,9 +210,10 @@ namespace TestDelaunayGenerator
 
             var center = new HPoint(0.5 + small, 0.5 + small);
             //цикл вариантов алгоритма: с использование предварительной фильтрации и без неё
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < 3; i++)
             {
                 bool usePointsFilter = i % 2 == 0;
+                bool parallel = i % 3 == 0; //использование параллельного отсечения точек
                 int currentBoundVertexes = startBoundVertexes;
                 //цикл ограниченных областей
                 while (currentBoundVertexes <= limitBoundVertexes)
@@ -228,7 +229,7 @@ namespace TestDelaunayGenerator
                         area.Initialize();
                         area.BoundaryGenerator = new GeneratorFixed(currentBoundaryCnt);
                         area.AddBoundary(boundary);
-                        test.Run(area, usePointsFilter, 1, showForm);
+                        test.Run(area, usePointsFilter, 1, showForm, parallel);
                         currentPointsCnt += incrementPoints;
                     }
                     currentBoundVertexes += incrementBoundaryVertexes;

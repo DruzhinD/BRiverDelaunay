@@ -19,7 +19,7 @@ namespace TestDelaunayGenerator
 
         protected ILogger specialLogger = null;
 
-        public void Run(AreaBase area, bool usePointsFilter = true, int count = 1, bool openForm = true)
+        public void Run(AreaBase area, bool usePointsFilter = true, int count = 1, bool openForm = true, bool parallel = false)
         {
             for (int i = 0; i < count; i++)
             {
@@ -38,7 +38,7 @@ namespace TestDelaunayGenerator
                 DelaunayMeshGenerator delaunator = new DelaunayMeshGenerator(points, boundaryContainer, usePointsFilter);
                 //измерение времени предварительной фильтрации
                 Stopwatch watch = Stopwatch.StartNew();
-                delaunator.PreFilterPoints();
+                delaunator.PreFilterPoints(parallel);
                 double filterPointsSeconds = watch.Elapsed.TotalSeconds;
 
                 //измерение времени генерации сетки
@@ -51,7 +51,7 @@ namespace TestDelaunayGenerator
                 IMesh mesh = delaunator.CreateMesh();
                 double filterSeconds = watch.Elapsed.TotalSeconds;
 
-                var log = new TriangulationLog(area, mesh, filterPointsSeconds, genSeconds, filterSeconds, usePointsFilter);
+                var log = new TriangulationLog(area, mesh, filterPointsSeconds, genSeconds, filterSeconds, usePointsFilter, parallel);
                 Log.Information(log.ToString());
                 if (specialLogger != null)
                     specialLogger.Information("{@info}", log);

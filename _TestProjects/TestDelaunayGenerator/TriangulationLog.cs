@@ -1,5 +1,6 @@
 ﻿using CommonLib;
 using MeshLib;
+using System.Linq;
 using TestDelaunayGenerator.Areas;
 
 namespace TestDelaunayGenerator
@@ -17,7 +18,7 @@ namespace TestDelaunayGenerator
         /// <param name="secondsGenerate">Время генерации триангуляции Делоне</param>
         /// <param name="secondsFilter">Время фильтрации треугольников</param>
         /// <param name="usePointFilter">true - используется только метод заражения треугольников. Фильтрация точек отключена</param>
-        public TriangulationLog(AreaBase area, IMesh mesh, double secondsFilterPoints, double secondsGenerate, double secondsFilter, bool usePointFilter = true)
+        public TriangulationLog(AreaBase area, IMesh mesh, double secondsFilterPoints, double secondsGenerate, double secondsFilter, bool usePointFilter = true, bool parallel = false)
         {
             PointsBaseBeforeCnt = area.Points.Length;
             HasBoundary = !(area.BoundaryContainer is null);
@@ -38,6 +39,7 @@ namespace TestDelaunayGenerator
             this.SecondsGenerate = secondsGenerate;
             this.SecondsFilter = secondsFilter;
             this.UsePointFilter = usePointFilter;
+            this.Parallel = parallel;
         }
 
         /// <summary>
@@ -117,6 +119,11 @@ namespace TestDelaunayGenerator
         /// оставляя только те, что гарантированно войдут в триангуляцию Делоне
         /// </summary>
         public bool UsePointFilter { get; set; } = true;
+
+        /// <summary>
+        /// True - отсечение точек распараллелено
+        /// </summary>
+        public bool Parallel { get; set; } = false;
 
         public override string ToString()
         {
